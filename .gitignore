@@ -9,6 +9,9 @@
 *.user
 *.userosscache
 *.sln.docstates
+.gitignore
+appsettings.json
+appsettings.*.json
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
@@ -225,9 +228,6 @@ _pkginfo.txt
 
 # Visual Studio cache files
 # files ending in .cache can be ignored
-.gitignore
-appsettings.json
-appsettings.*.json
 *.[Cc]ache
 # but keep track of directories ending in .cache
 !?*.[Cc]ache/
