@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<style type="text/css">
+    #CalendarChartContainer {
+        /*display: flex;*/
+        flex-direction: column;
+        /* 垂直排列 */
+        /*gap: 20px;*/
+    }
+    #InputArea {
+        display: flex;
+        padding: 5px;
+        gap: 5px;
+    }
+    .CalendarArea {
+        display: flex;
+        background-color: #f0f0ff;
+        border-radius: 30px;
+        margin-top: 5px;
+        margin-bottom: 5px;
+        margin-right: 20px;
+        /*gap: 200px;*/
+        align-items: center;
+        /* 子元素垂直置中 */
+        width: 100%;
+    }
+    .MonthArea {
+        display: flex;
+        background-color: #f0f0f0;
+        border-radius: 30px;
+        margin-top: 5px;
+        margin-bottom: 5px;
+        /*padding: 20px, 20px, 20px, 20px;*/
+        /*gap: 200px;*/
+        align-items: center;
+        /* 子元素垂直置中 */
+        width: 100%;
+        /*/height: 300px;*/
+    }
+
+    .MonthLabel {
+        display: flex;
+        align-items: center;
+        justify-content: right;
+        width: 20px;
+        height: 100%;
+        font-size: 25px;
+        font-weight: bold;
+        color: #333;
+        background-color: #d90000;
+        border-radius: 8px;
+        /*box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);*/
+    }
+
+    .PieChartArea,
+    .StackChartArea {
+        flex: 1;
+        width: 500px;
+        height: 500px;
+        border-color: #d90000;
+        border-style: dashed;
+        border-width: 3px;
+    }
+    .LineChartArea
+    {
+        flex: 1;
+        min-width: 500px;
+        height: 500px;
+    }
+
+</style>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Leave Calendar Heat Map</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/6.0.0/echarts.min.js"
+            integrity="sha512-4/g9GAdOdTpUP2mKClpKsEzaK7FQNgMjq+No0rX8XZlfrCGtbi4r+T/p5fnacsEC3zIAmHKLJUL7sh3/yVA4OQ=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.js"
+            integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <!--<div><button onclick="DrawChart()">圖表繪製</button></div>-->
+    <div id="InputArea">
+        <input type="text" id="inputIDField" placeholder="工號" style="width: 75px;">
+        <input type="text" id="inputNameField" placeholder="名字" style="width: 75px;">
+        <div><button onclick="QueryCalendarData()">Query</button></div>
+        <div><button onclick="SaveAsPNG()">Save as PNG</button></div>
+    </div>
+    <div id="ChartContainer">
+        <div id="CalendarChartContainer"></div>
+    </div> <!-- 主容器放多個 MonthArea -->
+    <div id="LineChartContainer"></div>
+        
+</body>
+
+</html>
+
+<script>
+    const LineContainer = document.getElementById('LineChartContainer');
+    const CalendarContainer = document.getElementById('CalendarChartContainer');
+    let CalendarChart;
+
+    let ChartName;
+
+    function Query() {
+        $.ajax({
+            type: "GET",
+            url: "http://localhost:5265/api/Chart/Sale",
+            data: { name: QueryName },
+            success: function (response) {
+                Draw(response);
+                console.log(response);
+            },
+            error: function (thrownError) {
+                console.log(thrownError);
+            }
+        });
+    }
+    function QueryCalendarData() {
+        const QueryID = document.getElementById('inputIDField').value;
+        const QueryName = document.getElementById('inputNameField').value;
+        ChartName = QueryName + ' Leave Calendar Heat Map'
+        console.log(QueryName);
+        $.ajax({
+            type: "GET",
+            url: "http://localhost:5265/api/Chart/GetCalendarChart",
+            data: { name: QueryName, id: QueryID },
+            //dataType: "json",
+            success: function (response) {
+                console.log('QueryCalendarData success');
+                //console.log(response);
+                //DrawCalendar(response);
+            },
+            error: function (thrownError) {
+                DrawLine();
+                console.log('QueryCalendarData error');
+                console.log(response);
+            }
+        });
+    }
+    function DrawLine() {
+        console.log('6666666666666666666 error');
+        LineArea = document.createElement('div');
+        LineArea.className = 'LineChartArea';
+        LineContainer.appendChild(LineArea);
+
+        LineChart = echarts.init(LineArea);
+        LineChart.setOption({
+            title: {
+                text: 'Stacked Line'
+            },
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+                data: ['2021', '2022', '2023', '2024', '2025']
+            },
+            grid: {
+                left: '3%',
+                right: '5%',
+                bottom: '13%',
+                containLabel: true
+            },
+            toolbox: {
+                feature: {
+                    saveAsImage: {}
+                }
+            },
+            xAxis: {
+                type: 'category',
+                boundaryGap: false,
+                data: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
+            },
+            yAxis: {
+                type: 'value'
+            },
+            series: [
+                {
+                    name: '2021',
+                    type: 'line',
+                    stack: 'Total',
+                    data: [120, 132, 101, 134, 90, 230, 210]
+                },
+                {
+                    name: '2022',
+                    type: 'line',
+                    stack: 'Total',
+                    data: [220, 182, 191, 234, 290, 330, 310]
+                },
+                {
+                    name: '2023',
+                    type: 'line',
+                    stack: 'Total',
+                    data: [150, 232, 201, 154, 190, 330, 410]
+                },
+                {
+                    name: '2024',
+                    type: 'line',
+                    stack: 'Total',
+                    data: [320, 332, 301, 334, 390, 330, 320]
+                },
+                {
+                    name: '2025',
+                    type: 'line',
+                    stack: 'Total',
+                    data: [820, 932, 901, 934, 1290, 1330, 1320]
+                }
+            ]
+        })
+
+    }
+
+    function DrawCalendar(Cdata) {
+        let monthArea = document.querySelector('.CalendarArea');
+        const heightValue = Cdata.length * 180 + 110;
+        console.log('h: ' + heightValue);
+
+        // 如果第一次建立
+        if (!monthArea) {
+            monthArea = document.createElement('div');
+            monthArea.className = 'CalendarArea';
+            //monthArea.style.width = '100%';  // 可依需求設定寬高
+            console.log('H: ' + heightValue);
+
+            monthArea.style.height = heightValue + 'px';
+            CalendarContainer.appendChild(monthArea);
+
+            CalendarChart = echarts.init(monthArea);
+            monthArea._chartInstance = CalendarChart; // 存圖表實例在 DOM 屬性中
+        } else {
+            // 已存在 => 取出舊的圖表實例
+            monthArea.style.height = heightValue + 'px';
+            console.log('H: ' + heightValue);
+            CalendarChart = monthArea._chartInstance || echarts.init(monthArea);
+            monthArea._chartInstance = CalendarChart;
+            CalendarChart.resize()
+            // 清除舊圖表
+            CalendarChart.clear();
+        }
+        CalendarChart.setOption({
+            tooltip: {
+                position: 'top'
+            },
+            title: {
+                text: ChartName,
+                left: 'center',
+                top: 10,
+                textStyle: {
+                    fontSize: 18,
+                    fontWeight: 'bold'
+                }
+            },
+            visualMap: {
+                min: 0,
+                max: 8,
+                calculable: true,
+                orient: 'horizontal',
+                left: 'center',
+                top: 30,
+                inRange: {
+                    color: ['#d4d4ff', '#0000e6']
+                }
+            },
+            calendar: Cdata.map((item, index) => ({
+                top: 120 + index * 180,
+                range: item.year,
+                cellSize: ['auto', 18],// 寬、高
+                right: 40,
+                dayLabel: {
+                    firstDay: 1
+                }
+            })),
+            series: Cdata.map((item, index) => ({
+                type: 'heatmap',
+                coordinateSystem: 'calendar',
+                calendarIndex: index,
+                data:  item.data 
+            }))
+        }, true)
+    }
+
+    function SaveAsPNG() {
+        // 假設 myChart 是你初始化的 ECharts 實例
+        const dataURL = CalendarChart.getDataURL({
+            type: 'png',      // 或 'jpeg'
+            pixelRatio: 2,    // 畫質解析度倍率
+            backgroundColor: '#fff'  // 圖片背景顏色
+        });
+
+        // 將圖片下載
+        const link = document.createElement('a');
+        link.href = dataURL;
+        link.download = ChartName + '.png';
+        link.click();
+    }
+
+
+
+
+
+
+
+    //var StackChart = echarts.init(document.getElementById('StackChartArea'));
+    //var PieChart = echarts.init(document.getElementById('PieChartArea'));
+
+    function DrawStackCharts(stackData) {
+        // 指定图表的配置项和数据
+        var StackChartOption = {
+            title: {
+                show: false,
+                text: stackData.name
+            },
+            tooltip: {},
+            legend: {},//auto
+            xAxis: {
+                type: 'value',
+            },
+            yAxis: {
+                type: 'category',
+                data: stackData.axisTitle
+            },
+            series: stackData.series.map(item => ({
+                name: item.name,
+                type: 'bar',
+                stack: 'total',  // 或用 item.name 來堆疊不同組
+                data: item.values,
+                label: {
+                    show: true,
+                    position: 'inside'
+                }
+            }))
+        };
+        StackChart.setOption(StackChartOption);
+    }
+
+
+    //});
+</script>
