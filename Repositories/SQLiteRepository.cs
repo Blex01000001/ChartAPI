@@ -10,16 +10,20 @@ namespace ChartAPI.Repositories
 {
     public class SQLiteRepository : IDataRepository
     {
-        string DBName = "ManHourData.db";
-        string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+        private string _dBFileName = "ManHourData.db";
+        private readonly string _dataBaseDir;
+        public SQLiteRepository(IConfiguration config)
+        {
+            _dataBaseDir = config.GetConnectionString("DataBaseDir");
+        }
         public IEnumerable<ManHourModel> GetManHourData(ManHourFilter filter)
         {
             var list = new List<ManHourModel>();
             string tableName = "ManHour";
-            string DBFilePath = Path.Combine("D:\\Code\\C#\\ManHour Analysis\\bin\\Debug", DBName);
+            string dataBaseFilePath = Path.Combine(_dataBaseDir, _dBFileName);
 
             Stopwatch ExecuteReaderTime = new Stopwatch();
-            using (var conn = new SQLiteConnection($"Data Source={DBFilePath}"))
+            using (var conn = new SQLiteConnection($"Data Source={dataBaseFilePath}"))
             {
                 conn.Open();
                 var (sql, ps) = BuildFilterSql(filter, tableName);
