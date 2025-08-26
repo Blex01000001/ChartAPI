@@ -59,7 +59,7 @@ namespace ChartAPI.Repositories
                     list.Add(model);
                 }
             }
-            Console.WriteLine($"count: {list.Count}, Elapsed {ExecuteReaderTime.ElapsedMilliseconds} ms\n" );
+            Console.Write($"count: {list.Count}, Elapsed {ExecuteReaderTime.ElapsedMilliseconds} ms\n" );
             return list;
         }
 

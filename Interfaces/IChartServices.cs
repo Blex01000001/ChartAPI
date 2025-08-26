@@ -6,6 +6,6 @@ namespace ChartAPI.Interfaces
     public interface IChartServices
     {
         List<YearCalendarDataDto> GetCalendarData(string name, string id);
-        List<MonthlyChartData> GetMonthlyData(string name, int year, string id);
+        List<MonthlyChartData> GetMonthlyData(int year, string name, string id);
     }
 }

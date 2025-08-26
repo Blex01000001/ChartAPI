@@ -22,10 +22,14 @@ namespace ChartAPI.Controllers
             return Ok(_service.GetCalendarData(name, id));
         }
         [HttpGet]
-        public IActionResult GetMonthlyData([FromQuery] string name, int year, string id = null)
+        public IActionResult GetMonthlyData([FromQuery] int? year, string name = null, string id = null)
         {
-            Console.WriteLine($"Query: {name} {year} {id}");
-            return Ok(_service.GetMonthlyData(name, year, id));
+            Console.Write($"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}] Query: {year} {name} {id} ");
+            if (year == null || year < 2012 || year > DateTime.Now.Year)
+                return Ok(new { success = false, message = "年份不正確" });
+            if (string.IsNullOrWhiteSpace(name) && string.IsNullOrWhiteSpace(id))
+                return Ok(new { success = false, message = "姓名或工號擇一填入" });
+            return Ok(_service.GetMonthlyData(year.Value, name, id));
         }
     }
 }

@@ -138,20 +138,24 @@
         const QueryName = document.getElementById('inputNameField').value;
         let QueryYear = document.getElementById('inputYearField').value;
         ChartName = QueryName + ' Stack Pie Chart'
-        console.log(QueryName,QueryYear);
+        //console.log(QueryName,QueryYear);
         $.ajax({
             type: "GET",
             url: "http://localhost:5265/api/Chart/GetMonthlyData",
             data: { name: QueryName, year: QueryYear, id: QueryID },
             //dataType: "json",
             success: function (response) {
-                console.log('QueryCalendarData success');
-                re = response;
-                DrawChartData(response);
+                console.log('Query success');
+                if (response.success === false) {
+                    alert(response.message);
+                } else {
+                    re = response;
+                    DrawChartData(response);
+                }
             },
             error: function (thrownError) {
-                console.log('QueryCalendarData error');
-                console.log(response);
+                console.log('Query error');
+                console.log(thrownError);
             }
         });
     }

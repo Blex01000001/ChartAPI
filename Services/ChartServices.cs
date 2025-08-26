@@ -48,7 +48,7 @@ namespace ChartAPI.Services
                 .ToList();
             return result;
         }
-        public List<MonthlyChartData> GetMonthlyData(string name, int year, string id = null)
+        public List<MonthlyChartData> GetMonthlyData(int year, string name = null, string id = null)
         {
             Dictionary<int, string> monthDict = new Dictionary<int, string>()
                 {
@@ -75,7 +75,8 @@ namespace ChartAPI.Services
             //};
             if (!string.IsNullOrWhiteSpace(id))
                 filter.ID.Add(id);
-            filter.Name.AddRange(new[] { name });
+            if (!string.IsNullOrWhiteSpace(name))
+                filter.Name.Add(name);
             filter.Year.Add(year);
             var ManHourList = _dataRepository.GetManHourData(filter);
 
