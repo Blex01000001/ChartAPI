@@ -14,6 +14,18 @@ namespace ChartAPI.Services
         {
             this._dataRepository = csvRepository;
         }
+        public void UpsertData(string name = null, string id = null)
+        {
+            var filter = new EmployeeFilter();
+            if (!string.IsNullOrWhiteSpace(id))
+                filter.employee_id.Add(id);
+            if (!string.IsNullOrWhiteSpace(name))
+                filter.employee_name.Add(name);
+            string tableName = "EmpInfo9933";
+            _dataRepository.UpsertData(filter, tableName);
+
+
+        }
         public List<YearCalendarDataDto> GetCalendarData(string name, string id = null)
         {
             //新增filter條件
@@ -26,7 +38,8 @@ namespace ChartAPI.Services
                 filter.ID.Add(id);
             filter.Name.AddRange(new[] { name });
             filter.CostCode.AddRange(new[] { "003", "053", "001", "011", "021", "031", "041", "002", "033", "004", "005", "006", "037", "018", "028", "038" });
-            var ManHourList = _dataRepository.GetManHourData(filter);
+            string tableName = "ManHour";
+            var ManHourList = _dataRepository.GetData<ManHourModel,ManHourFilter>(filter, tableName);
 
             //依照Calendar的資料形式分組
             var result = ManHourList
@@ -78,9 +91,8 @@ namespace ChartAPI.Services
             if (!string.IsNullOrWhiteSpace(name))
                 filter.Name.Add(name);
             filter.Year.Add(year);
-            var ManHourList = _dataRepository.GetManHourData(filter);
-
-            //Console.WriteLine($"R: {ManHourList.Where(x => x.Regular == true)}");
+            string tableName = "ManHour";
+            var ManHourList = _dataRepository.GetData<ManHourModel, ManHourFilter>(filter, tableName);
 
             //依照資料形式分組
             List<MonthlyChartData> result = ManHourList
@@ -95,9 +107,6 @@ namespace ChartAPI.Services
                         { "CostCode", new PieChartData(monthGroup, name, "CostCode")}
                     },
                     StackChart = new StackChartData(monthGroup, name, "WorkNo"),
-                    //PieChart = new PieChartData(monthGroup, name, "WorkNo"),
-                    //PieChart2 = new PieChartData(monthGroup, name, "CostCode")
-
                     //加入年度每月加班長條圖 X軸月份 Y軸加班時數
                 }).ToList();
 

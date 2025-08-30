@@ -7,7 +7,7 @@ using System.Text;
 
 namespace ChartAPI.Repositories
 {
-    public class CsvRepository : IDataRepository
+    public class CsvRepository 
     {
         string repositoryDirPath = "D:\\Code\\C#\\ManHour Analysis\\bin\\Debug\\repository\\";
 

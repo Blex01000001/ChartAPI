@@ -7,5 +7,6 @@ namespace ChartAPI.Interfaces
     {
         List<YearCalendarDataDto> GetCalendarData(string name, string id);
         List<MonthlyChartData> GetMonthlyData(int year, string name, string id);
+        void UpsertData(string name = null, string id = null);
     }
 }

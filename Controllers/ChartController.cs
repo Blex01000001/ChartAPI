@@ -31,5 +31,14 @@ namespace ChartAPI.Controllers
                 return Ok(new { success = false, message = "姓名或工號擇一填入" });
             return Ok(_service.GetMonthlyData(year.Value, name, id));
         }
+        [HttpGet]
+        public IActionResult UpsertData([FromQuery] string name = null, string id = null)
+        {
+            if (string.IsNullOrWhiteSpace(name) && string.IsNullOrWhiteSpace(id))
+                return Ok(new { success = false, message = "姓名或工號擇一填入" });
+            _service.UpsertData(name, id);
+            return Ok(new { message = "UpsertData success" });
+        }
+
     }
 }
