@@ -83,7 +83,6 @@
 </head>
 
 <body>
-    <!--<div><button onclick="DrawChart()">圖表繪製</button></div>-->
     <div id="InputArea">
         <input type="text" id="inputYearField" placeholder="年份" style="width: 75px;" list="YearList">
         <datalist id="YearList">
@@ -103,9 +102,9 @@
         </datalist>
         <div><button onclick="QueryChartData()">Query</button></div>
         <div><button onclick="SaveAsPNG()">Save as PNG</button></div>
-        <select id="chartSelector" onchange="Update(this.value)">
-            <option value="CostCode">依 CostCode</option>
+        <select id="chartSelector" onchange="UpdateChartSelector(this.value)">
             <option value="WorkNo">依 WorkNo</option>
+            <option value="CostCode">依 CostCode</option>
         </select>
     </div>
     <div id="ChartContainer"></div> <!-- 主容器放多個 MonthArea -->
@@ -116,9 +115,8 @@
 
 <script>
     const container = document.getElementById('ChartContainer');
-    let re;
-    let ChartName;
-    let pie;
+    const chartInstances = {};
+    const chartData = {};
     const monthDict = {
         1: "January",
         2: "February",
@@ -172,23 +170,22 @@
             link.click();
         });    }
 
-    function Update(e) {
-        console.log(e);
-        
-        const pieData = re[0].pieChartDic[e];
-        pie.setOption({
-            title: {
-                text: pieData.title,
-            },
-            series: [{
-                data: pieData.data,
-            }],
+    function UpdateChartSelector(value) {
+        // 更新所有月份的圖表
+        for (const month in chartInstances) {
+            const pie = chartInstances[month];
+            const pieChart = chartData[month][value]; // value 會是 "CostCode" 或 "WorkNo"
 
-
-        });
-        console.log('finish');
+            pie.setOption({
+                series: [{
+                    data: pieChart.data
+                }],
+                title: {
+                    text: pieChart.title,
+                }
+            });
+        }
     }
-
 
     function DrawChartData(response) {
         document.querySelectorAll('.Monthly-Area').forEach(el => el.remove());
@@ -221,25 +218,24 @@
             monthArea.appendChild(monthLabel);
             monthArea.appendChild(pieChartDiv);
             monthArea.appendChild(stackChartDiv);
-            monthArea.appendChild(pieChartDiv2);
 
             // 插入到頁面主容器
             container.appendChild(monthArea);
 
             // 初始化圖表（這邊你需用你的 pieData 與 stackData 實作）
-            pie = echarts.init(pieChartDiv);
-            const pieChart2 = echarts.init(pieChartDiv2);
+            const pieChartIns = echarts.init(pieChartDiv);
             const stackChart = echarts.init(stackChartDiv);
-            
-            //const pieData = monthlyData.pieChart;
-            const pieData = monthlyData.pieChartDic["WorkNo"];
-            //console.log(monthlyData.pieChartDic["CostCode"]);
 
-            pie.setOption({
-                // 建立 pieData 的 option
+            // 把資料和實例存起來
+            chartInstances[monthlyData.month] = pieChartIns;
+            chartData[monthlyData.month] = monthlyData.pieChartDic;
+            
+            const pieChartData = monthlyData.pieChartDic["WorkNo"];
+            pieChartIns.setOption({
+                // 建立 pieChart 的 option
                 title: {
                     show: true,
-                    text: pieData.title,
+                    text: pieChartData.title,
                     top:'2%',
                     textStyle: {
                         fontSize: 14,
@@ -259,7 +255,7 @@
                     type: 'pie',
                     radius: ['20%', '45%'],
                     center: ['50%', '55%'], // [水平位置, 垂直位置]
-                    data: pieData.data,
+                    data: pieChartData.data,
                     label: {
                         show: true,
                         formatter: '{b}\n{c}({d}%)',
@@ -368,50 +364,6 @@
 
                 }
             });
-
-            //const pieData2 = monthlyData.pieChart2;
-            const pieData2 = monthlyData.pieChartDic['CostCode'];
-
-            pieChart2.setOption({
-                // 建立 pieData 的 option
-                title: {
-                    show: true,
-                    text: pieData2.title,
-                    top: '2%',
-                    textStyle: {
-                        fontSize: 14,
-                        color: 'rgb(0, 0, 0)',
-                        fontFamily: '微軟正黑體'
-                    },
-                    //subtext: 'subtext',
-                    subtextStyle: {
-                        fontSize: 16,
-                        color: 'rgb(120, 120, 120)',
-                        fontFamily: 'Arial'
-                    }
-                },
-                tooltip: { trigger: 'item' },
-                series: [{
-                    name: 'name',
-                    type: 'pie',
-                    radius: ['20%', '45%'],
-                    center: ['50%', '55%'], // [水平位置, 垂直位置]
-                    data: pieData2.data,
-                    label: {
-                        show: true,
-                        formatter: '{b}\n{c}({d}%)',
-                        fontSize: 14
-                    },
-                    /*emphasis: {
-                        itemStyle: {
-                            shadowBlur: 10,
-                            shadowOffsetX: 0,
-                            shadowColor: 'rgba(0, 0, 0, 0.5)'
-                        }
-                    }*/
-                }]
-            });
-
         });
     }
 
