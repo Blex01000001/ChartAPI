@@ -8,6 +8,7 @@ using System.Text;
 using HtmlAgilityPack;
 using System.Data;
 using System.Collections.Concurrent;
+using System.Web;
 
 namespace ChartAPI.Repositories
 {
@@ -25,7 +26,14 @@ namespace ChartAPI.Repositories
             foreach (EmployeeModel employee in employees)
             {
                 string filePath = DownLoadHtmlTable(employee);
-                List<ManHourModel> manHourModels = ParseHtmlTable(filePath);
+                //string filePath = "C:\\Users\\AUser\\Downloads\\test\\01021748-楊文志.xls";
+                List<ManHourModel> manHourModels = ParseHtmlTable(filePath, employee);
+
+                //foreach (var item in manHourModels.Take(50))
+                //{
+                //    Console.Write($"\t{item.Date.ToString("yyyy-MM-dd")} {item.WorkNo} {item.CostCode} {item.EquipNo} {item.Hours} {item.Regular}\n");
+                //}
+
                 UpdateToDataBase(manHourModels);
             }
 
@@ -41,11 +49,19 @@ namespace ChartAPI.Repositories
 
             using var client = new HttpClient(handler);
             string year = DateTime.Today.Year.ToString();
-            string exportUrl = $"https://ctcieip.ctci.com/hr_gmh/HR_GMH_6061_Export.aspx?corp_id=9933&emp_id={employee.employee_id}&begdate={year}01&enddate={year}12&name={employee.employee_name}";
+
+            var uriBuilder = new UriBuilder("https://ctcieip.ctci.com/hr_gmh/HR_GMH_6011_Export.aspx");
+            var query = HttpUtility.ParseQueryString(string.Empty);
+            query["corp_id"] = "9933";
+            query["emp_id"] = employee.employee_id;
+            query["begdate"] = $"{year}01";
+            query["enddate"] = $"{year}12";
+            query["name"] = employee.employee_name;
+            uriBuilder.Query = query.ToString();
 
             try
             {
-                var fileBytes = client.GetByteArrayAsync(exportUrl);
+                var fileBytes = client.GetByteArrayAsync(uriBuilder.ToString());
 
                 // 存檔
                 string tempPath = Path.GetTempPath();
@@ -61,29 +77,29 @@ namespace ChartAPI.Repositories
                 return ex.Message;
             }
         }
-        private async Task<List<ManHourModel>> ParseHtmlTableAsync(string[] files)
-        {
-            var allRecords = new ConcurrentBag<ManHourModel>();
-            Parallel.ForEach(files, async (file, token) =>
-            {
-                try
-                {
-                    Console.WriteLine($"正在處理檔案：{Path.GetFileName(file)}");
-                    var records = ParseHtmlTable(file);
+        //private async Task<List<ManHourModel>> ParseHtmlTableAsync(string[] files)
+        //{
+        //    var allRecords = new ConcurrentBag<ManHourModel>();
+        //    Parallel.ForEach(files, async (file, token) =>
+        //    {
+        //        try
+        //        {
+        //            Console.WriteLine($"正在處理檔案：{Path.GetFileName(file)}");
+        //            var records = ParseHtmlTable(file);
 
-                    foreach (var r in records)
-                        allRecords.Add(r);
+        //            foreach (var r in records)
+        //                allRecords.Add(r);
 
-                    Console.WriteLine($"  -> 匯入 {records.Count} 筆");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"  [錯誤] {Path.GetFileName(file)}: {ex.Message}");
-                }
-            });
-            return allRecords.ToList();
-        }
-        private List<ManHourModel> ParseHtmlTable(string filePath)
+        //            Console.WriteLine($"  -> 匯入 {records.Count} 筆");
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            Console.WriteLine($"  [錯誤] {Path.GetFileName(file)}: {ex.Message}");
+        //        }
+        //    });
+        //    return allRecords.ToList();
+        //}
+        private List<ManHourModel> ParseHtmlTable(string filePath, EmployeeModel employee)
         {
             var result = new List<ManHourModel>();
             var htmlDoc = new HtmlDocument();
@@ -97,14 +113,49 @@ namespace ChartAPI.Repositories
                 var cells = row.SelectNodes("td");
                 if (cells == null) continue;
 
-                var record = new ManHourModel
+                foreach (var cell in cells)
                 {
-                    Date = DateTime.TryParse(cells[0].InnerText.Trim(), out var dt) ? dt : DateTime.MinValue,
-                    WorkNo = cells[1].InnerText.Trim(),
-                    CostCode = cells[4].InnerText.Trim(),
-                    EquipNo = cells[8].InnerText.Trim(),
-                };
-                result.Add(record);
+                    Console.Write(cell.InnerText.Trim() + "\t");
+                }
+
+                //開始對每欄解析放到ManHourModel
+                DateTime lastDay = DateTime.Parse(cells[0].InnerText.Trim());
+                for (int i = 0; i < (int)lastDay.DayOfWeek + 1; i++)
+                {
+                    for (int j = 0; j < 2; j++)
+                    {
+                        DateTime date = lastDay.AddDays(-(i));
+                        int startColumn = 11 + (2 * (int)date.DayOfWeek);
+                        double hour = double.Parse(cells[startColumn + j].InnerText.Trim());
+                        if (hour == 0) continue;
+
+                        var record = new ManHourModel()
+                        {
+                            ID = employee.employee_id,
+                            Name = employee.employee_name,
+                            Date = date,
+                            Year = date.Year,
+                            Month = date.Month,
+                            Weekend = lastDay,
+                            WorkNo = cells[1].InnerText.Trim() == ""? cells[4].InnerText.Trim() : cells[1].InnerText.Trim(),
+                            PH = cells[2].InnerText.Trim(),
+                            DP = cells[3].InnerText.Trim(),
+                            CostCode = cells[4].InnerText.Trim(),
+                            CL = cells[5].InnerText.Trim(),
+                            UnitArea = cells[6].InnerText.Trim(),
+                            SystemNo = cells[7].InnerText.Trim(),
+                            EquipNo = cells[8].InnerText.Trim(),
+                            SE = cells[9].InnerText.Trim(),
+                            REWK = cells[10].InnerText.Trim(),
+                            DayofWeek = date.DayOfWeek,
+                            Hours = hour,
+                            Updated = DateTime.Now,
+                            Regular = j == 0? true : false,
+                            Overtime = j == 1 ? true : false
+                        };
+                        result.Add(record);
+                    }
+                }
             }
             return result;
         }
