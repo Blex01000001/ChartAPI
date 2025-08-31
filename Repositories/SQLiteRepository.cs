@@ -27,8 +27,7 @@ namespace ChartAPI.Repositories
             {
                 string filePath = DownLoadHtmlTable(employee);
                 //string filePath = "C:\\Users\\AUser\\Downloads\\test\\01021748-楊文志.xls";
-                List<ManHourModel> manHourModels = ParseHtmlTable(filePath, employee);
-
+                List<ManHourModel> manHourModels = ParseHtmlTable(filePath, employee.employee_name, employee.employee_id);
                 //foreach (var item in manHourModels.Take(50))
                 //{
                 //    Console.Write($"\t{item.Date.ToString("yyyy-MM-dd")} {item.WorkNo} {item.CostCode} {item.EquipNo} {item.Hours} {item.Regular}\n");
@@ -36,7 +35,6 @@ namespace ChartAPI.Repositories
 
                 UpdateToDataBase(manHourModels);
             }
-
         }
         private string DownLoadHtmlTable(EmployeeModel employee)
         {
@@ -77,29 +75,41 @@ namespace ChartAPI.Repositories
                 return ex.Message;
             }
         }
-        //private async Task<List<ManHourModel>> ParseHtmlTableAsync(string[] files)
-        //{
-        //    var allRecords = new ConcurrentBag<ManHourModel>();
-        //    Parallel.ForEach(files, async (file, token) =>
-        //    {
-        //        try
-        //        {
-        //            Console.WriteLine($"正在處理檔案：{Path.GetFileName(file)}");
-        //            var records = ParseHtmlTable(file);
+        public async void BatchUpsertData(string folderPath)
+        {
+            var files = Directory.GetFiles(folderPath, "*.xls");
+            List<ManHourModel> manHourModels = await ParseHtmlTableAsync(files);
+            UpdateToDataBase(manHourModels);
+        }
+        private async Task<List<ManHourModel>> ParseHtmlTableAsync(string[] files)
+        {
+            var allRecords = new ConcurrentBag<ManHourModel>();
+            await Parallel.ForEachAsync(files, async (file, token) =>
+            {
+                try
+                {
+                    Console.WriteLine($"正在處理檔案：{Path.GetFileName(file)}");
 
-        //            foreach (var r in records)
-        //                allRecords.Add(r);
+                    var fileNameWithoutExt = Path.GetFileNameWithoutExtension(file);
+                    var dashIndex = fileNameWithoutExt.IndexOf('-');
+                    string id = fileNameWithoutExt.Substring(0, dashIndex);// "-" 前
+                    string name = fileNameWithoutExt.Substring(dashIndex + 1);// "-" 後
 
-        //            Console.WriteLine($"  -> 匯入 {records.Count} 筆");
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            Console.WriteLine($"  [錯誤] {Path.GetFileName(file)}: {ex.Message}");
-        //        }
-        //    });
-        //    return allRecords.ToList();
-        //}
-        private List<ManHourModel> ParseHtmlTable(string filePath, EmployeeModel employee)
+                    var records = ParseHtmlTable(file, name, id);
+
+                    foreach (var r in records)
+                        allRecords.Add(r);
+
+                    Console.WriteLine($"  -> 匯入 {records.Count} 筆");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"  [錯誤] {Path.GetFileName(file)}: {ex.Message}");
+                }
+            });
+            return allRecords.ToList();
+        }
+        private List<ManHourModel> ParseHtmlTable(string filePath, string name, string id)
         {
             var result = new List<ManHourModel>();
             var htmlDoc = new HtmlDocument();
@@ -131,8 +141,8 @@ namespace ChartAPI.Repositories
 
                         var record = new ManHourModel()
                         {
-                            ID = employee.employee_id,
-                            Name = employee.employee_name,
+                            ID = id,
+                            Name = name,
                             Date = date,
                             Year = date.Year,
                             Month = date.Month,
