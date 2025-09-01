@@ -11,6 +11,19 @@
         border-width: 1px;
 */
     }
+    #StackContainer {
+        flex-direction: column;
+        display: flex;
+        left: 20px;
+        width: 800px;
+        height: 500px;
+        background-color: #cde2ff;
+        border-color: #d90000;
+        border-style: dashed;
+        border-width: 1px;
+
+    }
+
     #ChartContainer div {
         margin: 5px;
     }
@@ -76,6 +89,16 @@
         border-style: dashed;
         border-width: 1px;
 */    }
+    .TestArea {
+        /*flex: 1;*/
+        width: 800px;
+        height: 300px;
+        /*        border-color: #0000d9;
+        border-style: dashed;
+        border-width: 1px;
+*/
+    }
+
 
 </style>
 
@@ -122,8 +145,13 @@
         <div id="UpdateArea">
             <div><button onclick="UpsertData()">UpsertData</button></div>
         </div>
+        <div id="TestArea">
+            <div><button onclick="TestChart()">Test</button></div>
+        </div>
+
     </div>
-        <div id="ChartContainer"></div> <!-- 主容器放多個 MonthArea -->
+    <div id="ChartContainer"></div> <!-- 主容器放多個 MonthArea -->
+    <div id="StackContainer"></div>
 
 </body>
 
@@ -223,7 +251,87 @@
             });
         }
     }
+    function TestChart() {
+        const monthArea = document.createElement('div');
 
+        monthArea.className = 'Monthly-Area';
+
+        // 建立月份標籤
+        //const monthLabel = document.createElement('div');
+        //monthLabel.className = 'MonthLabel';
+        //monthLabel.textContent = monthDict[monthlyData.month];
+
+        // 建立 PieChartArea
+        const pieChartDiv = document.createElement('div');
+        pieChartDiv.className = 'TestArea';
+
+        // 建立 StackChartArea
+        const stackChartDiv = document.createElement('div');
+        stackChartDiv.className = 'TestArea';
+
+        // 建立 PieChartArea
+        const pieChartDiv2 = document.createElement('div');
+        pieChartDiv2.className = 'PieChartArea';
+
+
+        // 插入子元素
+        monthArea.appendChild(pieChartDiv);
+
+        // 插入到頁面主容器
+        const container = document.getElementById('StackContainer');
+        container.appendChild(monthArea);
+
+        // 初始化圖表（這邊你需用你的 pieData 與 stackData 實作）
+        const pieChartIns = echarts.init(pieChartDiv);
+        const stackChart = echarts.init(stackChartDiv);
+
+        // 把資料和實例存起來
+        pieChartIns.setOption({
+            title: {
+                text: '專案工作時數統計'
+            },
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: { type: 'shadow' }
+            },
+            legend: {
+                data: ['Over', '053', '003']
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '20%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
+            },
+            yAxis: {
+                type: 'value',
+                name: '小時數'
+            },
+            series: [
+                {
+                    name: 'Over',
+                    type: 'bar',
+                    data: [9.5,6,13,6.5,9,11.5,16.5,6,10.5,18.5,4.5,7.5]
+                },
+            //    {
+            //        name: '053',
+            //        type: 'bar',
+            //        data: [6.5,3.5,10.5,11.5,5.5,5,5,6.5,5,11.5,10.5,2.5]
+            //    },
+            //    {
+            //        name: '003',
+            //        type: 'bar',
+            //        data: [21.5,11.5,14.5,13.5,15,14,22.5,30,8,25.5,32,46.5]
+            //    }
+            ]
+        })
+
+
+    }
     function DrawChartData(response) {
         document.querySelectorAll('.Monthly-Area').forEach(el => el.remove());
 
