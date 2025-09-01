@@ -9,6 +9,7 @@ using HtmlAgilityPack;
 using System.Data;
 using System.Collections.Concurrent;
 using System.Web;
+using System.Threading.Tasks;
 
 namespace ChartAPI.Repositories
 {
@@ -20,23 +21,17 @@ namespace ChartAPI.Repositories
         {
             _dataBaseDir = config.GetConnectionString("DataBaseDir");
         }
-        public void UpsertData(EmployeeFilter filter, string tableName)
+        public async Task UpsertData(EmployeeFilter filter, string tableName)
         {
             IEnumerable<EmployeeModel> employees = GetData<EmployeeModel, EmployeeFilter>(filter, tableName);
             foreach (EmployeeModel employee in employees)
             {
-                string filePath = DownLoadHtmlTable(employee);
-                //string filePath = "C:\\Users\\AUser\\Downloads\\test\\01021748-楊文志.xls";
+                string filePath = await DownLoadHtmlTable(employee);
                 List<ManHourModel> manHourModels = ParseHtmlTable(filePath, employee.employee_name, employee.employee_id);
-                //foreach (var item in manHourModels.Take(50))
-                //{
-                //    Console.Write($"\t{item.Date.ToString("yyyy-MM-dd")} {item.WorkNo} {item.CostCode} {item.EquipNo} {item.Hours} {item.Regular}\n");
-                //}
-
                 UpdateToDataBase(manHourModels);
             }
         }
-        private string DownLoadHtmlTable(EmployeeModel employee)
+        private async Task<string> DownLoadHtmlTable(EmployeeModel employee)
         {
             var handler = new HttpClientHandler
             {
@@ -54,24 +49,25 @@ namespace ChartAPI.Repositories
             query["emp_id"] = employee.employee_id;
             query["begdate"] = $"{year}01";
             query["enddate"] = $"{year}12";
-            query["name"] = employee.employee_name;
+            query["emp_name"] = employee.employee_name;
             uriBuilder.Query = query.ToString();
 
             try
             {
-                var fileBytes = client.GetByteArrayAsync(uriBuilder.ToString());
+                //Console.WriteLine($"Try DownLoadHtmlTable, name: { employee.employee_name} id: { employee.employee_id}");
+                var fileBytes = await client.GetByteArrayAsync(uriBuilder.ToString());
 
                 // 存檔
                 string tempPath = Path.GetTempPath();
-                string fileName = Guid.NewGuid().ToString() + ".txt";
+                string fileName = Guid.NewGuid().ToString() + ".xls";
                 string filePath = Path.Combine(tempPath, fileName);
-                System.IO.File.WriteAllBytesAsync(filePath, fileBytes.Result);
-                //Console.WriteLine("下載完成: " + filePath);
+                await System.IO.File.WriteAllBytesAsync(filePath, fileBytes);
+                Console.WriteLine($"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}] files:" + fileName);
                 return filePath;
             }
             catch (HttpRequestException ex)
             {
-                //Console.WriteLine($"下載失敗: {ex.Message}");
+                Console.WriteLine($"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}] ** Error:{ex.Message}");
                 return ex.Message;
             }
         }
@@ -123,10 +119,10 @@ namespace ChartAPI.Repositories
                 var cells = row.SelectNodes("td");
                 if (cells == null) continue;
 
-                foreach (var cell in cells)
-                {
-                    Console.Write(cell.InnerText.Trim() + "\t");
-                }
+                //foreach (var cell in cells)
+                //{
+                //    Console.Write(cell.InnerText.Trim() + "\t");
+                //}
 
                 //開始對每欄解析放到ManHourModel
                 DateTime lastDay = DateTime.Parse(cells[0].InnerText.Trim());
@@ -173,13 +169,14 @@ namespace ChartAPI.Repositories
         {
             const int BatchSize = 10000; // 每批處理筆數
             string dbPath = "Data Source=ManHourData.db;Version=3;";
+            string dataBaseFilePath = Path.Combine(_dataBaseDir, _dBFileName);
 
-            using (var conn = new SQLiteConnection(dbPath))
+            using (var conn = new SQLiteConnection($"Data Source={dataBaseFilePath}"))
             {
                 conn.Open();
 
                 // 建表
-                Console.Write($"Create Table...");
+                //Console.Write($"Create Table...");
                 string createTable = @"
                     CREATE TABLE IF NOT EXISTS ManHour (
                     Name TEXT, ID TEXT, Date TEXT, Year INTEGER, Month INTEGER, Weekend TEXT, WorkNo TEXT,
@@ -187,15 +184,15 @@ namespace ChartAPI.Repositories
                     SE TEXT, REWK TEXT, DayofWeek INTEGER, Hours REAL, Regular INTEGER, Overtime INTEGER,
                     Updated TEXT, Position TEXT, Group1 TEXT, Group2 TEXT, Group3 TEXT, Group4 TEXT)";
                 new SQLiteCommand(createTable, conn).ExecuteNonQuery();
-                Console.Write($" Complete " + DateTime.Now + "\n");
+                //Console.Write($" Complete " + DateTime.Now + "\n");
 
                 // 索引
-                Console.Write($"Create IX_ManHour_NameIDWeekend...");
+                //Console.Write($"Create IX_ManHour_NameIDWeekend...");
                 string createINDEX = @"
                     CREATE INDEX IF NOT EXISTS IX_ManHour_NameIDWeekend
                     ON ManHour(Name, ID, Weekend);";
                 new SQLiteCommand(createINDEX, conn).ExecuteNonQuery();
-                Console.Write($" Complete " + DateTime.Now + "\n");
+                //Console.Write($" Complete " + DateTime.Now + "\n");
 
                 var props = typeof(ManHourModel)
                                 .GetProperties(BindingFlags.Public | BindingFlags.Instance);
@@ -210,7 +207,7 @@ namespace ChartAPI.Repositories
 
                     if (keysToDelete.Count > 0)
                     {
-                        Console.WriteLine($"keysToDelete Count: {keysToDelete.Count}");
+                        //Console.WriteLine($"keysToDelete Count: {keysToDelete.Count}");
                         string deleteSql = "DELETE FROM ManHour WHERE Name=@Name AND ID=@ID AND Weekend=@Weekend";
 
                         using (var delCmd = new SQLiteCommand(deleteSql, conn, tran))
@@ -272,7 +269,7 @@ namespace ChartAPI.Repositories
                     tran.Commit();
                 }
             }
-            Console.Write($"Complete\n");
+            Console.Write($"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}] Update To DataBase Complete\n");
         }
         public IEnumerable<TModel> GetData<TModel,TFilter>(TFilter filter, string tableName) 
             where TModel : new() 
@@ -317,7 +314,7 @@ namespace ChartAPI.Repositories
                     list.Add(model);
                 }
             }
-            Console.Write($"count: {list.Count}, Elapsed {ExecuteReaderTime.ElapsedMilliseconds} ms\n" );
+            Console.Write($"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}] Query Count: {list.Count}, Elapsed {ExecuteReaderTime.ElapsedMilliseconds} ms\n" );
             return list;
         }
 

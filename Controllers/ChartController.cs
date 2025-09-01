@@ -24,7 +24,7 @@ namespace ChartAPI.Controllers
         [HttpGet]
         public IActionResult GetMonthlyData([FromQuery] int? year, string name = null, string id = null)
         {
-            Console.Write($"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}] Query: {year} {name} {id} ");
+            Console.Write($"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}] Query: {year} {name} {id}\n");
             if (year == null || year < 2012 || year > DateTime.Now.Year)
                 return Ok(new { success = false, message = "年份不正確" });
             if (string.IsNullOrWhiteSpace(name) && string.IsNullOrWhiteSpace(id))

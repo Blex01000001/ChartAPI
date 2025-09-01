@@ -377,7 +377,8 @@
                         fontStyle: 'normal',
                         fontWeight: 'normal',
                         fontFamily: 'Arial',
-                        fontSize: 14,
+                        fontSize: stackData.axisTitle.length > 10 ? 12 : 14,   // 超過8個就縮小字型
+                        interval: 0  // 強制每個類別都顯示
                     },
 
                 },

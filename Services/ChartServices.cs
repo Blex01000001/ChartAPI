@@ -24,7 +24,6 @@ namespace ChartAPI.Services
             string tableName = "EmpInfo9933";
             _dataRepository.UpsertData(filter, tableName);
 
-
         }
         public List<YearCalendarDataDto> GetCalendarData(string name, string id = null)
         {
