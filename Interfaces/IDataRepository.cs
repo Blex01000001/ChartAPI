@@ -7,6 +7,7 @@ namespace ChartAPI.Interfaces
     {
         IEnumerable<TModel> GetData<TModel,TFilter>(TFilter filter, string tableName) 
             where TModel : new();
-        void UpsertData(EmployeeFilter filter, string tableName);
+        Task UpsertData(EmployeeFilter filter, string tableName);
+
     }
 }
