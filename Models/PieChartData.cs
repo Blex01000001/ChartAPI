@@ -32,7 +32,7 @@ namespace ChartAPI.Models
             this.Data = monthGroup
                 .GroupByProperty(groupName)
                 //.GroupBy(x => x.WorkNo)
-                .OrderBy(dg => dg.Key)
+                .OrderBy(d => d.Key)
                 .Select(workNoGroup => new PieDataItem(workNoGroup.Key.ToString(), workNoGroup.Sum(s => s.Hours)))
                 .ToList();
         }

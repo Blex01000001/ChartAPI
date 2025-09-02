@@ -1,32 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <style type="text/css">
-    #ChartContainer {
-        flex-direction: column;
-        display: flex;
-        left: 20px;
-/*        background-color: #cde2ff;
-        border-color: #d90000;
-        border-style: dashed;
-        border-width: 1px;
-*/
-    }
-    #StackContainer {
-        flex-direction: column;
-        display: flex;
-        left: 20px;
-        width: 800px;
-        height: 500px;
-        background-color: #cde2ff;
-        border-color: #d90000;
-        border-style: dashed;
-        border-width: 1px;
-
-    }
-
-    #ChartContainer div {
-        margin: 5px;
-    }
     #InputArea {
         display: flex;
         gap: 5px;
@@ -43,6 +17,35 @@
         background-color: #5effd8;
         border-radius: 5px;
     }
+
+    #ChartContainer {
+        flex-direction: column;
+        display: flex;
+        left: 20px;
+        width: 900px;
+/*
+        background-color: #cde2ff;
+        border-color: #d90000;
+        border-style: dashed;
+        border-width: 1px;
+
+*/    }
+    #StackContainer {
+        flex-direction: column;
+        display: flex;
+        left: 20px;
+        width: 900px;
+/*
+        background-color: #ff5e5e;
+        border-color: #00ff21;
+        border-style: dashed;
+        border-width: 1px;
+
+*/    }
+    #StackContainer div,
+    #ChartContainer div {
+        margin: 5px;
+    }
     .Monthly-Area {
         display: flex;
         background-color: #e4e4e4;
@@ -56,7 +59,6 @@
         /*width: 100%;*/
         /*/height: 300px;*/
     }
-
     .MonthLabel {
         display: flex;
         align-items: center;
@@ -89,15 +91,24 @@
         border-style: dashed;
         border-width: 1px;
 */    }
-    .TestArea {
-        /*flex: 1;*/
-        width: 800px;
+
+
+    .Year-Area {
+        display: flex;
+        background-color: #e4e4e4;
+        border-radius: 30px;
+        align-items: center; /* 子元素垂直置中 */
+    }
+
+    .StackArea {
+        width: 900px;
         height: 300px;
-        /*        border-color: #0000d9;
+/*
+        border-color: #0000d9;
         border-style: dashed;
         border-width: 1px;
-*/
-    }
+
+*/    }
 
 
 </style>
@@ -183,23 +194,45 @@
         //console.log(QueryName,QueryYear);
         $.ajax({
             type: "GET",
-            url: "http://localhost:5265/api/Chart/GetMonthlyData",
+            url: "http://localhost:5265/api/Chart/GetMonthlyChartDto",
             data: { name: QueryName, year: QueryYear, id: QueryID },
             //dataType: "json",
             success: function (response) {
-                console.log('Query success');
+                console.log('MonthlyChart success');
                 if (response.success === false) {
                     alert(response.message);
                 } else {
                     re = response;
-                    DrawChartData(response);
+                    DrawMonthlyChart(response);
                 }
             },
             error: function (thrownError) {
-                console.log('Query error');
+                console.log('MonthlyChart error');
                 console.log(thrownError);
             }
         });
+
+        $.ajax({
+            type: "GET",
+            url: "http://localhost:5265/api/Chart/GetStackChartDto",
+            data: { name: QueryName, year: QueryYear, id: QueryID },
+            //dataType: "json",
+            success: function (response) {
+                console.log('YearChart success');
+                if (response.success === false) {
+                    alert(response.message);
+                } else {
+                    re = response;
+                    DrawYearChart(response);
+                }
+            },
+            error: function (thrownError) {
+                console.log('YearChart error');
+                console.log(thrownError);
+            }
+        });
+
+
     }
 
     function UpsertData() {
@@ -251,51 +284,33 @@
             });
         }
     }
-    function TestChart() {
-        const monthArea = document.createElement('div');
+    function DrawYearChart(response) {
+        document.querySelectorAll('.Year-Area').forEach(el => el.remove());
 
-        monthArea.className = 'Monthly-Area';
+        //response.forEach((monthlyData, index) => {
 
-        // 建立月份標籤
-        //const monthLabel = document.createElement('div');
-        //monthLabel.className = 'MonthLabel';
-        //monthLabel.textContent = monthDict[monthlyData.month];
-
-        // 建立 PieChartArea
+        //})
+        const OvertimeStackArea = document.createElement('div');
+        OvertimeStackArea.className = 'Year-Area';
         const pieChartDiv = document.createElement('div');
-        pieChartDiv.className = 'TestArea';
+        pieChartDiv.className = 'StackArea';
+        OvertimeStackArea.appendChild(pieChartDiv);// 插入子元素
+        const container = document.getElementById('StackContainer');// 插入到頁面主容器
+        container.appendChild(OvertimeStackArea);
+        const StackChartIns = echarts.init(pieChartDiv);// 初始化圖表
 
-        // 建立 StackChartArea
-        const stackChartDiv = document.createElement('div');
-        stackChartDiv.className = 'TestArea';
-
-        // 建立 PieChartArea
-        const pieChartDiv2 = document.createElement('div');
-        pieChartDiv2.className = 'PieChartArea';
-
-
-        // 插入子元素
-        monthArea.appendChild(pieChartDiv);
-
-        // 插入到頁面主容器
-        const container = document.getElementById('StackContainer');
-        container.appendChild(monthArea);
-
-        // 初始化圖表（這邊你需用你的 pieData 與 stackData 實作）
-        const pieChartIns = echarts.init(pieChartDiv);
-        const stackChart = echarts.init(stackChartDiv);
-
-        // 把資料和實例存起來
-        pieChartIns.setOption({
+        StackChartIns.setOption({
+            color: ['#ff2c2c', '#5965c8', '#8fdb80'],
             title: {
-                text: '專案工作時數統計'
+                text: '加班/請假年統計'
             },
             tooltip: {
                 trigger: 'axis',
                 axisPointer: { type: 'shadow' }
             },
             legend: {
-                data: ['Over', '053', '003']
+                bottom: '5%',
+                //data: response.axisTitle
             },
             grid: {
                 left: '3%',
@@ -305,34 +320,62 @@
             },
             xAxis: {
                 type: 'category',
-                data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
+                name: 'Month',
+                nameLocation: 'middle',// 名稱位置: 'start' | 'middle' | 'end'
+                nameGap: 20,           // 名稱與軸線的距離
+                nameTextStyle: {       // 名稱的文字樣式
+                    fontSize: 14,
+                    color: '#333'
+                },
+                data: response.axisTitle,
+                splitLine: {
+                show: true,
+                    interval: function (index, value) {
+                        return index !== 0; // index=0 不畫，其他畫
+                    },
+                lineStyle: {
+                    color: '#858585',
+                    type: 'dashed'
+                }
+            }
+
             },
             yAxis: {
                 type: 'value',
-                name: '小時數'
+                name: 'Hour',
+                splitLine: {
+                    show: true,
+                    lineStyle: {
+                        color: '#c5c5c5',   // 格線顏色 (這裡設紅色)
+                        type: 'dashed',     // 線條樣式: 'solid' | 'dashed' | 'dotted'
+                        width: 1            // 線條粗細
+                    }
+                }
+
             },
-            series: [
-                {
-                    name: 'Over',
-                    type: 'bar',
-                    data: [9.5,6,13,6.5,9,11.5,16.5,6,10.5,18.5,4.5,7.5]
+            series: response.series.map(item => ({
+                name: item.name,
+                type: 'bar',
+                //stack: 'total',  // 或用 item.name 來堆疊不同組
+                data: item.values,
+                barGap:'0%',
+                label: {
+                    show: true,
+                    fontSize: 14,
+                    //color: '#ff0000',
+                    position: 'top',
+                    //verticalAlign: 'bottom',
+                    /*offset: [8, 0]*/
+                //    formatter: function (params) {
+                //        return params.value === 0 ? '' : params.value;
+                //    }
                 },
-            //    {
-            //        name: '053',
-            //        type: 'bar',
-            //        data: [6.5,3.5,10.5,11.5,5.5,5,5,6.5,5,11.5,10.5,2.5]
-            //    },
-            //    {
-            //        name: '003',
-            //        type: 'bar',
-            //        data: [21.5,11.5,14.5,13.5,15,14,22.5,30,8,25.5,32,46.5]
-            //    }
-            ]
+            })),
         })
 
 
     }
-    function DrawChartData(response) {
+    function DrawMonthlyChart(response) {
         document.querySelectorAll('.Monthly-Area').forEach(el => el.remove());
 
         response.forEach((monthlyData, index) => {
@@ -417,7 +460,7 @@
 
             });
 
-            const stackData = monthlyData.stackChart;
+            const stackData = monthlyData.stackCharts;
             stackChart.setOption({
                 // 建立 stackData 的 option
                 grid: {
