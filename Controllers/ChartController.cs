@@ -22,7 +22,7 @@ namespace ChartAPI.Controllers
             return Ok(_service.GetCalendarData(name, id));
         }
         [HttpGet]
-        public IActionResult GetMonthlyData([FromQuery] int? year, string name = null, string id = null)
+        public IActionResult GetMonthlyChartDto([FromQuery] int? year, string name = null, string id = null)
         {
             Console.Write($"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}] Query: {year} {name} {id}\n");
             if (year == null || year < 2012 || year > DateTime.Now.Year)
@@ -39,6 +39,17 @@ namespace ChartAPI.Controllers
             _service.UpsertData(name, id);
             return Ok(new { message = "UpsertData success" });
         }
+        [HttpGet]
+        public IActionResult GetStackChartDto([FromQuery] int? year, string name = null, string id = null)
+        {
+            Console.Write($"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}] Query: {year} {name} {id}\n");
+            if (year == null || year < 2012 || year > DateTime.Now.Year)
+                return Ok(new { success = false, message = "年份不正確" });
+            if (string.IsNullOrWhiteSpace(name) && string.IsNullOrWhiteSpace(id))
+                return Ok(new { success = false, message = "姓名或工號擇一填入" });
+            return Ok(_service.GetStackChart(year.Value, name, id));
+        }
+
 
     }
 }

@@ -62,34 +62,39 @@ namespace ChartAPI.Services
         }
         public List<MonthlyChartData> GetMonthlyData(int year, string name = null, string id = null)
         {
-            Dictionary<int, string> monthDict = new Dictionary<int, string>()
-                {
-                    { 1, "January" },
-                    { 2, "February" },
-                    { 3, "March" },
-                    { 4, "April" },
-                    { 5, "May" },
-                    { 6, "June" },
-                    { 7, "July" },
-                    { 8, "August" },
-                    { 9, "September" },
-                    { 10, "October" },
-                    { 11, "November" },
-                    { 12, "December" }
-                };
+            //Dictionary<int, string> monthDict = new Dictionary<int, string>()
+            //    {
+            //        { 1, "January" },
+            //        { 2, "February" },
+            //        { 3, "March" },
+            //        { 4, "April" },
+            //        { 5, "May" },
+            //        { 6, "June" },
+            //        { 7, "July" },
+            //        { 8, "August" },
+            //        { 9, "September" },
+            //        { 10, "October" },
+            //        { 11, "November" },
+            //        { 12, "December" }
+            //    };
 
             //新增filter條件
             var filter = new ManHourFilter();
-            //var filter = new ManHourFilter
-            //{
-            //    DateFrom = new DateTime(2024, 1, 1),
-            //    DateTo = new DateTime(2024, 12, 31)
-            //};
             if (!string.IsNullOrWhiteSpace(id))
                 filter.ID.Add(id);
             if (!string.IsNullOrWhiteSpace(name))
                 filter.Name.Add(name);
             filter.Year.Add(year);
+
+            //新增Stack Condition條件
+            List<StackSeries> seriesCondition = new List<StackSeries>()
+            {
+                new StackSeries("Regular", "Regular", true),
+                new StackSeries("Overtime", "Overtime", true)
+            };
+
+
+
             string tableName = "ManHour";
             var ManHourList = _dataRepository.GetData<ManHourModel, ManHourFilter>(filter, tableName);
 
@@ -105,11 +110,33 @@ namespace ChartAPI.Services
                         { "WorkNo", new PieChartData(monthGroup, name, "WorkNo")},
                         { "CostCode", new PieChartData(monthGroup, name, "CostCode")}
                     },
-                    StackChart = new StackChartData(monthGroup, name, "WorkNo"),
+                    StackCharts = new StackChartData<ManHourModel>(monthGroup.ToList(), "WorkNo", seriesCondition),
                     //加入年度每月加班長條圖 X軸月份 Y軸加班時數
                 }).ToList();
 
             return result;
+        }
+        public StackChartData<ManHourModel> GetStackChart(int year, string name = null, string id = null)
+        {
+            //新增filter條件
+            var filter = new ManHourFilter();
+            if (!string.IsNullOrWhiteSpace(id))
+                filter.ID.Add(id);
+            if (!string.IsNullOrWhiteSpace(name))
+                filter.Name.Add(name);
+            filter.Year.Add(year);
+            string tableName = "ManHour";
+            var ManHourList = _dataRepository.GetData<ManHourModel, ManHourFilter>(filter, tableName);
+
+            //新增Stack Condition條件
+            List<StackSeries> seriesCondition = new List<StackSeries>()
+            {
+                new StackSeries("Overtime", "Overtime", true),
+                new StackSeries("053", "CostCode", "053"),
+                new StackSeries("003", "CostCode", "003")
+            };
+
+            return new StackChartData<ManHourModel>(ManHourList, "Month", seriesCondition);
         }
     }
 }
