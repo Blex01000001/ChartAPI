@@ -62,22 +62,6 @@ namespace ChartAPI.Services
         }
         public List<MonthlyChartData> GetMonthlyData(int year, string name = null, string id = null)
         {
-            //Dictionary<int, string> monthDict = new Dictionary<int, string>()
-            //    {
-            //        { 1, "January" },
-            //        { 2, "February" },
-            //        { 3, "March" },
-            //        { 4, "April" },
-            //        { 5, "May" },
-            //        { 6, "June" },
-            //        { 7, "July" },
-            //        { 8, "August" },
-            //        { 9, "September" },
-            //        { 10, "October" },
-            //        { 11, "November" },
-            //        { 12, "December" }
-            //    };
-
             //新增filter條件
             var filter = new ManHourFilter();
             if (!string.IsNullOrWhiteSpace(id))
@@ -86,14 +70,12 @@ namespace ChartAPI.Services
                 filter.Name.Add(name);
             filter.Year.Add(year);
 
-            //新增Stack Condition條件
+            //新增Stack Series條件
             List<StackSeries> seriesCondition = new List<StackSeries>()
             {
                 new StackSeries("Regular", "Regular", true),
                 new StackSeries("Overtime", "Overtime", true)
             };
-
-
 
             string tableName = "ManHour";
             var ManHourList = _dataRepository.GetData<ManHourModel, ManHourFilter>(filter, tableName);
@@ -110,13 +92,12 @@ namespace ChartAPI.Services
                         { "WorkNo", new PieChartData(monthGroup, name, "WorkNo")},
                         { "CostCode", new PieChartData(monthGroup, name, "CostCode")}
                     },
-                    StackCharts = new StackChartData<ManHourModel>(monthGroup.ToList(), "WorkNo", seriesCondition),
-                    //加入年度每月加班長條圖 X軸月份 Y軸加班時數
+                    StackCharts = new StackChart<ManHourModel>(monthGroup.ToList(), "WorkNo", seriesCondition),
                 }).ToList();
 
             return result;
         }
-        public StackChartData<ManHourModel> GetStackChart(int year, string name = null, string id = null)
+        public StackChart<ManHourModel> GetStackChart(int year, string name = null, string id = null)
         {
             //新增filter條件
             var filter = new ManHourFilter();
@@ -128,15 +109,18 @@ namespace ChartAPI.Services
             string tableName = "ManHour";
             var ManHourList = _dataRepository.GetData<ManHourModel, ManHourFilter>(filter, tableName);
 
-            //新增Stack Condition條件
+            //新增Stack Series條件
             List<StackSeries> seriesCondition = new List<StackSeries>()
             {
                 new StackSeries("Overtime", "Overtime", true),
-                new StackSeries("053", "CostCode", "053"),
-                new StackSeries("003", "CostCode", "003")
+                new StackSeries("Annual Paid", "CostCode", "003", "Leave"),
+                new StackSeries("Compensatory", "CostCode", "053", "Leave"),
+                new StackSeries("Common sick", "CostCode", "002", "Leave"),
+                new StackSeries("Personal", "CostCode", "001", "Leave")
             };
-
-            return new StackChartData<ManHourModel>(ManHourList, "Month", seriesCondition);
+            //新增Stack Chart條件
+            return new StackChart<ManHourModel>(ManHourList, "Month", seriesCondition)
+                .SetName("加班/請假年度統計");
         }
     }
 }

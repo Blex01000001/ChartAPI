@@ -300,17 +300,18 @@
         const StackChartIns = echarts.init(pieChartDiv);// 初始化圖表
 
         StackChartIns.setOption({
-            color: ['#ff2c2c', '#5965c8', '#8fdb80'],
+            color: ['#ff2c2c', '#CCCC00', '#8CA03C', '#CC66FF', '#0000FF'],
             title: {
-                text: '加班/請假年統計'
+                text: response.name
             },
             tooltip: {
                 trigger: 'axis',
                 axisPointer: { type: 'shadow' }
             },
-            legend: {
-                bottom: '5%',
-                //data: response.axisTitle
+            legend: {                 // 啟用圖例
+                show: true,             // 預設就是 true
+                orient: 'horizontal',   // 'horizontal' 或 'vertical'
+                top: 'bottom',             // 位置: top / bottom / left / right / center
             },
             grid: {
                 left: '3%',
@@ -356,19 +357,19 @@
             series: response.series.map(item => ({
                 name: item.name,
                 type: 'bar',
-                //stack: 'total',  // 或用 item.name 來堆疊不同組
+                stack: item.stack,  // 或用 item.name 來堆疊不同組
                 data: item.values,
                 barGap:'0%',
                 label: {
                     show: true,
                     fontSize: 14,
                     //color: '#ff0000',
-                    position: 'top',
-                    //verticalAlign: 'bottom',
+                    position: 'inside',
+                    verticalAlign: 'middle', //'middle' 'top' 'bottom'
                     /*offset: [8, 0]*/
-                //    formatter: function (params) {
-                //        return params.value === 0 ? '' : params.value;
-                //    }
+                    formatter: function (params) {
+                        return params.value === 0 ? '' : params.value;
+                    }
                 },
             })),
         })
