@@ -5,9 +5,9 @@ namespace ChartAPI.Interfaces
 {
     public interface IChartServices
     {
-        List<YearCalendarDataDto> GetCalendarData(string name, string id);
+        List<YearCalendarDto> GetCalendarData(string name, string id);
         List<MonthlyChartData> GetMonthlyData(int year, string name, string id);
-        StackChart<ManHourModel> GetStackChart(int year, string name, string id);
+        StackChartDto<ManHourModel> GetStackChart(int year, string name, string id);
         void UpsertData(string name = null, string id = null);
     }
 }

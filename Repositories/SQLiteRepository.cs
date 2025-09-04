@@ -42,7 +42,6 @@ namespace ChartAPI.Repositories
 
             using var client = new HttpClient(handler);
             string year = DateTime.Today.Year.ToString();
-
             var uriBuilder = new UriBuilder("https://ctcieip.ctci.com/hr_gmh/HR_GMH_6011_Export.aspx");
             var query = HttpUtility.ParseQueryString(string.Empty);
             query["corp_id"] = "9933";
@@ -51,7 +50,6 @@ namespace ChartAPI.Repositories
             query["enddate"] = $"{year}12";
             query["emp_name"] = employee.employee_name;
             uriBuilder.Query = query.ToString();
-
             try
             {
                 //Console.WriteLine($"Try DownLoadHtmlTable, name: { employee.employee_name} id: { employee.employee_id}");
