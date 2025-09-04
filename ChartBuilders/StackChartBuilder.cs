@@ -1,42 +1,44 @@
 ﻿using ChartAPI.Extensions;
+using ChartAPI.DTOs;
 using System.Reflection;
+using System.Xml.Linq;
 
-namespace ChartAPI.Models
+namespace ChartAPI.ChartBuilders
 {
-    public class StackChart<T>
+    public class StackChartBuilder<T>
     {
-        public string Name { get; private set; }
-        public string[] AxisTitle { get; private set; }
-        public List<StackSeries> Series { get; private set; }
-
-        private IEnumerable<T> _sourceData;
-        private string _groupName;
-        public StackChart(IEnumerable<T> source, string groupName, List<StackSeries> stackSeries)
+        private readonly IEnumerable<T> _sourceData;
+        private readonly string _groupName;
+        private readonly List<StackSeries> _series;
+        private string _chartName;
+        public StackChartBuilder(IEnumerable<T> sourceData, string groupName, List<StackSeries> series)
         {
-            _sourceData = source;
+            _sourceData = sourceData;
             _groupName = groupName;
-            Series = stackSeries;
-            CreateAxisTitle();
-            CreateSeries();
+            _series = series;
         }
-        private void CreateAxisTitle()
+        public StackChartBuilder<T> SetName(string chartName)
         {
-            this.AxisTitle = _sourceData
+            this._chartName = chartName;
+            return this;
+        }
+        private string[] CreateAxisTitle()
+        {
+            return _sourceData
                 .GroupByProperty(_groupName)
                 .OrderBy(g => g.Key)
                 .Select(workNoGroup => workNoGroup.Key.ToString()!)
                 .ToArray();
-
         }
         private void CreateSeries()
         {
             var groups = _sourceData
-            .GroupByProperty(_groupName)    // 假設你已經有這個擴充
+            .GroupByProperty(_groupName)
             .OrderBy(g => g.Key)
             .ToList();
 
             var result = new List<StackSeries>();
-            foreach (var series in Series)
+            foreach (var series in _series)
             {
                 // 反射取出 DataItem 的屬性
                 var prop = typeof(T).GetProperty(series.PropertyName, BindingFlags.Public | BindingFlags.Instance);
@@ -59,29 +61,13 @@ namespace ChartAPI.Models
                             return Convert.ToDouble(hProp.GetValue(x));
                         }))
                     .ToArray();
-
                 series.Values = values;
             }
         }
-        public StackChart<T> SetName(string chartName)
+        public StackChartDto<T> Build()
         {
-            Name = chartName;
-            return this;
-        }
-    }
-    public class StackSeries
-    {
-        public string Name { get; set; }     // 這個系列的名稱（對應 legend）
-        public string PropertyName { get; set; }
-        public object FilterValue { get; set; }
-        public double[] Values { get; set; } // 對應每個 category 的值
-        public string Stack { get; set; }
-        public StackSeries(string seriesName, string propertyName, object filterValue, string stack = "total")
-        {
-            this.Name = seriesName;
-            this.PropertyName = propertyName;
-            this.FilterValue = filterValue;
-            this.Stack = stack;
+            CreateSeries();
+            return new StackChartDto<T>(_chartName, CreateAxisTitle(), _series);
         }
     }
 }
