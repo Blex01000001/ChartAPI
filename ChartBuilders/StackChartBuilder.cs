@@ -11,11 +11,11 @@ namespace ChartAPI.ChartBuilders
         private readonly string _groupName;
         private readonly List<StackSeries> _series;
         private string _chartName;
-        public StackChartBuilder(IEnumerable<T> sourceData, string groupName, List<StackSeries> series)
+        public StackChartBuilder(IEnumerable<T> sourceData, string groupName, List<StackSeries> baseSeries)
         {
             _sourceData = sourceData;
             _groupName = groupName;
-            _series = series;
+            _series = baseSeries.Select(x => (StackSeries)x.Clone()).ToList();
         }
         public StackChartBuilder<T> SetName(string chartName)
         {
@@ -37,7 +37,6 @@ namespace ChartAPI.ChartBuilders
             .OrderBy(g => g.Key)
             .ToList();
 
-            var result = new List<StackSeries>();
             foreach (var series in _series)
             {
                 // 反射取出 DataItem 的屬性
@@ -46,7 +45,7 @@ namespace ChartAPI.ChartBuilders
                     throw new ArgumentException($"找不到屬性 {series.PropertyName}");
 
                 // 計算每個分群的 Sum(Hours)，條件為 prop.Value == FilterValue
-                var values = groups
+                series.Values = groups
                     .Select(g => g
                         .Where(item =>
                         {
@@ -61,7 +60,6 @@ namespace ChartAPI.ChartBuilders
                             return Convert.ToDouble(hProp.GetValue(x));
                         }))
                     .ToArray();
-                series.Values = values;
             }
         }
         public StackChartDto<T> Build()
