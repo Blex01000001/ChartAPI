@@ -5,6 +5,7 @@ using ChartAPI.Models;
 using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using System.Collections.Generic;
 using System.Linq;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace ChartAPI.Services
 {
@@ -51,10 +52,10 @@ namespace ChartAPI.Services
             if (!string.IsNullOrWhiteSpace(name)) filter.Set("Name", new List<string>() { name });
 
             //新增Stack Series條件
-            List<StackSeries> seriesCondition = new List<StackSeries>()
+            List<StackSeries> baseSeries = new List<StackSeries>()
             {
-                new StackSeries("Regular", "Regular", true),
-                new StackSeries("Overtime", "Overtime", true)
+                new StackSeries("Regular", "Regular", true, "Regular"),
+                new StackSeries("Overtime", "Overtime", true, "Overtime")
             };
             //database查詢
             string tableName = "ManHour";
@@ -71,7 +72,7 @@ namespace ChartAPI.Services
                         { "WorkNo", new PieChartBuilder<ManHourModel>(monthGroup.ToList(), "WorkNo").Build()},
                         { "CostCode", new PieChartBuilder<ManHourModel>(monthGroup.ToList(), "CostCode").Build()}
                     },
-                    StackCharts = new StackChartBuilder<ManHourModel>(monthGroup.ToList(), "WorkNo", seriesCondition)
+                    StackCharts = new StackChartBuilder<ManHourModel>(monthGroup.ToList(), "WorkNo", baseSeries)
                     .Build()
                 }).ToList();
         }
@@ -85,7 +86,7 @@ namespace ChartAPI.Services
             string tableName = "ManHour";
             var ManHourList = _dataRepository.GetData<ManHourModel, ManHourFilter>(filter, tableName);
             //新增每個Stack Series條件
-            List<StackSeries> seriesCondition = new List<StackSeries>()
+            List<StackSeries> baseSeries = new List<StackSeries>()
             {
                 new StackSeries("Overtime", "Overtime", true),
                 new StackSeries("Annual Paid", "CostCode", "003", "Leave"),
@@ -94,7 +95,7 @@ namespace ChartAPI.Services
                 new StackSeries("Personal", "CostCode", "001", "Leave")
             };
             //新增Stack Chart
-            return new StackChartBuilder<ManHourModel>(ManHourList, "Month", seriesCondition)
+            return new StackChartBuilder<ManHourModel>(ManHourList, "Month", baseSeries)
                 .SetName("加班/請假年度統計")
                 .Build();
         }

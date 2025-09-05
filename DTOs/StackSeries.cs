@@ -1,6 +1,6 @@
 ﻿namespace ChartAPI.DTOs
 {
-    public class StackSeries
+    public class StackSeries : ICloneable
     {
         public string Name { get; set; }// 這個系列的名稱（對應 legend）
         public string PropertyName { get; set; }// 要篩選的欄位名稱
@@ -13,6 +13,11 @@
             this.PropertyName = propertyName;
             this.FilterValue = filterValue;
             this.Stack = stack;
+        }
+
+        public object Clone()
+        {
+            return new StackSeries(Name, PropertyName, FilterValue, Stack);
         }
     }
 }
