@@ -194,7 +194,7 @@
         //console.log(QueryName,QueryYear);
         $.ajax({
             type: "GET",
-            url: "http://localhost:5265/api/Chart/GetMonthlyChartDto",
+            url: "http://localhost:5265/api/Chart/GetDashboardResponseDto",
             data: { name: QueryName, year: QueryYear, id: QueryID },
             //dataType: "json",
             success: function (response) {
@@ -203,7 +203,8 @@
                     alert(response.message);
                 } else {
                     re = response;
-                    DrawMonthlyChart(response);
+                    DrawMonthlyChart(response.monthlyChartDtos);
+                    DrawYearChart(response.stackChartDtos[0]);
                 }
             },
             error: function (thrownError) {
@@ -212,27 +213,25 @@
             }
         });
 
-        $.ajax({
-            type: "GET",
-            url: "http://localhost:5265/api/Chart/GetStackChartDto",
-            data: { name: QueryName, year: QueryYear, id: QueryID },
-            //dataType: "json",
-            success: function (response) {
-                console.log('YearChart success');
-                if (response.success === false) {
-                    alert(response.message);
-                } else {
-                    re = response;
-                    DrawYearChart(response);
-                }
-            },
-            error: function (thrownError) {
-                console.log('YearChart error');
-                console.log(thrownError);
-            }
-        });
-
-
+        //$.ajax({
+        //    type: "GET",
+        //    url: "http://localhost:5265/api/Chart/GetStackChartDto",
+        //    data: { name: QueryName, year: QueryYear, id: QueryID },
+        //    //dataType: "json",
+        //    success: function (response) {
+        //        console.log('YearChart success');
+        //        if (response.success === false) {
+        //            alert(response.message);
+        //        } else {
+        //            re = response;
+        //            DrawYearChart(response);
+        //        }
+        //    },
+        //    error: function (thrownError) {
+        //        console.log('YearChart error');
+        //        console.log(thrownError);
+        //    }
+        //});
     }
 
     function UpsertData() {

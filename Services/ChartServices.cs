@@ -44,65 +44,76 @@ namespace ChartAPI.Services
             //依照Calendar的資料形式分組
             return new YearCalendarBuilder(ManHourList).Build();
         }
-        public List<MonthlyChartDto> GetMonthlyData(int year, string name = null, string id = null)
-        {
-            //新增filter條件
-            var filter = new ManHourFilter().Set("Year", new List<int>() { year });
-            if (!string.IsNullOrWhiteSpace(id)) filter.Set("ID", new List<string>() { id });
-            if (!string.IsNullOrWhiteSpace(name)) filter.Set("Name", new List<string>() { name });
+        //public List<MonthlyChartDto> GetMonthlyData(int year, string name = null, string id = null)
+        //{
+        //    //新增filter條件
+        //    var filter = new ManHourFilter().Set("Year", new List<int>() { year });
+        //    if (!string.IsNullOrWhiteSpace(id)) filter.Set("ID", new List<string>() { id });
+        //    if (!string.IsNullOrWhiteSpace(name)) filter.Set("Name", new List<string>() { name });
 
-            //新增Stack Series條件
-            List<StackSeries> baseSeries = new List<StackSeries>()
-            {
-                new StackSeries("Regular", "Regular", true, "Regular"),
-                new StackSeries("Overtime", "Overtime", true, "Overtime")
-            };
-            //database查詢
-            string tableName = "ManHour";
-            var ManHourList = _dataRepository.GetData<ManHourModel, ManHourFilter>(filter, tableName);
-            //依照MonthlyChartData形式分組
-            return ManHourList
-                .GroupBy(x => x.Month)
-                .OrderByDescending(g => g.Key)
-                .Select(monthGroup => new MonthlyChartDto()
-                {
-                    Month = monthGroup.Key,
-                    PieChartDic = new Dictionary<string, PieChartDto>()
-                    {
-                        { "WorkNo", new PieChartBuilder<ManHourModel>(monthGroup.ToList(), "WorkNo").Build()},
-                        { "CostCode", new PieChartBuilder<ManHourModel>(monthGroup.ToList(), "CostCode").Build()}
-                    },
-                    StackCharts = new StackChartBuilder<ManHourModel>(monthGroup.ToList(), "WorkNo", baseSeries)
-                    .Build()
-                }).ToList();
-        }
-        public StackChartDto<ManHourModel> GetStackChart(int year, string name = null, string id = null)
-        {
-            //新增filter條件
-            var filter = new ManHourFilter().Set("Year", new List<int>() { year });
-            if (!string.IsNullOrWhiteSpace(id)) filter.Set("ID", new List<string>() { id });
-            if (!string.IsNullOrWhiteSpace(name)) filter.Set("Name", new List<string>() { name });
-            //database查詢
-            string tableName = "ManHour";
-            var ManHourList = _dataRepository.GetData<ManHourModel, ManHourFilter>(filter, tableName);
-            //新增每個Stack Series條件
-            List<StackSeries> baseSeries = new List<StackSeries>()
-            {
-                new StackSeries("Overtime", "Overtime", true),
-                new StackSeries("Annual Paid", "CostCode", "003", "Leave"),
-                new StackSeries("Compensatory", "CostCode", "053", "Leave"),
-                new StackSeries("Common sick", "CostCode", "002", "Leave"),
-                new StackSeries("Personal", "CostCode", "001", "Leave")
-            };
-            //新增Stack Chart
-            return new StackChartBuilder<ManHourModel>(ManHourList, "Month", baseSeries)
-                .SetName("加班/請假年度統計")
-                .Build();
-        }
+        //    //新增Stack Series條件
+        //    List<StackSeries> baseSeries = new List<StackSeries>()
+        //    {
+        //        new StackSeries("Regular", "Regular", true, "Regular"),
+        //        new StackSeries("Overtime", "Overtime", true, "Overtime")
+        //    };
+        //    //database查詢
+        //    string tableName = "ManHour";
+        //    var ManHourList = _dataRepository.GetData<ManHourModel, ManHourFilter>(filter, tableName);
+        //    //依照MonthlyChartData形式分組
+        //    return ManHourList
+        //        .GroupBy(x => x.Month)
+        //        .OrderByDescending(g => g.Key)
+        //        .Select(monthGroup => new MonthlyChartDto()
+        //        {
+        //            Month = monthGroup.Key,
+        //            PieChartDic = new Dictionary<string, PieChartDto>()
+        //            {
+        //                { "WorkNo", new PieChartBuilder<ManHourModel>(monthGroup.ToList(), "WorkNo").Build()},
+        //                { "CostCode", new PieChartBuilder<ManHourModel>(monthGroup.ToList(), "CostCode").Build()}
+        //            },
+        //            StackCharts = new StackChartBuilder<ManHourModel>(monthGroup.ToList(), "WorkNo", baseSeries)
+        //            .Build()
+        //        }).ToList();
+        //}
+        //public StackChartDto<ManHourModel> GetStackChart(int year, string name = null, string id = null)
+        //{
+        //    //新增filter條件
+        //    var filter = new ManHourFilter().Set("Year", new List<int>() { year });
+        //    if (!string.IsNullOrWhiteSpace(id)) filter.Set("ID", new List<string>() { id });
+        //    if (!string.IsNullOrWhiteSpace(name)) filter.Set("Name", new List<string>() { name });
+        //    //database查詢
+        //    string tableName = "ManHour";
+        //    var ManHourList = _dataRepository.GetData<ManHourModel, ManHourFilter>(filter, tableName);
+        //    //新增每個Stack Series條件
+        //    List<StackSeries> baseSeries = new List<StackSeries>()
+        //    {
+        //        new StackSeries("Overtime", "Overtime", true),
+        //        new StackSeries("Annual Paid", "CostCode", "003", "Leave"),
+        //        new StackSeries("Compensatory", "CostCode", "053", "Leave"),
+        //        new StackSeries("Common sick", "CostCode", "002", "Leave"),
+        //        new StackSeries("Personal", "CostCode", "001", "Leave")
+        //    };
+        //    //新增Stack Chart
+        //    return new StackChartBuilder<ManHourModel>(ManHourList, "Month", baseSeries)
+        //        .SetName("加班/請假年度統計")
+        //        .Build();
+        //}
 
         public DashboardResponseDto GetDashboardResponseDto(int year, string name, string id)
         {
-            throw new NotImplementedException();
+            //新增filter條件
+            var filter = new ManHourFilter().Set("Year", new List<int>() { year });
+            if (!string.IsNullOrWhiteSpace(id)) 
+                filter.Set("ID", new List<string>() { id });
+            if (!string.IsNullOrWhiteSpace(name)) 
+                filter.Set("Name", new List<string>() { name });
+
+            //database查詢
+            string tableName = "ManHour";
+            var ManHourList = _dataRepository.GetData<ManHourModel, ManHourFilter>(filter, tableName);
+
+            return new DashboardBuilder(ManHourList).Build();
         }
     }
 }
