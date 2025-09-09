@@ -4,7 +4,7 @@ namespace ChartAPI.DTOs
 {
     public class DashboardResponseDto
     {
-        List<MonthlyChartDto> monthlyChartDtos { get; set; }
-        List<StackChartDto<ManHourModel>> stackChartDtos { get; set; }
+        public List<MonthlyChartDto> monthlyChartDtos { get; set; }
+        public List<StackChartDto<ManHourModel>> stackChartDtos { get; set; } = new List<StackChartDto<ManHourModel>>();
     }
 }
