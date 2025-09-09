@@ -1,9 +1,9 @@
 ﻿using Swashbuckle.AspNetCore.SwaggerGen;
-using ChartAPI.DTOs;
+using ChartAPI.Models;
 
-namespace ChartAPI.Models
+namespace ChartAPI.DTOs
 {
-    public class MonthlyChartData
+    public class MonthlyChartDto
     {
         public int Month { get; set; }
         public Dictionary<string, PieChartDto> PieChartDic { get; set; }
