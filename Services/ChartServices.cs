@@ -44,7 +44,7 @@ namespace ChartAPI.Services
             //依照Calendar的資料形式分組
             return new YearCalendarBuilder(ManHourList).Build();
         }
-        public List<MonthlyChartData> GetMonthlyData(int year, string name = null, string id = null)
+        public List<MonthlyChartDto> GetMonthlyData(int year, string name = null, string id = null)
         {
             //新增filter條件
             var filter = new ManHourFilter().Set("Year", new List<int>() { year });
@@ -63,8 +63,8 @@ namespace ChartAPI.Services
             //依照MonthlyChartData形式分組
             return ManHourList
                 .GroupBy(x => x.Month)
-                .OrderBy(g => g.Key)
-                .Select(monthGroup => new MonthlyChartData()
+                .OrderByDescending(g => g.Key)
+                .Select(monthGroup => new MonthlyChartDto()
                 {
                     Month = monthGroup.Key,
                     PieChartDic = new Dictionary<string, PieChartDto>()
@@ -98,6 +98,11 @@ namespace ChartAPI.Services
             return new StackChartBuilder<ManHourModel>(ManHourList, "Month", baseSeries)
                 .SetName("加班/請假年度統計")
                 .Build();
+        }
+
+        public DashboardResponseDto GetDashboardResponseDto(int year, string name, string id)
+        {
+            throw new NotImplementedException();
         }
     }
 }
