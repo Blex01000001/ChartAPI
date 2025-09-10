@@ -1,4 +1,5 @@
-﻿using ChartAPI.Interfaces;
+﻿using ChartAPI.Extensions;
+using ChartAPI.Interfaces;
 using ChartAPI.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -53,7 +54,7 @@ namespace ChartAPI.Controllers
         [HttpGet]
         public IActionResult GetDashboardResponseDto([FromQuery] int? year, string name = null, string id = null)
         {
-            Console.Write($"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}] Query: {year} {name} {id}\n");
+            ConsoleExtensions.WriteLineWithTime($"{year} {name} {id}");
             if (year == null || year < 2012 || year > DateTime.Now.Year)
                 return Ok(new { success = false, message = "年份不正確" });
             if (string.IsNullOrWhiteSpace(name) && string.IsNullOrWhiteSpace(id))

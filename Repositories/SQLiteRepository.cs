@@ -1,15 +1,16 @@
-﻿using ChartAPI.Interfaces;
+﻿using ChartAPI.Extensions;
+using ChartAPI.Interfaces;
 using ChartAPI.Models;
+using HtmlAgilityPack;
 using System.Collections;
+using System.Collections.Concurrent;
+using System.Data;
 using System.Data.SQLite;
 using System.Diagnostics;
 using System.Reflection;
 using System.Text;
-using HtmlAgilityPack;
-using System.Data;
-using System.Collections.Concurrent;
-using System.Web;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace ChartAPI.Repositories
 {
@@ -60,12 +61,12 @@ namespace ChartAPI.Repositories
                 string fileName = Guid.NewGuid().ToString() + ".xls";
                 string filePath = Path.Combine(tempPath, fileName);
                 await System.IO.File.WriteAllBytesAsync(filePath, fileBytes);
-                Console.WriteLine($"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}] files:" + fileName);
+                ConsoleExtensions.WriteLineWithTime($"files: {fileName}");
                 return filePath;
             }
             catch (HttpRequestException ex)
             {
-                Console.WriteLine($"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}] ** Error:{ex.Message}");
+                ConsoleExtensions.WriteLineWithTime($"** Error:{ex.Message}");
                 return ex.Message;
             }
         }
@@ -82,7 +83,7 @@ namespace ChartAPI.Repositories
             {
                 try
                 {
-                    Console.WriteLine($"正在處理檔案：{Path.GetFileName(file)}");
+                    ConsoleExtensions.WriteLineWithTime($"正在處理檔案：{Path.GetFileName(file)}");
 
                     var fileNameWithoutExt = Path.GetFileNameWithoutExtension(file);
                     var dashIndex = fileNameWithoutExt.IndexOf('-');
@@ -94,11 +95,11 @@ namespace ChartAPI.Repositories
                     foreach (var r in records)
                         allRecords.Add(r);
 
-                    Console.WriteLine($"  -> 匯入 {records.Count} 筆");
+                    ConsoleExtensions.WriteLineWithTime($"  -> 匯入 {records.Count} 筆");
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"  [錯誤] {Path.GetFileName(file)}: {ex.Message}");
+                    ConsoleExtensions.WriteLineWithTime($"  [錯誤] {Path.GetFileName(file)}: {ex.Message}");
                 }
             });
             return allRecords.ToList();
@@ -267,7 +268,7 @@ namespace ChartAPI.Repositories
                     tran.Commit();
                 }
             }
-            Console.Write($"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}] Update To DataBase Complete\n");
+            ConsoleExtensions.WriteLineWithTime($"Update To DataBase Complete");
         }
         public IEnumerable<TModel> GetData<TModel,TFilter>(TFilter filter, string tableName) 
             where TModel : new() 
@@ -312,7 +313,7 @@ namespace ChartAPI.Repositories
                     list.Add(model);
                 }
             }
-            Console.Write($"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}] Query Count: {list.Count}, Elapsed {ExecuteReaderTime.ElapsedMilliseconds} ms\n" );
+            ConsoleExtensions.WriteLineWithTime($"Query Count: {list.Count}, Elapsed {ExecuteReaderTime.ElapsedMilliseconds} ms" );
             return list;
         }
 
