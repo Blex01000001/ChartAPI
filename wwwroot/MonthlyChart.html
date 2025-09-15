@@ -136,15 +136,31 @@
                 <option value="2024">
                 <option value="2023">
                 <option value="2022">
+                <option value="2021">
+                <option value="2020">
             </datalist>
 
             <input type="text" id="inputIDField" placeholder="工號" style="width: 75px;">
             <input type="text" id="inputNameField" placeholder="名字" style="width: 75px;" list="idHistory">
             <datalist id="idHistory">
-                <option value="李冠旻">
                 <option value="林永泰">
+                <option value="沈鈺恆">
+                <option value="李冠旻">
+                <option value="魏文娟">
+                <option value="張嚴">
+                <option value="柯天智">
+                <option value="陳心怡">
+                <option value="謝建鋒">
+                <option value="連惟立">
+                <option value="曾志雄">
+                <option value="王怡儕">
+                <option value="許國松">
                 <option value="謝元傑">
-                <option value="陳易寬">
+                <option value="邵琬茹">
+                <option value="陳柏翰">
+                <option value="鄭喬維">
+                <option value="洪子倩">
+                <option value="戴邱惠">
             </datalist>
             <div><button onclick="QueryChartData()">Query</button></div>
             <div><button onclick="SaveAsPNG()">Save as PNG</button></div>
@@ -285,10 +301,6 @@
     }
     function DrawYearChart(response) {
         document.querySelectorAll('.Year-Area').forEach(el => el.remove());
-
-        //response.forEach((monthlyData, index) => {
-
-        //})
         const OvertimeStackArea = document.createElement('div');
         OvertimeStackArea.className = 'Year-Area';
         const pieChartDiv = document.createElement('div');
@@ -301,7 +313,8 @@
         StackChartIns.setOption({
             color: ['#ff2c2c', '#CCCC00', '#8CA03C', '#CC66FF', '#0000FF'],
             title: {
-                text: response.name
+                text: response.name,
+                top: '2%'
             },
             tooltip: {
                 trigger: 'axis',
@@ -310,19 +323,20 @@
             legend: {                 // 啟用圖例
                 show: true,             // 預設就是 true
                 orient: 'horizontal',   // 'horizontal' 或 'vertical'
-                top: 'bottom',             // 位置: top / bottom / left / right / center
+                bottom: '1%'             // 位置: top / bottom / left / right / center
             },
             grid: {
-                left: '3%',
+                top: '15%',
+                left: '4%',
                 right: '4%',
-                bottom: '20%',
+                bottom: '16%',
                 containLabel: true
             },
             xAxis: {
                 type: 'category',
                 name: 'Month',
                 nameLocation: 'middle',// 名稱位置: 'start' | 'middle' | 'end'
-                nameGap: 20,           // 名稱與軸線的距離
+                nameGap: 25,           // 名稱與軸線的距離
                 nameTextStyle: {       // 名稱的文字樣式
                     fontSize: 14,
                     color: '#333'
@@ -343,6 +357,13 @@
             yAxis: {
                 type: 'value',
                 name: 'Hour',
+                nameLocation: 'center', // 僅支援 start, center, end
+                nameGap: 30, // 調整標題與軸線的距離（像素）
+                nameTextStyle: {
+                    fontSize: 14,
+                    color: '#333',
+                    rotate: 90 // 旋轉角度，90 為順時針垂直，-90 為逆時針垂直
+                },
                 splitLine: {
                     show: true,
                     lineStyle: {
