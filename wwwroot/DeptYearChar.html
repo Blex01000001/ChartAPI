@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<style type="text/css">
+    #InputArea {
+        display: flex;
+        gap: 5px;
+    }
+    #QueryArea {
+        display: flex;
+        padding: 5px;
+        background-color: #0094ff;
+        border-radius: 5px;
+    }
+    #UpdateArea {
+        display: flex;
+        padding: 5px;
+        background-color: #5effd8;
+        border-radius: 5px;
+    }
+
+    #ChartContainer {
+        flex-direction: column;
+        display: flex;
+        left: 20px;
+        width: 900px;
+/*
+        background-color: #cde2ff;
+        border-color: #d90000;
+        border-style: dashed;
+        border-width: 1px;
+
+*/    }
+    #StackContainer {
+        flex-direction: column;
+        display: flex;
+        left: 20px;
+        width: 900px;
+/*
+        background-color: #ff5e5e;
+        border-color: #00ff21;
+        border-style: dashed;
+        border-width: 1px;
+
+*/    }
+    #StackContainer div,
+    #ChartContainer div {
+        margin: 5px;
+    }
+    .Monthly-Area {
+        display: flex;
+        background-color: #e4e4e4;
+        border-radius: 30px;
+        align-items: center; /* 子元素垂直置中 */
+        /*
+        border-color: #0000d9;
+        border-style: dashed;
+        border-width: 1px;
+        */
+        /*width: 100%;*/
+        /*/height: 300px;*/
+    }
+    .MonthLabel {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 30px;
+        height: 100%;
+        font-size: 25px;
+        font-weight: bold;
+        color: #333;
+        transform: rotate(270deg);
+        /*background-color: #d90000;*/
+        border-radius: 8px;
+        /*box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);*/
+    }
+
+    .PieChartArea {
+        /*flex: 1;*/
+        width: 450px;
+        height: 250px;
+/*        border-color: #d90000;
+        border-style: dashed;
+        border-width: 1px;
+*/    }
+    
+    .StackChartArea {
+        /*flex: 1;*/
+        width: 400px;
+        height: 250px;
+/*        border-color: #0000d9;
+        border-style: dashed;
+        border-width: 1px;
+*/    }
+
+
+    .Year-Area {
+        display: flex;
+        background-color: #e4e4e4;
+        border-radius: 30px;
+        align-items: center; /* 子元素垂直置中 */
+    }
+
+    .StackArea {
+        width: 900px;
+        height: 300px;
+/*
+        border-color: #0000d9;
+        border-style: dashed;
+        border-width: 1px;
+
+*/    }
+
+
+</style>
+
+<head>
+    <meta charset="UTF-8">
+    <title>DeptYearChar</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/6.0.0/echarts.min.js"
+            integrity="sha512-4/g9GAdOdTpUP2mKClpKsEzaK7FQNgMjq+No0rX8XZlfrCGtbi4r+T/p5fnacsEC3zIAmHKLJUL7sh3/yVA4OQ=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.js"
+            integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+</head>
+
+<body>
+    <div id="InputArea">
+        <div id="QueryArea">
+            <input type="text" id="inputYearField" placeholder="年份" style="width: 75px;" list="YearList">
+            <datalist id="YearList">
+                <option value="2025">
+                <option value="2024">
+                <option value="2023">
+                <option value="2022">
+                <option value="2021">
+                <option value="2020">
+            </datalist>
+            <!--<input type="text" id="inputIDField" placeholder="部門" style="width: 75px;">-->
+            <input type="text" id="inputDeptField" placeholder="部門" style="width: 75px;" list="DeptHistory">
+            <datalist id="DeptHistory">
+                <option value="管線設計部">
+                <option value="品質管理組">
+            </datalist>
+            <!--<div><button onclick="QueryChartData()">Query</button></div>-->
+            <!--<div><button onclick="SaveAsPNG()">Save as PNG</button></div>
+            <select id="chartSelector" onchange="UpdateChartSelector(this.value)">
+                <option value="WorkNo">依 WorkNo</option>
+                <option value="CostCode">依 CostCode</option>
+            </select>-->
+        </div>
+        <div id="UpdateArea">
+            <div><button onclick="UpsertData()">UpsertData</button></div>
+        </div>
+        <!--<div id="TestArea">
+            <div><button onclick="TestChart()">Test</button></div>
+        </div>-->
+
+    </div>
+    <div id="StackContainer"></div>
+    <div id="ChartContainer"></div> <!-- 主容器放多個 MonthArea -->
+
+</body>
+
+</html>
+
+<script>
+    const container = document.getElementById('ChartContainer');
+    const chartInstances = {};
+    const chartData = {};
+    const monthDict = {
+        1: "January",
+        2: "February",
+        3: "March",
+        4: "April",
+        5: "May",
+        6: "June",
+        7: "July",
+        8: "August",
+        9: "September",
+        10: "October",
+        11: "November",
+        12: "December"
+    };
+    function QueryChartData() {
+        const QueryID = document.getElementById('inputIDField').value;
+        const QueryName = document.getElementById('inputNameField').value;
+        let QueryYear = document.getElementById('inputYearField').value;
+        ChartName = QueryName + ' Monthly Chart'
+        //console.log(QueryName,QueryYear);
+        $.ajax({
+            type: "GET",
+            url: "http://localhost:5265/api/Chart/GetDashboardResponseDto",
+            data: { name: QueryName, year: QueryYear, id: QueryID },
+            //dataType: "json",
+            success: function (response) {
+                console.log('MonthlyChart success');
+                if (response.success === false) {
+                    alert(response.message);
+                } else {
+                    re = response;
+                    DrawMonthlyChart(response.monthlyChartDtos);
+                    DrawYearChart(response.stackChartDtos[0]);
+                }
+            },
+            error: function (thrownError) {
+                console.log('MonthlyChart error');
+                console.log(thrownError);
+            }
+        });
+    }
+
+    function UpsertData() {
+        const QueryDept = document.getElementById('inputDeptField').value;
+        let QueryYear = document.getElementById('inputYearField').value;
+        //const QueryName = document.getElementById('inputNameField').value;
+        $.ajax({
+            type: "GET",
+            url: "http://localhost:5265/api/Chart/UpsertDataByDept",
+            data: { dept: QueryDept},
+            //dataType: "json",
+            success: function (response) {
+                console.log('Upsert success');
+                alert(response.message);
+            },
+            error: function (thrownError) {
+                console.log('Upsert error');
+                alert(response.message);
+                console.log(thrownError);
+            }
+        });
+
+    }
+
+    function SaveAsPNG() {
+        const target = document.getElementById('ChartContainer');
+        html2canvas(target, {
+            useCORS: true,
+            scale: 3  // 提高畫質
+        }).then(canvas => {
+            const link = document.createElement('a');
+            link.download = ChartName + '.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        });    }
+
+    function UpdateChartSelector(value) {
+        // 更新所有月份的圖表
+        for (const month in chartInstances) {
+            const pie = chartInstances[month];
+            const pieChart = chartData[month][value]; // value 會是 "CostCode" 或 "WorkNo"
+
+            pie.setOption({
+                series: [{
+                    data: pieChart.data
+                }],
+                title: {
+                    text: pieChart.title,
+                }
+            });
+        }
+    }
+    function DrawYearChart(response) {
+        document.querySelectorAll('.Year-Area').forEach(el => el.remove());
+        const OvertimeStackArea = document.createElement('div');
+        OvertimeStackArea.className = 'Year-Area';
+        const pieChartDiv = document.createElement('div');
+        pieChartDiv.className = 'StackArea';
+        OvertimeStackArea.appendChild(pieChartDiv);// 插入子元素
+        const container = document.getElementById('StackContainer');// 插入到頁面主容器
+        container.appendChild(OvertimeStackArea);
+        const StackChartIns = echarts.init(pieChartDiv);// 初始化圖表
+
+        StackChartIns.setOption({
+            color: ['#ff2c2c', '#CCCC00', '#8CA03C', '#CC66FF', '#0000FF'],
+            title: {
+                text: response.name,
+                top: '2%'
+            },
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: { type: 'shadow' }
+            },
+            legend: {                 // 啟用圖例
+                show: true,             // 預設就是 true
+                orient: 'horizontal',   // 'horizontal' 或 'vertical'
+                bottom: '1%'             // 位置: top / bottom / left / right / center
+            },
+            grid: {
+                top: '15%',
+                left: '4%',
+                right: '4%',
+                bottom: '16%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                name: 'Month',
+                nameLocation: 'middle',// 名稱位置: 'start' | 'middle' | 'end'
+                nameGap: 25,           // 名稱與軸線的距離
+                nameTextStyle: {       // 名稱的文字樣式
+                    fontSize: 14,
+                    color: '#333'
+                },
+                data: response.axisTitle,
+                splitLine: {
+                show: true,
+                    interval: function (index, value) {
+                        return index !== 0; // index=0 不畫，其他畫
+                    },
+                lineStyle: {
+                    color: '#858585',
+                    type: 'dashed'
+                }
+            }
+
+            },
+            yAxis: {
+                type: 'value',
+                name: 'Hour',
+                nameLocation: 'center', // 僅支援 start, center, end
+                nameGap: 30, // 調整標題與軸線的距離（像素）
+                nameTextStyle: {
+                    fontSize: 14,
+                    color: '#333',
+                    rotate: 90 // 旋轉角度，90 為順時針垂直，-90 為逆時針垂直
+                },
+                splitLine: {
+                    show: true,
+                    lineStyle: {
+                        color: '#c5c5c5',   // 格線顏色 (這裡設紅色)
+                        type: 'dashed',     // 線條樣式: 'solid' | 'dashed' | 'dotted'
+                        width: 1            // 線條粗細
+                    }
+                }
+
+            },
+            series: response.series.map(item => ({
+                name: item.name,
+                type: 'bar',
+                stack: item.stack,  // 或用 item.name 來堆疊不同組
+                data: item.values,
+                barGap:'0%',
+                label: {
+                    show: true,
+                    fontSize: 14,
+                    //color: '#ff0000',
+                    position: 'inside',
+                    verticalAlign: 'middle', //'middle' 'top' 'bottom'
+                    /*offset: [8, 0]*/
+                    formatter: function (params) {
+                        return params.value === 0 ? '' : params.value;
+                    }
+                },
+            })),
+        })
+
+
+    }
+    function DrawMonthlyChart(response) {
+        document.querySelectorAll('.Monthly-Area').forEach(el => el.remove());
+
+        response.forEach((monthlyData, index) => {
+            // 建立 MonthArea 主容器
+            const monthArea = document.createElement('div');
+
+            monthArea.className = 'Monthly-Area';
+
+            // 建立月份標籤
+            const monthLabel = document.createElement('div');
+            monthLabel.className = 'MonthLabel';
+            monthLabel.textContent = monthDict[monthlyData.month];
+
+            // 建立 PieChartArea
+            const pieChartDiv = document.createElement('div');
+            pieChartDiv.className = 'PieChartArea';
+
+            // 建立 StackChartArea
+            const stackChartDiv = document.createElement('div');
+            stackChartDiv.className = 'StackChartArea';
+
+            // 建立 PieChartArea
+            const pieChartDiv2 = document.createElement('div');
+            pieChartDiv2.className = 'PieChartArea';
+
+
+            // 插入子元素
+            monthArea.appendChild(monthLabel);
+            monthArea.appendChild(pieChartDiv);
+            monthArea.appendChild(stackChartDiv);
+
+            // 插入到頁面主容器
+            container.appendChild(monthArea);
+
+            // 初始化圖表（這邊你需用你的 pieData 與 stackData 實作）
+            const pieChartIns = echarts.init(pieChartDiv);
+            const stackChart = echarts.init(stackChartDiv);
+
+            // 把資料和實例存起來
+            chartInstances[monthlyData.month] = pieChartIns;
+            chartData[monthlyData.month] = monthlyData.pieChartDic;
+            
+            const pieChartData = monthlyData.pieChartDic["WorkNo"];
+            pieChartIns.setOption({
+                // 建立 pieChart 的 option
+                title: {
+                    show: true,
+                    text: pieChartData.title,
+                    top:'2%',
+                    textStyle: {
+                        fontSize: 14,
+                        color: 'rgb(0, 0, 0)',
+                        fontFamily: '微軟正黑體'
+                    },
+                    //subtext: 'subtext',
+                    subtextStyle: {
+                        fontSize: 16,
+                        color: 'rgb(120, 120, 120)',
+                        fontFamily: 'Arial'
+                    }
+                },
+                tooltip: { trigger: 'item' },
+                series: [{
+                    name: 'name',
+                    type: 'pie',
+                    radius: ['20%', '45%'],
+                    center: ['50%', '55%'], // [水平位置, 垂直位置]
+                    data: pieChartData.data,
+                    label: {
+                        show: true,
+                        formatter: '{b}\n{c}({d}%)',
+                        fontSize: 14
+                    },
+                    /*emphasis: {
+                        itemStyle: {
+                            shadowBlur: 10,
+                            shadowOffsetX: 0,
+                            shadowColor: 'rgba(0, 0, 0, 0.5)'
+                        }
+                    }*/
+                }],
+
+            });
+
+            const stackData = monthlyData.stackCharts;
+            stackChart.setOption({
+                // 建立 stackData 的 option
+                grid: {
+                    top: '15%',
+                    bottom: '15%',
+                    left: '10%',
+                    right: '10%'
+                },
+                title: {
+                    show: false,
+                    text: stackData.name
+                },
+                toolbox: { show:false },
+                tooltip: {
+                    show: false
+                },
+                legend: {
+                    top: '5%'
+                },
+                xAxis: {
+                    type: 'value',
+                    name: 'Hours',
+                    nameLocation: 'center',
+                    nameTextStyle: {
+                        fontStyle: 'normal',
+                        fontWeight: 'normal',
+                        fontFamily: 'Arial',
+                        fontSize: 16,
+                        color: '#404040',
+
+                    },
+                    axisLine: {
+                        show: false,
+                        lineStyle: {
+                            color: '#b0b0b0',
+                            width: 1,
+                            type: 'solid'
+                        }
+                    },
+                    splitLine: {
+                        show: true,
+                        lineStyle: {
+                            color: '#c0c0c0',
+                            width: 1,
+                            type: 'solid'
+                        }
+                    },
+                    axisLabel: {
+                        show: true,
+                        color: '#404040',
+                        fontStyle: 'normal',
+                        fontWeight: 'normal',
+                        fontFamily: 'Arial',
+                        fontSize: 14,
+                    },
+                },
+                yAxis: {
+                    type: 'category',
+                    /*name: 'Category',*/
+                    data: stackData.axisTitle,
+                    nameLocation: 'center',
+                    axisLabel: {
+                        show: true,
+                        color: '#404040',
+                        fontStyle: 'normal',
+                        fontWeight: 'normal',
+                        fontFamily: 'Arial',
+                        fontSize: stackData.axisTitle.length > 10 ? 12 : 14,   // 超過8個就縮小字型
+                        interval: 0  // 強制每個類別都顯示
+                    },
+
+                },
+                series: stackData.series.map(item => ({
+                    name: item.name,
+                    type: 'bar',
+                    stack: 'total',  // 或用 item.name 來堆疊不同組
+                    data: item.values,
+                    label: {
+                        show: true,
+                        /*color: '#ff0000',*/
+                        position: 'inside',
+                        verticalAlign: 'middle',
+                        /*offset: [8, 0]*/
+                        formatter: function (params) {
+                            return params.value === 0 ? '' : params.value;
+                        }
+                    }
+                })),
+                brush: {
+
+                }
+            });
+        });
+    }
+
+</script>
