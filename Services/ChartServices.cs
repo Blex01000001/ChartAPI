@@ -20,13 +20,23 @@ namespace ChartAPI.Services
         {
             //新增filter條件
             var filter = new EmployeeFilter();
-            if (!string.IsNullOrWhiteSpace(id)) filter.employee_id.Add(id);
-            if (!string.IsNullOrWhiteSpace(name)) filter.employee_name.Add(name);
-                
+            if (!string.IsNullOrWhiteSpace(id)) 
+                filter.employee_id.Add(id);
+            if (!string.IsNullOrWhiteSpace(name)) 
+                filter.employee_name.Add(name);
+
             string tableName = "EmpInfo9933";
             _dataRepository.UpsertData(filter, tableName);
-
         }
+        public void UpsertDataByDept(string dept)
+        {
+            //新增filter條件
+            string tableName = "EmpInfo9933";
+            var filter = new EmployeeFilter();
+            filter.Group2.Add(dept);
+            _dataRepository.UpsertData(filter, tableName);
+        }
+
         public List<YearCalendarDto> GetCalendarData(string name, string id = null)
         {
             //新增filter條件
@@ -35,7 +45,8 @@ namespace ChartAPI.Services
                 .Set("DateTo", new DateTime(2025, 12, 31))
                 .Set("Name", new List<string>() { name })
                 .Set("CostCode", new List<string>() { "003", "053", "001", "011", "021", "031", "041", "002", "033", "004", "005", "006", "037", "018", "028", "038" });
-            if (!string.IsNullOrWhiteSpace(id)) filter.Set("ID", new List<string>() { id });
+            if (!string.IsNullOrWhiteSpace(id)) 
+                filter.Set("ID", new List<string>() { id });
                 
             //database查詢
             string tableName = "ManHour";
@@ -61,9 +72,11 @@ namespace ChartAPI.Services
         }
         public YearChartDto GetYearChartDto()
         {
-            string dep = "管線";
+            var filter = new ManHourFilter();
+            string tableName = "ManHour";
 
-            return new YearChartBuilder().Build();
+            var ManHourList = _dataRepository.GetData<ManHourModel, ManHourFilter>(filter, tableName);
+            return new YearChartBuilder(ManHourList).Build();
         }
     }
 }
