@@ -124,6 +124,7 @@
     <script src="https://code.jquery.com/jquery-3.7.1.js"
             integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
 
 </head>
 
@@ -144,8 +145,9 @@
             <datalist id="DeptHistory">
                 <option value="管線設計部">
                 <option value="品質管理組">
+                <option value="智能事業群會計組">
             </datalist>
-            <!--<div><button onclick="QueryChartData()">Query</button></div>-->
+            <div><button onclick="QueryChartData()">Query</button></div>
             <!--<div><button onclick="SaveAsPNG()">Save as PNG</button></div>
             <select id="chartSelector" onchange="UpdateChartSelector(this.value)">
                 <option value="WorkNo">依 WorkNo</option>
@@ -185,6 +187,28 @@
         11: "November",
         12: "December"
     };
+    // 建立連線物件
+    const connection = new signalR.HubConnectionBuilder()
+        .withUrl("http://localhost:5265/notifyHub")  // 這個路徑要跟後端 MapHub 設定一樣
+        .build();
+
+    // 監聽後端的 TaskCompleted 事件
+    connection.on("TaskCompleted", function (message) {
+        alert(message); // 你可以改成更新頁面內容
+    });
+
+    // 啟動連線
+    connection.start()
+        .then(() => {
+            console.log("SignalR 連線成功, id=", connection.connectionId);
+
+            // 把 connectionId 傳給後端，請求啟動耗時任務
+            fetch(`/Chart/generate?connectionId=${connection.connectionId}`, {
+                method: "POST"
+            });
+        })
+        .catch(err => console.error("SignalR 連線失敗:", err));
+
     function QueryChartData() {
         const QueryID = document.getElementById('inputIDField').value;
         const QueryName = document.getElementById('inputNameField').value;
@@ -220,11 +244,10 @@
         $.ajax({
             type: "GET",
             url: "http://localhost:5265/api/Chart/UpsertDataByDept",
-            data: { dept: QueryDept},
+            data: { dept: QueryDept, connectionId: connection.connectionId },
             //dataType: "json",
             success: function (response) {
                 console.log('Upsert success');
-                alert(response.message);
             },
             error: function (thrownError) {
                 console.log('Upsert error');
