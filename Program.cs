@@ -1,6 +1,8 @@
-using ChartAPI.Services;
+using ChartAPI.Hubs;
 using ChartAPI.Interfaces;
 using ChartAPI.Repositories;
+using ChartAPI.Services;
+using Microsoft.AspNetCore.SignalR;
 using System.Text;
 
 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
@@ -14,19 +16,43 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+
 // 註冊 CORS 服務，這裡先定義一個全開的 Policy
+//builder.Services.AddCors(options =>
+//{
+//    options.AddPolicy("AllowAll", policy =>
+//    {
+//        policy
+//            .AllowAnyOrigin()    // 允許所有來源
+//            .AllowAnyMethod()    // 允許所有 HTTP 方法（GET、POST 等）
+//            .AllowAnyHeader();   // 允許所有標頭
+//    });
+//});
+//builder.Services.AddCors(options =>
+//{
+//    options.AddPolicy("AllowFrontend", policy =>
+//    {
+//        policy.WithOrigins("file:///D:/Program/CS/ChartAPI/wwwroot/DeptYearChar.html") // 這裡改成你的前端實際網址
+//              .AllowAnyHeader()
+//              .AllowAnyMethod()
+//              .AllowCredentials();
+//    });
+//});
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", policy =>
+    options.AddPolicy("AllowFrontend", policy =>
     {
-        policy
-            .AllowAnyOrigin()    // 允許所有來源
-            .AllowAnyMethod()    // 允許所有 HTTP 方法（GET、POST 等）
-            .AllowAnyHeader();   // 允許所有標頭
+        policy.SetIsOriginAllowed(_ => true)
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
     });
 });
 
 builder.WebHost.UseUrls("http://localhost:5265"); // 強制指定 URL
+// 註冊 SignalR
+builder.Services.AddSignalR();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -35,8 +61,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();// 顯示 Swagger 畫面
     app.UseSwaggerUI();// 顯示 Swagger 畫面
 }
-app.UseCors("AllowAll");
+//app.UseCors("AllowAll");
+app.UseCors("AllowFrontend");
 
+app.MapHub<NotifyHub>("/notifyHub");// 映射 Hub
 //app.UseStaticFiles();// 加入這行：啟用靜態檔案服務
 //app.MapFallbackToFile("index.html");// 可選：預設導向 index.html（如果是 SPA 可用）
 

@@ -61,7 +61,7 @@ namespace ChartAPI.Repositories
                 string fileName = Guid.NewGuid().ToString() + ".xls";
                 string filePath = Path.Combine(tempPath, fileName);
                 await System.IO.File.WriteAllBytesAsync(filePath, fileBytes);
-                ConsoleExtensions.WriteLineWithTime($"files: {fileName}");
+                ConsoleExtensions.WriteLineWithTime($"{employee.employee_name} -> {fileName}");
                 return filePath;
             }
             catch (HttpRequestException ex)

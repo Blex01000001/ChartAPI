@@ -1,8 +1,11 @@
 ﻿using ChartAPI.Extensions;
 using ChartAPI.Interfaces;
 using ChartAPI.Models;
+using ChartAPI.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.AspNetCore.SignalR;
 using System.Linq;
 using System.Net;
 using System.Net.Mail;
@@ -45,11 +48,13 @@ namespace ChartAPI.Controllers
             return Ok(_service.GetDashboardResponseDto(year.Value, name, id));
         }
         [HttpGet]
-        public IActionResult UpsertDataByDept([FromQuery] string dept)
+        public async Task<IActionResult> UpsertDataByDept([FromQuery] string dept, string connectionId)
         {
+            if (string.IsNullOrWhiteSpace(dept))
+                return Ok(new { success = false, message = "dept空白" });
             ConsoleExtensions.WriteLineWithTime($"dept {dept}");
-            _service.UpsertDataByDept(dept);
-            return Ok(new { success = true, message = "test conn 6666" + dept });
+            await _service.UpsertDataByDept(dept, connectionId);
+            return Ok(new { success = true, message = dept + " UpsertData success"});
         }
         [HttpGet]
         public IActionResult SendEmail(string toEmail, string subject, string body)

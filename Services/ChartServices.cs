@@ -1,8 +1,10 @@
 ﻿using ChartAPI.ChartBuilders;
 using ChartAPI.DTOs;
+using ChartAPI.Hubs;
 using ChartAPI.Interfaces;
 using ChartAPI.Models;
 using Microsoft.AspNetCore.DataProtection.KeyManagement;
+using Microsoft.AspNetCore.SignalR;
 using System.Collections.Generic;
 using System.Linq;
 using static System.Net.Mime.MediaTypeNames;
@@ -11,10 +13,12 @@ namespace ChartAPI.Services
 {
     public class ChartService : IChartServices
     {
+        private readonly IHubContext<NotifyHub> _hubContext;
         private IDataRepository _dataRepository;
-        public ChartService(IDataRepository csvRepository)
+        public ChartService(IDataRepository csvRepository, IHubContext<NotifyHub> hubContext)
         {
             this._dataRepository = csvRepository;
+            this._hubContext = hubContext;
         }
         public void UpsertData(string name = null, string id = null)
         {
@@ -28,13 +32,15 @@ namespace ChartAPI.Services
             string tableName = "EmpInfo9933";
             _dataRepository.UpsertData(filter, tableName);
         }
-        public void UpsertDataByDept(string dept)
+        public async Task UpsertDataByDept(string dept, string connectionId)
         {
             //新增filter條件
             string tableName = "EmpInfo9933";
             var filter = new EmployeeFilter();
             filter.Group2.Add(dept);
-            _dataRepository.UpsertData(filter, tableName);
+            await _dataRepository.UpsertData(filter, tableName);
+            await _hubContext.Clients.Client(connectionId)
+                .SendAsync("TaskCompleted", "UpsertData Completed");
         }
 
         public List<YearCalendarDto> GetCalendarData(string name, string id = null)

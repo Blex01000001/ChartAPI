@@ -10,6 +10,6 @@ namespace ChartAPI.Interfaces
         //StackChartDto<ManHourModel> GetStackChart(int year, string name, string id);
         DashboardResponseDto GetDashboardResponseDto(int year, string name, string id);
         void UpsertData(string name = null, string id = null);
-        void UpsertDataByDept(string dept);
+        Task UpsertDataByDept(string dept, string connectionId);
     }
 }
