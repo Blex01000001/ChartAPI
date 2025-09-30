@@ -210,15 +210,14 @@
         .catch(err => console.error("SignalR 連線失敗:", err));
 
     function QueryChartData() {
-        const QueryID = document.getElementById('inputIDField').value;
-        const QueryName = document.getElementById('inputNameField').value;
         let QueryYear = document.getElementById('inputYearField').value;
-        ChartName = QueryName + ' Monthly Chart'
+        const QueryDept = document.getElementById('inputDeptField').value;
+        ChartName = QueryDept + ' Monthly Chart'
         //console.log(QueryName,QueryYear);
         $.ajax({
             type: "GET",
-            url: "http://localhost:5265/api/Chart/GetDashboardResponseDto",
-            data: { name: QueryName, year: QueryYear, id: QueryID },
+            url: "http://localhost:5265/api/Chart/GetDeptYearChartDto",
+            data: { year: QueryYear, dept: QueryDept },
             //dataType: "json",
             success: function (response) {
                 console.log('MonthlyChart success');
@@ -226,7 +225,7 @@
                     alert(response.message);
                 } else {
                     re = response;
-                    DrawMonthlyChart(response.monthlyChartDtos);
+                    //DrawMonthlyChart(response.monthlyChartDtos);
                     DrawYearChart(response.stackChartDtos[0]);
                 }
             },

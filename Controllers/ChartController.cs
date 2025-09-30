@@ -48,6 +48,14 @@ namespace ChartAPI.Controllers
             return Ok(_service.GetDashboardResponseDto(year.Value, name, id));
         }
         [HttpGet]
+        public IActionResult GetDeptYearChartDto([FromQuery] int? year, string dept)
+        {
+            ConsoleExtensions.WriteLineWithTime($"{dept}");
+            if (string.IsNullOrWhiteSpace(dept))
+                return Ok(new { success = false, message = "dept為空" });
+            return Ok(_service.GetDeptYearChartDto(dept));
+        }
+        [HttpGet]
         public async Task<IActionResult> UpsertDataByDept([FromQuery] string dept, string connectionId)
         {
             if (string.IsNullOrWhiteSpace(dept))

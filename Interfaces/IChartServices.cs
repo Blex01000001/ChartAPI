@@ -11,5 +11,6 @@ namespace ChartAPI.Interfaces
         DashboardResponseDto GetDashboardResponseDto(int year, string name, string id);
         void UpsertData(string name = null, string id = null);
         Task UpsertDataByDept(string dept, string connectionId);
+        DeptChartDto GetDeptYearChartDto(string dept);
     }
 }

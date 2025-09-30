@@ -76,6 +76,15 @@ namespace ChartAPI.Services
 
             return new DashboardBuilder(ManHourList).Build();
         }
+        public DeptChartDto GetDeptYearChartDto(string dept)
+        {
+            //database查詢
+            var filter = new ManHourFilter();
+            filter.Group2.Add(dept);
+            string tableName = "ManHour";
+            var ManHourList = _dataRepository.GetData<ManHourModel, ManHourFilter>(filter, tableName);
+            return new DeptDashboardBuilder(ManHourList).Build();
+        }
         public YearChartDto GetYearChartDto()
         {
             var filter = new ManHourFilter();
