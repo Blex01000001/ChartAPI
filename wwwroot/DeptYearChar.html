@@ -23,25 +23,28 @@
         display: flex;
         left: 20px;
         width: 900px;
-/*
+        /*
         background-color: #cde2ff;
         border-color: #d90000;
         border-style: dashed;
         border-width: 1px;
 
-*/    }
+*/
+    }
     #StackContainer {
         flex-direction: column;
         display: flex;
         left: 20px;
         width: 900px;
-/*
+        height: 800px;
+        /*
         background-color: #ff5e5e;
         border-color: #00ff21;
         border-style: dashed;
         border-width: 1px;
 
-*/    }
+*/
+    }
     #StackContainer div,
     #ChartContainer div {
         margin: 5px;
@@ -98,11 +101,12 @@
         background-color: #e4e4e4;
         border-radius: 30px;
         align-items: center; /* 子元素垂直置中 */
+        height: 800px;
     }
 
     .StackArea {
         width: 900px;
-        height: 300px;
+        height: 1000px;
 /*
         border-color: #0000d9;
         border-style: dashed;
@@ -318,11 +322,11 @@
                 bottom: '16%',
                 containLabel: true
             },
-            xAxis: {
+            yAxis: {
                 type: 'category',
-                name: 'Month',
+                name: 'Name',
                 nameLocation: 'middle',// 名稱位置: 'start' | 'middle' | 'end'
-                nameGap: 25,           // 名稱與軸線的距離
+                nameGap: 50,           // 名稱與軸線的距離
                 nameTextStyle: {       // 名稱的文字樣式
                     fontSize: 14,
                     color: '#333'
@@ -336,11 +340,14 @@
                 lineStyle: {
                     color: '#858585',
                     type: 'dashed'
+                    },
+                },
+                axisLabel: {
+                    interval: 0  // 強制每個類別都顯示
                 }
-            }
 
             },
-            yAxis: {
+            xAxis: {
                 type: 'value',
                 name: 'Hour',
                 nameLocation: 'center', // 僅支援 start, center, end
@@ -377,6 +384,7 @@
                         return params.value === 0 ? '' : params.value;
                     }
                 },
+                barCategoryGap: '50%' // 不同類別之間的 bar 間距（百分比）
             })),
         })
 

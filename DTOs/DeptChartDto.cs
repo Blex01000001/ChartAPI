@@ -4,6 +4,6 @@ namespace ChartAPI.DTOs
 {
     public class DeptChartDto
     {
-        public List<StackChartDto<ManHourModel>> stackChartDtos { get; set; } = new List<StackChartDto<ManHourModel>>();
+        public List<StackChartDto<SumModel>> stackChartDtos { get; set; } = new List<StackChartDto<SumModel>>();
     }
 }

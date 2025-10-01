@@ -82,8 +82,14 @@ namespace ChartAPI.Services
             var filter = new ManHourFilter();
             filter.Group2.Add(dept);
             string tableName = "ManHour";
-            var ManHourList = _dataRepository.GetData<ManHourModel, ManHourFilter>(filter, tableName);
-            return new DeptDashboardBuilder(ManHourList).Build();
+
+            SumModel sumItem = _dataRepository.GetSumData(
+                            year: 2025,
+                            group2Filter: "管線",
+                            reportTitle: "2025年管線部門 - 加班總工時",
+                            isOvertime: true
+                        );
+            return new DeptDashboardBuilder(sumItem).Build();
         }
         public YearChartDto GetYearChartDto()
         {

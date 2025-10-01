@@ -383,5 +383,100 @@ namespace ChartAPI.Repositories
 
             return (sb.ToString(), parameters.ToArray());
         }
+        public SumModel GetSumData(int year, string group2Filter, string reportTitle, bool isOvertime = false, List<string> costCodes = null)
+        {
+            string dataBaseFilePath = Path.Combine(_dataBaseDir, _dBFileName);
+
+            // 建立一個 SumModel 來收集所有結果
+            var resultModel = new SumModel
+            {
+                Year = year,
+                Title = reportTitle, // 使用傳入的標題
+                sumItems = new List<SumItem>()
+            };
+
+            var sb = new StringBuilder();
+            sb.AppendLine(@"
+                SELECT 
+                    mh.ID, 
+                    mh.Name, 
+                    SUM(mh.Hours) AS TotalHours,
+                    mh.Year
+                FROM ManHour AS mh
+                LEFT JOIN ""EmpInfo9933"" AS emp
+                    ON mh.ID = emp.employee_id
+                WHERE 1=1
+                ");
+
+            var parameters = new List<SQLiteParameter>();
+
+            // 1. Group2 條件 (like "%管線%")
+            if (!string.IsNullOrEmpty(group2Filter))
+            {
+                sb.AppendLine(" AND emp.Group2 LIKE @Group2Filter ");
+                parameters.Add(new SQLiteParameter("@Group2Filter", $"%{group2Filter}%"));
+            }
+
+            // 2. Year 條件
+            sb.AppendLine(" AND mh.Year = @Year ");
+            parameters.Add(new SQLiteParameter("@Year", year));
+
+            // 3. 可替換的動態條件
+            if (isOvertime)
+            {
+                // AND Overtime = 1
+                sb.AppendLine(" AND mh.Overtime = 1 ");
+            }
+            else if (costCodes != null && costCodes.Any())
+            {
+                // AND CostCode IN ("002", "003", ...)
+                var inParams = costCodes
+                    .Select((_, idx) => $"@CostCode{idx}")
+                    .ToArray();
+
+                sb.AppendLine($" AND mh.CostCode IN ({string.Join(",", inParams)}) ");
+
+                for (int i = 0; i < costCodes.Count; i++)
+                {
+                    parameters.Add(new SQLiteParameter(inParams[i], costCodes[i]));
+                }
+            }
+
+            // 必須 GROUP BY 才能對 ID/Name SUM
+            sb.AppendLine(@"
+                GROUP BY mh.ID, mh.Name, mh.Year
+                ORDER BY TotalHours DESC
+                ");
+
+            Stopwatch ExecuteReaderTime = new Stopwatch();
+            using (var conn = new SQLiteConnection($"Data Source={dataBaseFilePath}"))
+            {
+                conn.Open();
+                var cmd = new SQLiteCommand(sb.ToString(), conn);
+                cmd.Parameters.AddRange(parameters.ToArray());
+
+                ExecuteReaderTime.Start();
+                var reader = cmd.ExecuteReader();
+                ExecuteReaderTime.Stop();
+
+                while (reader.Read())
+                {
+                    // 將每一筆 GROUP BY 結果，轉換為一個 SumItem
+                    var item = new SumItem
+                    {
+                        ID = reader["ID"].ToString(),
+                        Name = reader["Name"].ToString(),
+                        Value = Convert.ToDouble(reader["TotalHours"])
+                    };
+
+                    // 將 SumItem 加入到 SumModel 的 List 中
+                    resultModel.sumItems.Add(item);
+                }
+            }
+
+            ConsoleExtensions.WriteLineWithTime($"Query Count: {resultModel.sumItems.Count}, Elapsed {ExecuteReaderTime.ElapsedMilliseconds} ms");
+
+            return resultModel;
+        }
     }
 }

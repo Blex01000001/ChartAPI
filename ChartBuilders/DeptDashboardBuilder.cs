@@ -6,13 +6,14 @@ namespace ChartAPI.ChartBuilders
     public class DeptDashboardBuilder
     {
         private DeptChartDto _responseDto;
-        private IEnumerable<ManHourModel> _manHourList;
-        public DeptDashboardBuilder(IEnumerable<ManHourModel> manHourList)
+        private SumModel _sumModel;
+        public DeptDashboardBuilder(SumModel sumModel)
         {
             _responseDto = new DeptChartDto();
-            _manHourList = manHourList;
+            _sumModel = sumModel;
+            _sumModel.sumItems = _sumModel.sumItems.OrderByDescending(x => x.Value).Take(30).OrderBy(x => x.Value).ToList();
         }
-        private StackChartDto<ManHourModel> CreateStackChartDto()
+        private StackChartDto<SumModel> CreateStackChartDto()
         {
             //新增每個Stack Series條件
             List<StackSeries> baseSeries = new List<StackSeries>()
@@ -24,10 +25,15 @@ namespace ChartAPI.ChartBuilders
                 //new StackSeries("Personal", "CostCode", "001", "Leave")
             };
             //新增Stack Chart
-            return new StackChartBuilder<ManHourModel>(_manHourList, "Name", baseSeries)
-                .SetName("特休王年度統計")
-                .Build();
+
+            var AxisTitle = _sumModel.sumItems.Select(x => x.Name).ToArray();
+
+            StackChartDto<SumModel> stackChartDto = new StackChartDto<SumModel>(_sumModel.Title, AxisTitle, baseSeries);
+            stackChartDto.Series[0].Values = _sumModel.sumItems.Select(x => x.Value).ToArray();
+
+            return stackChartDto;
         }
+
 
         public DeptChartDto Build()
         {
