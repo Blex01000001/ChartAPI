@@ -47,10 +47,10 @@ namespace ChartAPI.Services
         {
             //新增filter條件
             var filter = new ManHourFilter()
-                .Set("DateFrom", new DateTime(2015, 1, 1))
+                .Set("DateFrom", new DateTime(2012, 1, 1))
                 .Set("DateTo", new DateTime(2025, 12, 31))
-                .Set("Name", new List<string>() { name })
-                .Set("CostCode", new List<string>() { "003", "053", "001", "011", "021", "031", "041", "002", "033", "004", "005", "006", "037", "018", "028", "038" });
+                .Set("Name", new List<string>() { name });
+                //.Set("CostCode", new List<string>() { "003", "053", "001", "011", "021", "031", "041", "002", "033", "004", "005", "006", "007", "037", "018", "028", "038" });
             if (!string.IsNullOrWhiteSpace(id)) 
                 filter.Set("ID", new List<string>() { id });
                 
