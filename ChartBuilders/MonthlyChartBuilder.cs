@@ -1,30 +1,31 @@
 ﻿using ChartAPI.DTOs;
 using ChartAPI.Models;
+using ChartAPI.ResponseDto;
 
 namespace ChartAPI.ChartBuilders
 {
-    public class DashboardBuilder
+    public class MonthlyChartBuilder
     {
-        private DashboardResponseDto _responseDto;
+        private MonthlyChartResponseDto _responseDto;
         private IEnumerable<ManHourModel> _manHourList;
-        public DashboardBuilder(IEnumerable<ManHourModel> manHourList)
+        public MonthlyChartBuilder(IEnumerable<ManHourModel> manHourList)
         {
-            _responseDto = new DashboardResponseDto();
+            _responseDto = new MonthlyChartResponseDto();
             _manHourList = manHourList;
         }
         private StackChartDto<ManHourModel> CreateStackChartDto()
         {
             //新增每個Stack Series條件
-            List<StackSeries> baseSeries = new List<StackSeries>()
+            List<StackSerie> Series = new List<StackSerie>()
             {
-                new StackSeries("Overtime", "Overtime", true),
-                new StackSeries("Annual Paid", "CostCode", "003", "Leave"),
-                new StackSeries("Compensatory", "CostCode", "053", "Leave"),
-                new StackSeries("Common sick", "CostCode", "002", "Leave"),
-                new StackSeries("Personal", "CostCode", "001", "Leave")
+                new StackSerie("Overtime", "Overtime", true),
+                new StackSerie("Annual Paid", "CostCode", "003", "Leave"),
+                new StackSerie("Compensatory", "CostCode", "053", "Leave"),
+                new StackSerie("Common sick", "CostCode", "002", "Leave"),
+                new StackSerie("Personal", "CostCode", "001", "Leave")
             };
             //新增Stack Chart
-            return new StackChartBuilder<ManHourModel>(_manHourList, "Month", baseSeries)
+            return new StackChartBuilder<ManHourModel>(_manHourList, "Month", "Hours", Series)
                 .SetName("加班/請假年度統計")
                 .Build();
 
@@ -32,10 +33,10 @@ namespace ChartAPI.ChartBuilders
         private List<MonthlyChartDto> CreateMonthlyChartDto()
         {
             //新增Stack Series條件
-            List<StackSeries> baseSeries = new List<StackSeries>()
+            List<StackSerie> baseSeries = new List<StackSerie>()
             {
-                new StackSeries("Regular", "Regular", true, "Regular"),
-                new StackSeries("Overtime", "Overtime", true, "Overtime")
+                new StackSerie("Regular", "Regular", true, "Regular"),
+                new StackSerie("Overtime", "Overtime", true, "Overtime")
             };
             //依照MonthlyChartData形式分組
             return _manHourList
@@ -49,11 +50,11 @@ namespace ChartAPI.ChartBuilders
                         { "WorkNo", new PieChartBuilder<ManHourModel>(monthGroup.ToList(), "WorkNo").Build()},
                         { "CostCode", new PieChartBuilder<ManHourModel>(monthGroup.ToList(), "CostCode").Build()}
                     },
-                    StackCharts = new StackChartBuilder<ManHourModel>(monthGroup.ToList(), "WorkNo", baseSeries)
+                    StackCharts = new StackChartBuilder<ManHourModel>(monthGroup.ToList(), "WorkNo", "Hours", baseSeries)
                     .Build()
                 }).ToList();
         }
-        public DashboardResponseDto Build()
+        public MonthlyChartResponseDto Build()
         {
             _responseDto.monthlyChartDtos = CreateMonthlyChartDto();
             _responseDto.stackChartDtos.Add(CreateStackChartDto());

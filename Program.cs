@@ -40,7 +40,7 @@ builder.Services.AddCors(options =>
     });
 });
 
-//強行允許所有來源，但安全性很差
+#region 強行允許所有來源，但安全性很差
 //builder.Services.AddCors(options =>
 //{
 //    options.AddPolicy("AllowFrontend", policy =>
@@ -51,6 +51,7 @@ builder.Services.AddCors(options =>
 //              .AllowCredentials();
 //    });
 //});
+#endregion
 
 builder.WebHost.UseUrls("http://localhost:5265"); // 強制指定 URL
 // 註冊 SignalR

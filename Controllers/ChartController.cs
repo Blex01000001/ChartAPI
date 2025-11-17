@@ -28,24 +28,24 @@ namespace ChartAPI.Controllers
         {
             return Ok(_service.GetCalendarData(name, id));
         }
-        [HttpGet]
-        public IActionResult UpsertData([FromQuery] string name = null, string id = null)
-        {
-            if (string.IsNullOrWhiteSpace(name) && string.IsNullOrWhiteSpace(id))
-                return Ok(new { success = false, message = "姓名或工號擇一填入" });
-            _service.UpsertData(name, id);
-            return Ok(new { message = "UpsertData success" });
-        }
+        //[HttpGet]
+        //public IActionResult UpsertData([FromQuery] string name = null, string id = null)
+        //{
+        //    if (string.IsNullOrWhiteSpace(name) && string.IsNullOrWhiteSpace(id))
+        //        return Ok(new { success = false, message = "姓名或工號擇一填入" });
+        //    _service.UpsertData(name, id);
+        //    return Ok(new { message = "UpsertData success" });
+        //}
 
         [HttpGet]
-        public IActionResult GetDashboardResponseDto([FromQuery] int? year, string name = null, string id = null)
+        public IActionResult GetMonthlyChartResponseDto([FromQuery] int? year, string name = null, string id = null)
         {
             ConsoleExtensions.WriteLineWithTime($"{year} {name} {id}");
             if (year == null || year < 2012 || year > DateTime.Now.Year)
                 return Ok(new { success = false, message = "年份不正確" });
             if (string.IsNullOrWhiteSpace(name) && string.IsNullOrWhiteSpace(id))
                 return Ok(new { success = false, message = "姓名或工號擇一填入" });
-            return Ok(_service.GetDashboardResponseDto(year.Value, name, id));
+            return Ok(_service.GetMonthlyChartResponseDto(year.Value, name, id));
         }
         [HttpGet]
         public IActionResult GetDeptYearChartDto([FromQuery] int? year, string dept)
@@ -55,15 +55,15 @@ namespace ChartAPI.Controllers
                 return Ok(new { success = false, message = "dept為空" });
             return Ok(_service.GetDeptYearChartDto(dept));
         }
-        [HttpGet]
-        public async Task<IActionResult> UpsertDataByDept([FromQuery] string dept, string connectionId)
-        {
-            if (string.IsNullOrWhiteSpace(dept))
-                return Ok(new { success = false, message = "dept空白" });
-            ConsoleExtensions.WriteLineWithTime($"dept {dept}");
-            await _service.UpsertDataByDept(dept, connectionId);
-            return Ok(new { success = true, message = dept + " UpsertData success"});
-        }
+        //[HttpGet]
+        //public async Task<IActionResult> UpsertDataByDept([FromQuery] string dept, string connectionId)
+        //{
+        //    if (string.IsNullOrWhiteSpace(dept))
+        //        return Ok(new { success = false, message = "dept空白" });
+        //    ConsoleExtensions.WriteLineWithTime($"dept {dept}");
+        //    await _service.UpsertDataByDept(dept, connectionId);
+        //    return Ok(new { success = true, message = dept + " UpsertData success"});
+        //}
         [HttpGet]
         public IActionResult SendEmail(string toEmail, string subject, string body)
         {

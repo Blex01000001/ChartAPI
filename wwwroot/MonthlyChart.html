@@ -5,12 +5,14 @@
         display: flex;
         gap: 5px;
     }
+
     #QueryArea {
         display: flex;
         padding: 5px;
         background-color: #0094ff;
         border-radius: 5px;
     }
+
     #UpdateArea {
         display: flex;
         padding: 5px;
@@ -23,34 +25,40 @@
         display: flex;
         left: 20px;
         width: 900px;
-/*
+        /*
         background-color: #cde2ff;
         border-color: #d90000;
         border-style: dashed;
         border-width: 1px;
 
-*/    }
+*/
+    }
+
     #StackContainer {
         flex-direction: column;
         display: flex;
         left: 20px;
         width: 900px;
-/*
+        /*
         background-color: #ff5e5e;
         border-color: #00ff21;
         border-style: dashed;
         border-width: 1px;
 
-*/    }
+*/
+    }
+
     #StackContainer div,
     #ChartContainer div {
         margin: 5px;
     }
+
     .Monthly-Area {
         display: flex;
         background-color: #e4e4e4;
         border-radius: 30px;
-        align-items: center; /* 子元素垂直置中 */
+        align-items: center;
+        /* 子元素垂直置中 */
         /*
         border-color: #0000d9;
         border-style: dashed;
@@ -59,6 +67,7 @@
         /*width: 100%;*/
         /*/height: 300px;*/
     }
+
     .MonthLabel {
         display: flex;
         align-items: center;
@@ -78,39 +87,41 @@
         /*flex: 1;*/
         width: 450px;
         height: 250px;
-/*        border-color: #d90000;
+        /*        border-color: #d90000;
         border-style: dashed;
         border-width: 1px;
-*/    }
-    
+*/
+    }
+
     .StackChartArea {
         /*flex: 1;*/
         width: 400px;
         height: 250px;
-/*        border-color: #0000d9;
+        /*        border-color: #0000d9;
         border-style: dashed;
         border-width: 1px;
-*/    }
+*/
+    }
 
 
     .Year-Area {
         display: flex;
         background-color: #e4e4e4;
         border-radius: 30px;
-        align-items: center; /* 子元素垂直置中 */
+        align-items: center;
+        /* 子元素垂直置中 */
     }
 
     .StackArea {
         width: 900px;
         height: 300px;
-/*
+        /*
         border-color: #0000d9;
         border-style: dashed;
         border-width: 1px;
 
-*/    }
-
-
+*/
+    }
 </style>
 
 <head>
@@ -119,10 +130,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/6.0.0/echarts.min.js"
-            integrity="sha512-4/g9GAdOdTpUP2mKClpKsEzaK7FQNgMjq+No0rX8XZlfrCGtbi4r+T/p5fnacsEC3zIAmHKLJUL7sh3/yVA4OQ=="
-            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        integrity="sha512-4/g9GAdOdTpUP2mKClpKsEzaK7FQNgMjq+No0rX8XZlfrCGtbi4r+T/p5fnacsEC3zIAmHKLJUL7sh3/yVA4OQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.js"
-            integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+        integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
 </head>
@@ -210,11 +221,11 @@
         //console.log(QueryName,QueryYear);
         $.ajax({
             type: "GET",
-            url: "http://localhost:5265/api/Chart/GetDashboardResponseDto",
+            url: "http://localhost:5265/api/Chart/GetMonthlyChartResponseDto",
             data: { name: QueryName, year: QueryYear, id: QueryID },
             //dataType: "json",
             success: function (response) {
-                console.log('MonthlyChart success');
+                console.log('Get Monthly Chart success');
                 if (response.success === false) {
                     alert(response.message);
                 } else {
@@ -224,7 +235,7 @@
                 }
             },
             error: function (thrownError) {
-                console.log('MonthlyChart error');
+                console.log('Get Monthly Chart error');
                 console.log(thrownError);
             }
         });
@@ -281,7 +292,8 @@
             link.download = ChartName + '.png';
             link.href = canvas.toDataURL('image/png');
             link.click();
-        });    }
+        });
+    }
 
     function UpdateChartSelector(value) {
         // 更新所有月份的圖表
@@ -343,15 +355,15 @@
                 },
                 data: response.axisTitle,
                 splitLine: {
-                show: true,
+                    show: true,
                     interval: function (index, value) {
                         return index !== 0; // index=0 不畫，其他畫
                     },
-                lineStyle: {
-                    color: '#858585',
-                    type: 'dashed'
+                    lineStyle: {
+                        color: '#858585',
+                        type: 'dashed'
+                    }
                 }
-            }
 
             },
             yAxis: {
@@ -379,7 +391,7 @@
                 type: 'bar',
                 stack: item.stack,  // 或用 item.name 來堆疊不同組
                 data: item.values,
-                barGap:'0%',
+                barGap: '0%',
                 label: {
                     show: true,
                     fontSize: 14,
@@ -438,14 +450,14 @@
             // 把資料和實例存起來
             chartInstances[monthlyData.month] = pieChartIns;
             chartData[monthlyData.month] = monthlyData.pieChartDic;
-            
+
             const pieChartData = monthlyData.pieChartDic["WorkNo"];
             pieChartIns.setOption({
                 // 建立 pieChart 的 option
                 title: {
                     show: true,
                     text: pieChartData.title,
-                    top:'2%',
+                    top: '2%',
                     textStyle: {
                         fontSize: 14,
                         color: 'rgb(0, 0, 0)',
@@ -494,7 +506,7 @@
                     show: false,
                     text: stackData.name
                 },
-                toolbox: { show:false },
+                toolbox: { show: false },
                 tooltip: {
                     show: false
                 },

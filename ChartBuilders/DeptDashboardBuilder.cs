@@ -16,10 +16,10 @@ namespace ChartAPI.ChartBuilders
         private StackChartDto<SumModel> CreateStackChartDto()
         {
             //新增每個Stack Series條件
-            List<StackSeries> baseSeries = new List<StackSeries>()
+            List<StackSerie> baseSeries = new List<StackSerie>()
             {
                 //new StackSeries("Overtime", "Overtime", true),
-                new StackSeries("Annual Paid", "CostCode", "003", "Leave"),
+                new StackSerie("Annual Paid", "CostCode", "003", "Leave"),
                 //new StackSeries("Compensatory", "CostCode", "053", "Leave"),
                 //new StackSeries("Common sick", "CostCode", "002", "Leave"),
                 //new StackSeries("Personal", "CostCode", "001", "Leave")

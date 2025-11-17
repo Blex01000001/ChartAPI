@@ -1,6 +1,7 @@
 ﻿using ChartAPI.Extensions;
 using ChartAPI.Interfaces;
 using ChartAPI.Models;
+using ChartAPI.Repositories.Filters;
 using HtmlAgilityPack;
 using System.Collections;
 using System.Collections.Concurrent;
@@ -22,16 +23,16 @@ namespace ChartAPI.Repositories
         {
             _dataBaseDir = config.GetConnectionString("DataBaseDir");
         }
-        public async Task UpsertData(EmployeeFilter filter, string tableName)
-        {
-            IEnumerable<EmployeeModel> employees = GetData<EmployeeModel, EmployeeFilter>(filter, tableName);
-            foreach (EmployeeModel employee in employees)
-            {
-                string filePath = await DownLoadHtmlTable(employee);
-                List<ManHourModel> manHourModels = ParseHtmlTable(filePath, employee.employee_name, employee.employee_id);
-                UpdateToDataBase(manHourModels);
-            }
-        }
+        //public async Task UpsertData(EmployeeFilter filter, string tableName)
+        //{
+        //    IEnumerable<EmployeeModel> employees = GetData<EmployeeModel, EmployeeFilter>(filter, tableName);
+        //    foreach (EmployeeModel employee in employees)
+        //    {
+        //        string filePath = await DownLoadHtmlTable(employee);
+        //        List<ManHourModel> manHourModels = ParseHtmlTable(filePath, employee.employee_name, employee.employee_id);
+        //        UpdateToDataBase(manHourModels);
+        //    }
+        //}
         private async Task<string> DownLoadHtmlTable(EmployeeModel employee)
         {
             var handler = new HttpClientHandler
@@ -166,7 +167,7 @@ namespace ChartAPI.Repositories
         }
         private void UpdateToDataBase(List<ManHourModel> manHourModels)
         {
-            const int BatchSize = 10000; // 每批處理筆數
+            const int BatchSize = 10000; // 每批最大處理筆數
             string dbPath = "Data Source=ManHourData.db;Version=3;";
             string dataBaseFilePath = Path.Combine(_dataBaseDir, _dBFileName);
 
@@ -175,7 +176,6 @@ namespace ChartAPI.Repositories
                 conn.Open();
 
                 // 建表
-                //Console.Write($"Create Table...");
                 string createTable = @"
                     CREATE TABLE IF NOT EXISTS ManHour (
                     Name TEXT, ID TEXT, Date TEXT, Year INTEGER, Month INTEGER, Weekend TEXT, WorkNo TEXT,
@@ -183,15 +183,12 @@ namespace ChartAPI.Repositories
                     SE TEXT, REWK TEXT, DayofWeek INTEGER, Hours REAL, Regular INTEGER, Overtime INTEGER,
                     Updated TEXT, Position TEXT, Group1 TEXT, Group2 TEXT, Group3 TEXT, Group4 TEXT)";
                 new SQLiteCommand(createTable, conn).ExecuteNonQuery();
-                //Console.Write($" Complete " + DateTime.Now + "\n");
 
-                // 索引
-                //Console.Write($"Create IX_ManHour_NameIDWeekend...");
+                // 建立索引
                 string createINDEX = @"
                     CREATE INDEX IF NOT EXISTS IX_ManHour_NameIDWeekend
                     ON ManHour(Name, ID, Weekend);";
                 new SQLiteCommand(createINDEX, conn).ExecuteNonQuery();
-                //Console.Write($" Complete " + DateTime.Now + "\n");
 
                 var props = typeof(ManHourModel)
                                 .GetProperties(BindingFlags.Public | BindingFlags.Instance);
@@ -206,7 +203,6 @@ namespace ChartAPI.Repositories
 
                     if (keysToDelete.Count > 0)
                     {
-                        //Console.WriteLine($"keysToDelete Count: {keysToDelete.Count}");
                         string deleteSql = "DELETE FROM ManHour WHERE Name=@Name AND ID=@ID AND Weekend=@Weekend";
 
                         using (var delCmd = new SQLiteCommand(deleteSql, conn, tran))
@@ -270,7 +266,7 @@ namespace ChartAPI.Repositories
             }
             ConsoleExtensions.WriteLineWithTime($"Update To DataBase Complete");
         }
-        public IEnumerable<TModel> GetData<TModel,TFilter>(TFilter filter, string tableName) 
+        public IEnumerable<TModel> GetData<TModel,TFilter>(IFilter filter, string tableName) 
             where TModel : new() 
         {
             var list = new List<TModel>();
@@ -280,7 +276,9 @@ namespace ChartAPI.Repositories
             using (var conn = new SQLiteConnection($"Data Source={dataBaseFilePath}"))
             {
                 conn.Open();
-                var (sql, ps) = BuildFilterSql(filter, tableName);
+                //var (sql, ps) = BuildFilterSql(filter, tableName);
+                var (sql, ps) = QueryBuilder.Build("ManHour", filter);
+
                 var cmd = new SQLiteCommand(sql, conn);
                 cmd.Parameters.AddRange(ps);
                 ExecuteReaderTime.Start();

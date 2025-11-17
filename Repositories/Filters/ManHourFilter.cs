@@ -1,21 +1,7 @@
-﻿using ChartAPI.Repositories.Filters;
-
-namespace ChartAPI.Models
+﻿namespace ChartAPI.Repositories.Filters
 {
     public class ManHourFilter : BaseFilter
     {
-        public DateTime? DateFrom
-        {
-            get => TryGet<DateTime?>(nameof(DateFrom));
-            set => Set(nameof(DateFrom), value);
-        }
-
-        public DateTime? DateTo
-        {
-            get => TryGet<DateTime?>(nameof(DateTo));
-            set => Set(nameof(DateTo), value);
-        }
-
         public List<string> Name
         {
             get => TryGet<List<string>>(nameof(Name)) ?? new();
@@ -28,6 +14,24 @@ namespace ChartAPI.Models
             set => Set(nameof(ID), value);
         }
 
+        public List<string> CostCode
+        {
+            get => TryGet<List<string>>(nameof(CostCode)) ?? new();
+            set => Set(nameof(CostCode), value);
+        }
+
+        public DateTime? DateFrom
+        {
+            get => TryGet<DateTime?>(nameof(DateFrom));
+            set => Set(nameof(DateFrom), value);
+        }
+
+        public DateTime? DateTo
+        {
+            get => TryGet<DateTime?>(nameof(DateTo));
+            set => Set(nameof(DateTo), value);
+        }
+
         public List<int> Year
         {
             get => TryGet<List<int>>(nameof(Year)) ?? new();
@@ -38,12 +42,6 @@ namespace ChartAPI.Models
         {
             get => TryGet<List<int>>(nameof(Month)) ?? new();
             set => Set(nameof(Month), value);
-        }
-
-        public List<string> CostCode
-        {
-            get => TryGet<List<string>>(nameof(CostCode)) ?? new();
-            set => Set(nameof(CostCode), value);
         }
 
         public List<string> Group2
