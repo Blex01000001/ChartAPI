@@ -3,6 +3,7 @@ using ChartAPI.DTOs;
 using ChartAPI.Hubs;
 using ChartAPI.Interfaces;
 using ChartAPI.Models;
+using ChartAPI.Repositories.Filters;
 using ChartAPI.ResponseDto;
 using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.AspNetCore.SignalR;
@@ -57,7 +58,7 @@ namespace ChartAPI.Services
                 
             //database查詢
             string tableName = "ManHour";
-            var ManHourList = _dataRepository.GetData<ManHourModel,ManHourFilter>(filter, tableName);
+            var ManHourList = _dataRepository.GetData<ManHourModel>(filter, tableName);
 
             //依照Calendar的資料形式分組
             return new YearCalendarBuilder(ManHourList).Build();
@@ -65,7 +66,7 @@ namespace ChartAPI.Services
         public MonthlyChartResponseDto GetMonthlyChartResponseDto(int year, string name, string id)
         {
             //新增filter條件
-            var filter = new ManHourFilter().Set("Year", new List<int>() { year });
+            BaseFilter filter = new ManHourFilter().Set("Year", new List<int>() { year });
             if (!string.IsNullOrWhiteSpace(id)) 
                 filter.Set("ID", new List<string>() { id });
             if (!string.IsNullOrWhiteSpace(name)) 
@@ -73,7 +74,7 @@ namespace ChartAPI.Services
             
             //database查詢
             string tableName = "ManHour";
-            var ManHourList = _dataRepository.GetData<ManHourModel, ManHourFilter>(filter, tableName);
+            var ManHourList = _dataRepository.GetData<ManHourModel>(filter, tableName);
             return new MonthlyChartBuilder(ManHourList).Build();
         }
         public DeptChartDto GetDeptYearChartDto(string dept)
@@ -93,10 +94,10 @@ namespace ChartAPI.Services
         }
         public YearChartDto GetYearChartDto()
         {
-            var filter = new ManHourFilter();
+            BaseFilter filter = new ManHourFilter();
             string tableName = "ManHour";
 
-            var ManHourList = _dataRepository.GetData<ManHourModel, ManHourFilter>(filter, tableName);
+            var ManHourList = _dataRepository.GetData<ManHourModel>(filter, tableName);
             return new YearChartBuilder(ManHourList).Build();
         }
     }

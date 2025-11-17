@@ -122,9 +122,5 @@ namespace ChartAPI.Repositories
             throw new NotImplementedException();
         }
 
-        public IEnumerable<ManHourModel> GetManHourData(ManHourFilter filter)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

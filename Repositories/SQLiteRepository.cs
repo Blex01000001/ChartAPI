@@ -266,7 +266,7 @@ namespace ChartAPI.Repositories
             }
             ConsoleExtensions.WriteLineWithTime($"Update To DataBase Complete");
         }
-        public IEnumerable<TModel> GetData<TModel,TFilter>(IFilter filter, string tableName) 
+        public IEnumerable<TModel> GetData<TModel>(IFilter filter, string tableName) 
             where TModel : new() 
         {
             var list = new List<TModel>();

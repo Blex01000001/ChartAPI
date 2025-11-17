@@ -104,8 +104,7 @@ namespace ChartAPI.Repositories
         // ----------------------------------------
         // 專為 SumFilter 設計（含 JOIN / GROUP）
         // ----------------------------------------
-        public static (string Sql, SQLiteParameter[] Params)
-            BuildSumQuery(string tableName, SumFilter filter)
+        public static (string Sql, SQLiteParameter[] Params) BuildSumQuery(string tableName, SumFilter filter)
         {
             var sb = new StringBuilder();
             var parameters = new List<SQLiteParameter>();
