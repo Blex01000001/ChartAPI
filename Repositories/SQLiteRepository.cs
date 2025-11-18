@@ -13,6 +13,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+using ChartAPI.Repositories.Query;
 
 namespace ChartAPI.Repositories
 {
