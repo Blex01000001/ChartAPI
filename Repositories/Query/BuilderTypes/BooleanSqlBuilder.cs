@@ -1,17 +1,12 @@
 ﻿using System.Data.SQLite;
 
-namespace ChartAPI.Repositories.Query
+namespace ChartAPI.Repositories.Query.BuilderTypes
 {
     /// <summary>
     /// bool → = 1 / 0
     /// </summary>
     public class BooleanSqlBuilder : ISqlBuilder
     {
-        public bool CanBuild(string key, object value)
-        {
-            return value is bool;
-        }
-
         public SqlBuildResult Build(string key, object value)
         {
             var result = new SqlBuildResult();

@@ -1,6 +1,6 @@
 ﻿using System.Data.SQLite;
 
-namespace ChartAPI.Repositories.Query
+namespace ChartAPI.Repositories.Query.BuilderTypes
 {
     /// <summary>
     /// XxxContains → LIKE 條件
@@ -8,13 +8,6 @@ namespace ChartAPI.Repositories.Query
     public class LikeSqlBuilder : ISqlBuilder
     {
         private const string Suffix = "Contains";
-
-        public bool CanBuild(string key, object value)
-        {
-            return key.EndsWith(Suffix, StringComparison.OrdinalIgnoreCase)
-                   && value is string;
-        }
-
         public SqlBuildResult Build(string key, object value)
         {
             var result = new SqlBuildResult();

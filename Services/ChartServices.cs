@@ -49,28 +49,27 @@ namespace ChartAPI.Services
         {
             //新增filter條件
             var filter = new ManHourFilter()
-                .Set("DateFrom", new DateTime(2012, 1, 1))
-                .Set("DateTo", new DateTime(2025, 12, 31))
-                .Set("Name", new List<string>() { name });
-                //.Set("CostCode", new List<string>() { "003", "053", "001", "011", "021", "031", "041", "002", "033", "004", "005", "006", "007", "037", "018", "028", "038" });
-            if (!string.IsNullOrWhiteSpace(id)) 
-                filter.Set("ID", new List<string>() { id });
-                
+                .Set("Year", Enumerable.Range(2012, DateTime.Now.Year - 2011))
+                .Set("CostCode", new List<string>() { "003", "053", "001", "011", "021", "031", "041", "002", "033", "004", "005", "006", "007", "037", "018", "028", "038" });
+            if (!string.IsNullOrWhiteSpace(id))
+                filter.Set("ID", id);
+            if (!string.IsNullOrWhiteSpace(name))
+                filter.Set("Name", name);
+
             //database查詢
             string tableName = "ManHour";
             var ManHourList = _dataRepository.GetData<ManHourModel>(filter, tableName);
-
             //依照Calendar的資料形式分組
             return new YearCalendarBuilder(ManHourList).Build();
         }
         public MonthlyChartResponseDto GetMonthlyChartResponseDto(int year, string name, string id)
         {
             //新增filter條件
-            BaseFilter filter = new ManHourFilter().Set("Year", new List<int>() { year });
+            BaseFilter filter = new ManHourFilter().Set("Year", year);
             if (!string.IsNullOrWhiteSpace(id)) 
-                filter.Set("ID", new List<string>() { id });
+                filter.Set("ID", id);
             if (!string.IsNullOrWhiteSpace(name)) 
-                filter.Set("Name", new List<string>() { name });
+                filter.Set("Name", name);
             
             //database查詢
             string tableName = "ManHour";

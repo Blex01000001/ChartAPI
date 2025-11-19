@@ -1,18 +1,13 @@
 ﻿using System.Data.SQLite;
 
-namespace ChartAPI.Repositories.Query
-{
+namespace ChartAPI.Repositories.Query.BuilderTypes
+{    
     /// <summary>
     /// List / Array → IN (...)
     /// </summary>
+
     public class InSqlBuilder : ISqlBuilder
     {
-        public bool CanBuild(string key, object value)
-        {
-            // List / Array / IEnumerable，但排除 string
-            return value is System.Collections.IEnumerable enumerable && value is not string;
-        }
-
         public SqlBuildResult Build(string key, object value)
         {
             var result = new SqlBuildResult();

@@ -1,6 +1,6 @@
 ﻿using System.Data.SQLite;
 
-namespace ChartAPI.Repositories.Query
+namespace ChartAPI.Repositories.Query.BuilderTypes
 {
     /// <summary>
     /// 預設：一般等號比對 (=)
@@ -8,8 +8,6 @@ namespace ChartAPI.Repositories.Query
     /// </summary>
     public class EqualSqlBuilder : ISqlBuilder
     {
-        public bool CanBuild(string key, object value) => true;
-
         public SqlBuildResult Build(string key, object value)
         {
             var result = new SqlBuildResult();

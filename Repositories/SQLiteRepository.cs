@@ -23,9 +23,11 @@ namespace ChartAPI.Repositories
         private string _dBFileName = "ManHourData.db";
         private readonly string _dataBaseDir;
         private readonly Materializer _materializer = new Materializer();
+        private string dataBaseFilePath;
         public SQLiteRepository(IConfiguration config)
         {
             _dataBaseDir = config.GetConnectionString("DataBaseDir");
+            dataBaseFilePath = Path.Combine(_dataBaseDir, _dBFileName);
         }
         //public async Task UpsertData(EmployeeFilter filter, string tableName)
         //{
@@ -273,7 +275,6 @@ namespace ChartAPI.Repositories
         public IEnumerable<TModel> GetData<TModel>(IFilter filter, string tableName) where TModel : new()
         {
             var result = new List<TModel>();
-            string dataBaseFilePath = Path.Combine(_dataBaseDir, _dBFileName);
             Stopwatch ExecuteReaderTime = new Stopwatch();
             Stopwatch AutoMapReaderTime = new Stopwatch();
 
@@ -283,7 +284,6 @@ namespace ChartAPI.Repositories
             using (var cmd = new SQLiteCommand(sql, conn))
             {
                 cmd.Parameters.AddRange(ps);
-
                 conn.Open();
                 ExecuteReaderTime.Start();
                 using (var reader = cmd.ExecuteReader())
@@ -297,7 +297,7 @@ namespace ChartAPI.Repositories
                     AutoMapReaderTime.Stop();
                 }
             }
-            ConsoleExtensions.WriteLineWithTime($"Query Count: {result.Count}, SQL Elapsed {ExecuteReaderTime.ElapsedMilliseconds} ms, Auto Map Elapsed {AutoMapReaderTime.ElapsedMilliseconds} ms");
+            ConsoleExtensions.WriteLineWithTime($"Query Count: {result.Count}, SQL Execute {ExecuteReaderTime.ElapsedMilliseconds} ms, Materializer Elapsed {AutoMapReaderTime.ElapsedMilliseconds} ms");
             return result;
         }
 

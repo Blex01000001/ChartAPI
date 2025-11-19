@@ -12,32 +12,30 @@ namespace ChartAPI.Repositories.Query
     {
         public static (string Sql, SQLiteParameter[] Params) Build(string tableName, IFilter filter)
         {
-            var sb = new StringBuilder();
-            var parameters = new List<SQLiteParameter>();
+            StringBuilder sb = new StringBuilder();
+            List<SQLiteParameter> parameters = new List<SQLiteParameter>();
 
             sb.Append($"SELECT * FROM {tableName} WHERE 1=1");
 
-            var fields = filter.GetRawFields();
-            var context = new SqlBuilderContext();
+            Dictionary<string,object> fields = filter.GetRawFields();
+            SqlBuilderContext context = new SqlBuilderContext();
 
             foreach (var kv in fields)
             {
                 string key = kv.Key;
                 object value = kv.Value;
 
-                if (value == null)
-                    continue;
+                if (value == null) continue;
 
-                var part = context.Build(key, value);
+                SqlBuildResult sqlResult = context.Build(key, value);
 
-                if (!string.IsNullOrWhiteSpace(part.SqlFragment))
+                if (!string.IsNullOrWhiteSpace(sqlResult.SqlFragment))
                 {
-                    sb.Append(part.SqlFragment);
-                    if (part.Parameters != null && part.Parameters.Count > 0)
-                        parameters.AddRange(part.Parameters);
+                    sb.Append(sqlResult.SqlFragment);
+                    if (sqlResult.Parameters != null && sqlResult.Parameters.Count > 0)
+                        parameters.AddRange(sqlResult.Parameters);
                 }
             }
-
             return (sb.ToString(), parameters.ToArray());
         }
     }

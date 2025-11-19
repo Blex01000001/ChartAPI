@@ -1,41 +1,41 @@
-﻿namespace ChartAPI.Repositories.Query
+﻿using ChartAPI.Enums;
+
+namespace ChartAPI.Repositories.Query
 {
     /// <summary>
     /// Builder 的管理器：負責根據 key/value 選擇適合的 ISqlBuilder
     /// </summary>
     public class SqlBuilderContext
     {
-        private readonly List<ISqlBuilder> _builders;
-
-        public SqlBuilderContext()
-        {
-            // 若你真的想完全用 Activator，也可以改成掃描 Assembly。
-            // 這裡採用固定列表 + Activator.CreateInstance，兼顧可讀性與彈性。
-            var builderTypes = new[]
-            {
-                typeof(InSqlBuilder),
-                typeof(LikeSqlBuilder),
-                typeof(BooleanSqlBuilder),
-                typeof(EqualSqlBuilder) // 一定要放最後（fallback）
-            };
-
-            _builders = builderTypes
-                .Select(t => (ISqlBuilder)Activator.CreateInstance(t)!)
-                .ToList();
-        }
-
+        public SqlBuilderContext() { }
         public SqlBuildResult Build(string key, object value)
         {
-            foreach (var builder in _builders)
+            BuilderType builderEnum = GetBuilderType(key, value);
+            Type builderType = Type.GetType($"ChartAPI.Repositories.Query.BuilderTypes.{builderEnum}");
+            ISqlBuilder sqlBuilder = (ISqlBuilder)Activator.CreateInstance(builderType);
+            return sqlBuilder.Build(key, value);
+        }
+        /// <summary>
+        /// 判斷該用哪一個SQL Builder
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        private BuilderType GetBuilderType(string key, object value)
+        {
+            if (value is System.Collections.IEnumerable enumerable && value is not string)
             {
-                if (builder.CanBuild(key, value))
-                {
-                    return builder.Build(key, value);
-                }
+                return BuilderType.InSqlBuilder;
             }
-
-            // 理論上不會到這裡（EqualSqlBuilder 總是會接住）
-            return new SqlBuildResult();
+            else if (key.EndsWith("Contains", StringComparison.OrdinalIgnoreCase) && value is string)
+            {
+                return BuilderType.LikeSqlBuilder;
+            }
+            else if(value is bool)
+            {
+                return BuilderType.BooleanSqlBuilder;
+            }
+            return BuilderType.EqualSqlBuilder;
         }
     }
 }
