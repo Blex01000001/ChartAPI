@@ -1,4 +1,4 @@
-﻿namespace ChartAPI.Repositories.Filters
+﻿namespace ChartAPI.Models.Filters
 {
     public class SumFilter : BaseFilter
     {

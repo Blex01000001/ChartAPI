@@ -1,5 +1,5 @@
 ﻿using ChartAPI.Models;
-using ChartAPI.Repositories.Filters;
+using ChartAPI.Models.Filters;
 
 namespace ChartAPI.Interfaces
 
@@ -7,7 +7,7 @@ namespace ChartAPI.Interfaces
     public interface IDataRepository
     {
         IEnumerable<TModel> GetData<TModel>(IFilter filter, string tableName) where TModel : new();
-        //Task UpsertData(EmployeeFilter filter, string tableName);
+        Task UpsertData(IFilter filter, string tableName);
         SumModel GetSumData(int year, string group2Filter, string reportTitle, bool isOvertime = false, List<string> costCodes = null);
 
     }

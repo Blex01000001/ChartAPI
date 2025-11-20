@@ -18,4 +18,10 @@
     <PackageReference Include="System.Data.SQLite.Core" Version="1.0.119" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="DataAccess\Csv\" />
+    <Folder Include="DataAccess\SQLite\IndexBuilders\" />
+    <Folder Include="DataAccess\SQLite\QueryBuilders\Components\" />
+  </ItemGroup>
+
 </Project>

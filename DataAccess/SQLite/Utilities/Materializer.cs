@@ -1,7 +1,7 @@
 ﻿using System.Data.SQLite;
 using System.Reflection;
 
-namespace ChartAPI.Repositories
+namespace ChartAPI.DataAccess.SQLite.Utilities
 {
     public class Materializer
     {

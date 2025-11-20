@@ -1,15 +1,18 @@
+using ChartAPI.DataAccess.SQLite.Repositories;
 using ChartAPI.Hubs;
 using ChartAPI.Interfaces;
 using ChartAPI.Repositories;
 using ChartAPI.Services;
 using Microsoft.AspNetCore.SignalR;
 using System.Text;
+using ChartAPI.DataAccess.Interfaces;
+using ChartAPI.Models;
 
 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddScoped<IChartServices, ChartService>();
-builder.Services.AddScoped<IDataRepository, SQLiteRepository>();
+builder.Services.AddScoped<IManHourRepository, ManHourRepository>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

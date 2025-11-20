@@ -1,7 +1,6 @@
 ﻿using ChartAPI.Extensions;
 using ChartAPI.Interfaces;
 using ChartAPI.Models;
-using ChartAPI.Repositories.Filters;
 using HtmlAgilityPack;
 using System.Collections;
 using System.Collections.Concurrent;
@@ -13,7 +12,9 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
-using ChartAPI.Repositories.Query;
+using ChartAPI.Models.Filters;
+using ChartAPI.DataAccess.SQLite.QueryBuilders;
+using ChartAPI.DataAccess.SQLite.Utilities;
 
 namespace ChartAPI.Repositories
 {
@@ -29,16 +30,16 @@ namespace ChartAPI.Repositories
             _dataBaseDir = config.GetConnectionString("DataBaseDir");
             dataBaseFilePath = Path.Combine(_dataBaseDir, _dBFileName);
         }
-        //public async Task UpsertData(EmployeeFilter filter, string tableName)
-        //{
-        //    IEnumerable<EmployeeModel> employees = GetData<EmployeeModel, EmployeeFilter>(filter, tableName);
-        //    foreach (EmployeeModel employee in employees)
-        //    {
-        //        string filePath = await DownLoadHtmlTable(employee);
-        //        List<ManHourModel> manHourModels = ParseHtmlTable(filePath, employee.employee_name, employee.employee_id);
-        //        UpdateToDataBase(manHourModels);
-        //    }
-        //}
+        public async Task UpsertData(IFilter filter, string tableName)
+        {
+            IEnumerable<EmployeeModel> employees = GetData<EmployeeModel>(filter, tableName);
+            foreach (EmployeeModel employee in employees)
+            {
+                string filePath = await DownLoadHtmlTable(employee);
+                List<ManHourModel> manHourModels = ParseHtmlTable(filePath, employee.employee_name, employee.employee_id);
+                UpdateToDataBase(manHourModels);
+            }
+        }
         private async Task<string> DownLoadHtmlTable(EmployeeModel employee)
         {
             var handler = new HttpClientHandler
@@ -174,7 +175,6 @@ namespace ChartAPI.Repositories
         private void UpdateToDataBase(List<ManHourModel> manHourModels)
         {
             const int BatchSize = 10000; // 每批最大處理筆數
-            string dbPath = "Data Source=ManHourData.db;Version=3;";
             string dataBaseFilePath = Path.Combine(_dataBaseDir, _dBFileName);
 
             using (var conn = new SQLiteConnection($"Data Source={dataBaseFilePath}"))
@@ -192,85 +192,162 @@ namespace ChartAPI.Repositories
 
                 // 建立索引
                 string createINDEX = @"
-                    CREATE INDEX IF NOT EXISTS IX_ManHour_NameIDWeekend
-                    ON ManHour(Name, ID, Weekend);";
+                    CREATE INDEX IF NOT EXISTS IX_ManHour_NameIDWeekend ON ManHour(Name, ID, Weekend);";
                 new SQLiteCommand(createINDEX, conn).ExecuteNonQuery();
 
-                var props = typeof(ManHourModel)
-                                .GetProperties(BindingFlags.Public | BindingFlags.Instance);
 
                 using (var tran = conn.BeginTransaction())
                 {
+                    DeleteObsolete(conn, tran, manHourModels);
+                    #region
                     // ============ (1) 批次刪除 ============ 
-                    var keysToDelete = manHourModels
-                        .Select(m => new { m.Name, m.ID, m.Weekend })
-                        .Distinct()
-                        .ToList();
+                    //var keysToDelete = manHourModels
+                    //    .Select(m => new { m.Name, m.ID, m.Weekend })
+                    //    .Distinct()
+                    //    .ToList();
 
-                    if (keysToDelete.Count > 0)
-                    {
-                        string deleteSql = "DELETE FROM ManHour WHERE Name=@Name AND ID=@ID AND Weekend=@Weekend";
+                    //if (keysToDelete.Count > 0)
+                    //{
+                    //    string deleteSql = "DELETE FROM ManHour WHERE Name=@Name AND ID=@ID AND Weekend=@Weekend";
 
-                        using (var delCmd = new SQLiteCommand(deleteSql, conn, tran))
-                        {
-                            var pName = delCmd.Parameters.Add("@Name", DbType.String);
-                            var pID = delCmd.Parameters.Add("@ID", DbType.String);
-                            var pWeekend = delCmd.Parameters.Add("@Weekend", DbType.String);
+                    //    using (var delCmd = new SQLiteCommand(deleteSql, conn, tran))
+                    //    {
+                    //        var pName = delCmd.Parameters.Add("@Name", DbType.String);
+                    //        var pID = delCmd.Parameters.Add("@ID", DbType.String);
+                    //        var pWeekend = delCmd.Parameters.Add("@Weekend", DbType.String);
 
-                            foreach (var key in keysToDelete)
-                            {
-                                pName.Value = key.Name;
-                                pID.Value = key.ID;
-                                pWeekend.Value = key.Weekend.ToString("yyyy-MM-dd");
+                    //        foreach (var key in keysToDelete)
+                    //        {
+                    //            pName.Value = key.Name;
+                    //            pID.Value = key.ID;
+                    //            pWeekend.Value = key.Weekend.ToString("yyyy-MM-dd");
 
-                                delCmd.ExecuteNonQuery();
-                            }
-                        }
-                    }
-
+                    //            delCmd.ExecuteNonQuery();
+                    //        }
+                    //    }
+                    //}
+                    #endregion
+                    InsertLatest(conn, tran, manHourModels);
+                    #region
                     // ============ (2) 批次插入 ============ 
-                    string columns = string.Join(", ", props.Select(p => p.Name));
-                    string paramList = string.Join(", ", props.Select(p => "@" + p.Name));
+                    //PropertyInfo[] props = typeof(ManHourModel).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+                    //string columns = string.Join(", ", props.Select(p => p.Name));
+                    //string paramList = string.Join(", ", props.Select(p => "@" + p.Name));
 
-                    string insertSql = $"INSERT INTO ManHour ({columns}) VALUES ({paramList})";
+                    //string insertSql = $"INSERT INTO ManHour ({columns}) VALUES ({paramList})";
 
-                    using (var insertCmd = new SQLiteCommand(insertSql, conn, tran))
-                    {
-                        // 預先建立參數
-                        foreach (var prop in props)
-                        {
-                            insertCmd.Parameters.Add("@" + prop.Name, DbType.String); // 統一用字串，SQLite 會自動轉型
-                        }
+                    //using (var insertCmd = new SQLiteCommand(insertSql, conn, tran))
+                    //{
+                    //    // 預先建立參數
+                    //    foreach (var prop in props)
+                    //    {
+                    //        insertCmd.Parameters.Add("@" + prop.Name, DbType.String); // 統一用字串，SQLite 會自動轉型
+                    //    }
 
-                        for (int i = 0; i < manHourModels.Count; i += BatchSize)
-                        {
-                            var batch = manHourModels.Skip(i).Take(BatchSize);
+                    //    for (int i = 0; i < manHourModels.Count; i += BatchSize)
+                    //    {
+                    //        var batch = manHourModels.Skip(i).Take(BatchSize);
 
-                            foreach (var model in batch)
-                            {
-                                foreach (var prop in props)
-                                {
-                                    object value = prop.GetValue(model);
+                    //        foreach (var model in batch)
+                    //        {
+                    //            foreach (var prop in props)
+                    //            {
+                    //                object value = prop.GetValue(model);
 
-                                    if (value is DateTime dt)
-                                        insertCmd.Parameters["@" + prop.Name].Value = dt.ToString("yyyy-MM-dd");
-                                    else if (value is bool b)
-                                        insertCmd.Parameters["@" + prop.Name].Value = b ? 1 : 0;
-                                    else if (value is DayOfWeek dow)
-                                        insertCmd.Parameters["@" + prop.Name].Value = (int)dow;
-                                    else if (value == null)
-                                        insertCmd.Parameters["@" + prop.Name].Value = DBNull.Value;
-                                    else
-                                        insertCmd.Parameters["@" + prop.Name].Value = value;
-                                }
-                                insertCmd.ExecuteNonQuery();
-                            }
-                        }
-                    }
+                    //                if (value is DateTime dt)
+                    //                    insertCmd.Parameters["@" + prop.Name].Value = dt.ToString("yyyy-MM-dd");
+                    //                else if (value is bool b)
+                    //                    insertCmd.Parameters["@" + prop.Name].Value = b ? 1 : 0;
+                    //                else if (value is DayOfWeek dow)
+                    //                    insertCmd.Parameters["@" + prop.Name].Value = (int)dow;
+                    //                else if (value == null)
+                    //                    insertCmd.Parameters["@" + prop.Name].Value = DBNull.Value;
+                    //                else
+                    //                    insertCmd.Parameters["@" + prop.Name].Value = value;
+                    //            }
+                    //            insertCmd.ExecuteNonQuery();
+                    //        }
+                    //    }
+                    //}
+                    #endregion
                     tran.Commit();
                 }
             }
             ConsoleExtensions.WriteLineWithTime($"Update To DataBase Complete");
+        }
+        private void DeleteObsolete(SQLiteConnection conn, SQLiteTransaction tran, List<ManHourModel> Data)
+        {
+            // ============ (1) 批次刪除 ============ 
+            var keysToDelete = Data
+                .Select(m => new { m.Name, m.ID, m.Weekend })
+                .Distinct()
+                .ToList();
+
+            if (keysToDelete.Count > 0)
+            {
+                string deleteSql = "DELETE FROM ManHour WHERE Name=@Name AND ID=@ID AND Weekend=@Weekend";
+
+                using (var delCmd = new SQLiteCommand(deleteSql, conn, tran))
+                {
+                    var pName = delCmd.Parameters.Add("@Name", DbType.String);
+                    var pID = delCmd.Parameters.Add("@ID", DbType.String);
+                    var pWeekend = delCmd.Parameters.Add("@Weekend", DbType.String);
+
+                    foreach (var key in keysToDelete)
+                    {
+                        pName.Value = key.Name;
+                        pID.Value = key.ID;
+                        pWeekend.Value = key.Weekend.ToString("yyyy-MM-dd");
+
+                        delCmd.ExecuteNonQuery();
+                    }
+                }
+            }
+        }
+        private void InsertLatest(SQLiteConnection conn, SQLiteTransaction tran, List<ManHourModel> Data)
+        {
+            // ============ (2) 批次插入 ============ 
+            const int BatchSize = 10000; // 每批最大處理筆數
+            PropertyInfo[] props = typeof(ManHourModel).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            string columns = string.Join(", ", props.Select(p => p.Name));
+            string paramList = string.Join(", ", props.Select(p => "@" + p.Name));
+
+            string insertSql = $"INSERT INTO ManHour ({columns}) VALUES ({paramList})";
+
+            using (var insertCmd = new SQLiteCommand(insertSql, conn, tran))
+            {
+                // 預先建立參數
+                foreach (var prop in props)
+                {
+                    insertCmd.Parameters.Add("@" + prop.Name, DbType.String); // 統一用字串，SQLite 會自動轉型
+                }
+
+                for (int i = 0; i < Data.Count; i += BatchSize)
+                {
+                    var batch = Data.Skip(i).Take(BatchSize);
+
+                    foreach (var model in batch)
+                    {
+                        foreach (var prop in props)
+                        {
+                            object value = prop.GetValue(model);
+
+                            if (value is DateTime dt)
+                                insertCmd.Parameters["@" + prop.Name].Value = dt.ToString("yyyy-MM-dd");
+                            else if (value is bool b)
+                                insertCmd.Parameters["@" + prop.Name].Value = b ? 1 : 0;
+                            else if (value is DayOfWeek dow)
+                                insertCmd.Parameters["@" + prop.Name].Value = (int)dow;
+                            else if (value == null)
+                                insertCmd.Parameters["@" + prop.Name].Value = DBNull.Value;
+                            else
+                                insertCmd.Parameters["@" + prop.Name].Value = value;
+                        }
+                        insertCmd.ExecuteNonQuery();
+                    }
+                }
+            }
+
         }
         public IEnumerable<TModel> GetData<TModel>(IFilter filter, string tableName) where TModel : new()
         {

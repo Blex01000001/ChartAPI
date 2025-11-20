@@ -1,9 +1,10 @@
-﻿using ChartAPI.Repositories.Filters;
+﻿using ChartAPI.Models.Filters;
+using ChartAPI.Repositories.Query;
 using System.Collections.Generic;
 using System.Data.SQLite;
 using System.Text;
 
-namespace ChartAPI.Repositories.Query
+namespace ChartAPI.DataAccess.SQLite.QueryBuilders
 {
     /// <summary>
     /// 對外使用的 QueryBuilder：負責組出完整 SQL + 參數
@@ -17,7 +18,7 @@ namespace ChartAPI.Repositories.Query
 
             sb.Append($"SELECT * FROM {tableName} WHERE 1=1");
 
-            Dictionary<string,object> fields = filter.GetRawFields();
+            Dictionary<string, object> fields = filter.GetRawFields();
             SqlBuilderContext context = new SqlBuilderContext();
 
             foreach (var kv in fields)

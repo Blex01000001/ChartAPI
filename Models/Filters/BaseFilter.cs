@@ -1,4 +1,4 @@
-﻿namespace ChartAPI.Repositories.Filters
+﻿namespace ChartAPI.Models.Filters
 {
     public abstract class BaseFilter : IFilter
     {
@@ -18,7 +18,7 @@
             if (_fields.TryGetValue(key, out var value) && value is T typed)
                 return typed;
 
-            return default(T);
+            return default;
         }
 
         public Dictionary<string, object> GetRawFields() => _fields;
