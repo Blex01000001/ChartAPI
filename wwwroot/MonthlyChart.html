@@ -266,7 +266,7 @@
         const QueryName = document.getElementById('inputNameField').value;
         $.ajax({
             type: "GET",
-            url: "http://localhost:5265/api/Chart/UpsertData",
+            url: "http://localhost:5265/api/UpsertData/UpsertData/Upsert",
             data: { name: QueryName, id: QueryID },
             //dataType: "json",
             success: function (response) {

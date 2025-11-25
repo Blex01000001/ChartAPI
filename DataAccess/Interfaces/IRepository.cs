@@ -5,7 +5,6 @@ namespace ChartAPI.DataAccess.Interfaces
     public interface IRepository<TModel>
     {
         IEnumerable<TModel> GetByFilterAsync(IFilter filter);
-        Task UpsertDataAsync(IFilter filter);
 
     }
 }

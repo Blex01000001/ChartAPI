@@ -6,7 +6,6 @@ using ChartAPI.Services.Chart;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.AspNetCore.SignalR;
 using System.Linq;
 using System.Net;
 using System.Net.Mail;
