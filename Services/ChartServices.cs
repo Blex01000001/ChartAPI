@@ -64,20 +64,20 @@ namespace ChartAPI.Services
         //    //依照Calendar的資料形式分組
         //    return new YearCalendarBuilder(ManHourList).Build();
         //}
-        public MonthlyChartResponseDto GetMonthlyChartResponseDto(int year, string name, string id)
-        {
-            //新增filter條件
-            BaseFilter filter = new ManHourFilter().Set("Year", year);
-            if (!string.IsNullOrWhiteSpace(id)) 
-                filter.Set("ID", id);
-            if (!string.IsNullOrWhiteSpace(name)) 
-                filter.Set("Name", name);
+        //public MonthlyChartResponseDto GetMonthlyChartResponseDto(int year, string name, string id)
+        //{
+        //    //新增filter條件
+        //    BaseFilter filter = new ManHourFilter().Set("Year", year);
+        //    if (!string.IsNullOrWhiteSpace(id)) 
+        //        filter.Set("ID", id);
+        //    if (!string.IsNullOrWhiteSpace(name)) 
+        //        filter.Set("Name", name);
             
-            //database查詢
-            string tableName = "ManHour";
-            var ManHourList = _dataRepository.GetByFilterAsync(filter);
-            return new MonthlyChartBuilder(ManHourList).Build();
-        }
+        //    //database查詢
+        //    string tableName = "ManHour";
+        //    var ManHourList = _dataRepository.GetByFilterAsync(filter);
+        //    return new AnnualSummaryBuilder(ManHourList).Build();
+        //}
         //public DeptChartDto GetDeptYearChartDto(string dept)
         //{
         //    //database查詢

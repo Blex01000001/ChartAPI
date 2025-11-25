@@ -2,6 +2,7 @@
 using ChartAPI.Interfaces;
 using ChartAPI.Models;
 using ChartAPI.Services;
+using ChartAPI.Services.Chart;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
@@ -18,8 +19,8 @@ namespace ChartAPI.Controllers
     [ApiController]
     public class ChartController : ControllerBase
     {
-        private readonly IChartServices _service;
-        public ChartController(IChartServices service)
+        private readonly IAnnualSummaryService _service;
+        public ChartController(IAnnualSummaryService service)
         {
             _service = service;
         }
@@ -38,14 +39,15 @@ namespace ChartAPI.Controllers
         //}
 
         [HttpGet]
-        public IActionResult GetMonthlyChartResponseDto([FromQuery] int? year, string name = null, string id = null)
+        public IActionResult GetAnnualSummary([FromQuery] int? year, string name = null, string id = null)
         {
+
             ConsoleExtensions.WriteLineWithTime($"{year} {name} {id}");
             if (year == null || year < 2012 || year > DateTime.Now.Year)
                 return Ok(new { success = false, message = "年份不正確" });
             if (string.IsNullOrWhiteSpace(name) && string.IsNullOrWhiteSpace(id))
                 return Ok(new { success = false, message = "姓名或工號擇一填入" });
-            return Ok(_service.GetMonthlyChartResponseDto(year.Value, name, id));
+            return Ok(_service.GetAnnualSummary(year.Value, name, id));
         }
         //[HttpGet]
         //public IActionResult GetDeptYearChartDto([FromQuery] int? year, string dept)

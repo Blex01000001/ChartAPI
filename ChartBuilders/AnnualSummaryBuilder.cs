@@ -4,13 +4,13 @@ using ChartAPI.ResponseDto;
 
 namespace ChartAPI.ChartBuilders
 {
-    public class MonthlyChartBuilder
+    public class AnnualSummaryBuilder
     {
-        private MonthlyChartResponseDto _responseDto;
+        private AnnualSummaryDto _responseDto;
         private IEnumerable<ManHourModel> _manHourList;
-        public MonthlyChartBuilder(IEnumerable<ManHourModel> manHourList)
+        public AnnualSummaryBuilder(IEnumerable<ManHourModel> manHourList)
         {
-            _responseDto = new MonthlyChartResponseDto();
+            _responseDto = new AnnualSummaryDto();
             _manHourList = manHourList;
         }
         private StackChartDto<ManHourModel> CreateStackChartDto()
@@ -54,7 +54,7 @@ namespace ChartAPI.ChartBuilders
                     .Build()
                 }).ToList();
         }
-        public MonthlyChartResponseDto Build()
+        public AnnualSummaryDto Build()
         {
             _responseDto.monthlyChartDtos = CreateMonthlyChartDto();
             _responseDto.stackChartDtos.Add(CreateStackChartDto());

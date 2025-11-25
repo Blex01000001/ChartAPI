@@ -221,11 +221,11 @@
         //console.log(QueryName,QueryYear);
         $.ajax({
             type: "GET",
-            url: "http://localhost:5265/api/Chart/GetMonthlyChartResponseDto",
+            url: "http://localhost:5265/api/Chart/GetAnnualSummary",
             data: { name: QueryName, year: QueryYear, id: QueryID },
             //dataType: "json",
             success: function (response) {
-                console.log('Get Monthly Chart success');
+                console.log('Get Annual Summary success');
                 if (response.success === false) {
                     alert(response.message);
                 } else {
@@ -235,7 +235,7 @@
                 }
             },
             error: function (thrownError) {
-                console.log('Get Monthly Chart error');
+                console.log('Get Annual Summary error');
                 console.log(thrownError);
             }
         });
