@@ -11,48 +11,52 @@ using System.Reflection;
 
 namespace ChartAPI.DataAccess.SQLite.Repositories
 {
-    public class ManHourRepository : IManHourRepository
+    public class ManHourRepository : BaseRepository<ManHourModel>, IManHourRepository
     {
-        private string tableName = "ManHour";
-        private string _dBFileName = "ManHourData.db";
-        private readonly Materializer _materializer = new Materializer();
-        private readonly string _dataBaseDir;
-        private string dataBaseFilePath;
+        //private string tableName = "ManHour";
+        //private string _dBFileName = "ManHourData.db";
+        //private readonly Materializer _materializer = new Materializer();
+        //private readonly string _dataBaseDir;
+        //private string dataBaseFilePath;
 
+        //public ManHourRepository(IConfiguration config)
+        //{
+        //    _dataBaseDir = config.GetConnectionString("DataBaseDir");
+        //    dataBaseFilePath = Path.Combine(_dataBaseDir, _dBFileName);
+        //}
         public ManHourRepository(IConfiguration config)
+            : base(config, tableName: "ManHour", dbFileName: "ManHourData.db")
         {
-            _dataBaseDir = config.GetConnectionString("DataBaseDir");
-            dataBaseFilePath = Path.Combine(_dataBaseDir, _dBFileName);
+
         }
+        //IEnumerable<ManHourModel> IRepository<ManHourModel>.GetByFilterAsync(IFilter filter)
+        //{
+        //    List<ManHourModel> result = new List<ManHourModel>();
+        //    Stopwatch ExecuteReaderTime = new Stopwatch();
+        //    Stopwatch AutoMapReaderTime = new Stopwatch();
 
-        IEnumerable<ManHourModel> IRepository<ManHourModel>.GetByFilterAsync(IFilter filter)
-        {
-            List<ManHourModel> result = new List<ManHourModel>();
-            Stopwatch ExecuteReaderTime = new Stopwatch();
-            Stopwatch AutoMapReaderTime = new Stopwatch();
+        //    var (sql, ps) = QueryBuilder.Build(tableName, filter);
 
-            var (sql, ps) = QueryBuilder.Build(tableName, filter);
-
-            using (var conn = new SQLiteConnection($"Data Source={dataBaseFilePath}"))
-            using (var cmd = new SQLiteCommand(sql, conn))
-            {
-                cmd.Parameters.AddRange(ps);
-                conn.Open();
-                ExecuteReaderTime.Start();
-                using (var reader = cmd.ExecuteReader())
-                {
-                    ExecuteReaderTime.Stop();
-                    AutoMapReaderTime.Start();
-                    while (reader.Read())
-                    {
-                        result.Add(_materializer.Map<ManHourModel>(reader));
-                    }
-                    AutoMapReaderTime.Stop();
-                }
-            }
-            ConsoleExtensions.WriteLineWithTime($"Query Count: {result.Count}, SQL Execute {ExecuteReaderTime.ElapsedMilliseconds} ms, Materializer Elapsed {AutoMapReaderTime.ElapsedMilliseconds} ms");
-            return result;
-        }
+        //    using (var conn = new SQLiteConnection($"Data Source={dataBaseFilePath}"))
+        //    using (var cmd = new SQLiteCommand(sql, conn))
+        //    {
+        //        cmd.Parameters.AddRange(ps);
+        //        conn.Open();
+        //        ExecuteReaderTime.Start();
+        //        using (var reader = cmd.ExecuteReader())
+        //        {
+        //            ExecuteReaderTime.Stop();
+        //            AutoMapReaderTime.Start();
+        //            while (reader.Read())
+        //            {
+        //                result.Add(_materializer.Map<ManHourModel>(reader));
+        //            }
+        //            AutoMapReaderTime.Stop();
+        //        }
+        //    }
+        //    ConsoleExtensions.WriteLineWithTime($"Query Count: {result.Count}, SQL Execute {ExecuteReaderTime.ElapsedMilliseconds} ms, Materializer Elapsed {AutoMapReaderTime.ElapsedMilliseconds} ms");
+        //    return result;
+        //}
         void IManHourRepository.UpdateToDataBase(List<ManHourModel> manHourModels)
         {
             const int BatchSize = 10000; // 每批最大處理筆數
