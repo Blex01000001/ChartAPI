@@ -1,9 +1,11 @@
 ﻿using ChartAPI.DataAccess.Interfaces;
 using ChartAPI.Extensions;
+using ChartAPI.Hubs;
 using ChartAPI.Models;
 using ChartAPI.Models.Filters;
 using ChartAPI.Services.Queries;
 using HtmlAgilityPack;
+using Microsoft.AspNetCore.SignalR;
 using System.Text;
 using System.Web;
 
@@ -13,11 +15,16 @@ namespace ChartAPI.Services.Upsert
     {
         private IEmployeeRepository _empRepo;
         private IManHourRepository _manHourRepo;
+        private readonly IHubContext<NotifyHub> _hubContext;
 
-        public UpsertDataService(IEmployeeRepository _empQuery, IManHourRepository _manHourRepo)
+        public UpsertDataService(
+            IEmployeeRepository _empQuery, 
+            IManHourRepository _manHourRepo, 
+            IHubContext<NotifyHub> hubContext)
         {
             this._empRepo = _empQuery;
             this._manHourRepo = _manHourRepo;
+            this._hubContext = hubContext;
         }
         async Task IUpsertDataService.UpsertDataAsync(string name = null, string id = null)
         {
@@ -26,7 +33,7 @@ namespace ChartAPI.Services.Upsert
                 filter.Set("employee_id", id);
             if (!string.IsNullOrWhiteSpace(name))
                 filter.Set("name", name);
-
+            ConsoleExtensions.WriteLineWithTime($"444");
             IEnumerable<EmployeeModel> employees = _empRepo.GetByFilterAsync(filter);
             foreach (EmployeeModel employee in employees)
             {
@@ -34,6 +41,8 @@ namespace ChartAPI.Services.Upsert
                 List<ManHourModel> manHourModels = ParseHtmlTable(filePath, employee.employee_name, employee.employee_id);
                 _manHourRepo.UpdateToDataBase(manHourModels);
             }
+            ConsoleExtensions.WriteLineWithTime($"666");
+            await _hubContext.Clients.All.SendAsync("UpsertCompleted", "Completed");
             return;
         }
         private async Task<string> DownLoadHtmlTable(EmployeeModel employee)

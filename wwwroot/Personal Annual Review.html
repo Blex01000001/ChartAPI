@@ -126,7 +126,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>MonthlyChart</title>
+    <title>Personal Annual Review</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/6.0.0/echarts.min.js"
@@ -135,7 +135,7 @@
     <script src="https://code.jquery.com/jquery-3.7.1.js"
         integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
 </head>
 
 <body>
@@ -196,6 +196,19 @@
 </html>
 
 <script>
+
+    //const connection = new signalR.HubConnectionBuilder()
+    //    .withUrl("http://localhost:5265/notifyHub")
+    //    .configureLogging(signalR.LogLevel.Information)
+    //    .build();
+
+    //connection.start().catch(err => console.error(err));
+    //connection.on("UpsertCompleted", function (data) {
+    //   console.log("Upsert Completed:", data);
+
+    // 你要怎麼顯示完成訊息都可以
+    //    alert(`資料更新完成：${data.name} (${data.id})`);
+    //});
     const container = document.getElementById('ChartContainer');
     const chartInstances = {};
     const chartData = {};
@@ -239,38 +252,22 @@
                 console.log(thrownError);
             }
         });
-
-        //$.ajax({
-        //    type: "GET",
-        //    url: "http://localhost:5265/api/Chart/GetStackChartDto",
-        //    data: { name: QueryName, year: QueryYear, id: QueryID },
-        //    //dataType: "json",
-        //    success: function (response) {
-        //        console.log('YearChart success');
-        //        if (response.success === false) {
-        //            alert(response.message);
-        //        } else {
-        //            re = response;
-        //            DrawYearChart(response);
-        //        }
-        //    },
-        //    error: function (thrownError) {
-        //        console.log('YearChart error');
-        //        console.log(thrownError);
-        //    }
-        //});
     }
 
     function UpsertData() {
         const QueryID = document.getElementById('inputIDField').value;
         const QueryName = document.getElementById('inputNameField').value;
         $.ajax({
-            type: "GET",
+            type: "POST",
             url: "http://localhost:5265/api/UpsertData/UpsertData/Upsert",
-            data: { name: QueryName, id: QueryID },
-            //dataType: "json",
+            contentType: "application/json",
+            data: JSON.stringify({
+                id: QueryID,
+                name: QueryName
+            }),
             success: function (response) {
                 console.log('Upsert success');
+                console.log(QueryName);
                 alert(response.message);
             },
             error: function (thrownError) {

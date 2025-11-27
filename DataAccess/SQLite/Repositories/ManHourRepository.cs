@@ -60,9 +60,9 @@ namespace ChartAPI.DataAccess.SQLite.Repositories
         void IManHourRepository.UpdateToDataBase(List<ManHourModel> manHourModels)
         {
             const int BatchSize = 10000; // 每批最大處理筆數
-            string dataBaseFilePath = Path.Combine(_dataBaseDir, _dBFileName);
+            //string dataBaseFilePath = Path.Combine(_dataBaseDir, _dBFileName);
 
-            using (var conn = new SQLiteConnection($"Data Source={dataBaseFilePath}"))
+            using (var conn = new SQLiteConnection($"Data Source={_dataBaseFilePath}"))
             {
                 conn.Open();
 

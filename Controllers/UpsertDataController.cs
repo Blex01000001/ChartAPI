@@ -1,4 +1,5 @@
-﻿using ChartAPI.Extensions;
+﻿using ChartAPI.DTOs.Upsert;
+using ChartAPI.Extensions;
 using ChartAPI.Services.Upsert;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,8 +22,10 @@ namespace ChartAPI.Controllers
         /// </summary>
         [HttpPost]
         [Route("Upsert")]
-        public IActionResult UpsertData([FromQuery] string name = null, string id = null)
+        public IActionResult UpsertData([FromBody] UpsertDataDto dto)
         {
+            string name = dto.Name;
+            string id = dto.Id;
             ConsoleExtensions.WriteLineWithTime($"{name} {id}");
             if (string.IsNullOrWhiteSpace(name) && string.IsNullOrWhiteSpace(id))
                 return Ok(new { success = false, message = "姓名或工號擇一填入" });
