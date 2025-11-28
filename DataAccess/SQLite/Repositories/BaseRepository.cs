@@ -24,6 +24,8 @@ namespace ChartAPI.DataAccess.SQLite.Repositories
                 ?? throw new InvalidOperationException("Connection string 'DataBaseDir' is missing.");
             this._dataBaseFilePath = Path.Combine(_dataBaseDir, _dBFileName);
         }
+        public abstract Task InsertAsync(IEnumerable<TModel> models);
+        public abstract Task DeleteAsync(IEnumerable<TModel> models);
 
         /// <summary>
         /// IRepository 的共用實作，實際邏輯丟給 Query
@@ -46,10 +48,10 @@ namespace ChartAPI.DataAccess.SQLite.Repositories
             Stopwatch AutoMapReaderTime = new Stopwatch();
 
             var (sql, ps) = QueryBuilder.Build(_tableName, filter);
-
             using (var conn = CreateConnection())
             using (var cmd = new SQLiteCommand(sql, conn))
             {
+
                 cmd.Parameters.AddRange(ps);
                 conn.Open();
                 ExecuteReaderTime.Start();
@@ -76,5 +78,6 @@ namespace ChartAPI.DataAccess.SQLite.Repositories
         {
             return new SQLiteConnection($"Data Source={_dataBaseFilePath}");
         }
+
     }
 }

@@ -10,6 +10,7 @@ using ChartAPI.Models;
 using ChartAPI.Services.Chart;
 using ChartAPI.Services.Queries;
 using ChartAPI.Services.Upsert;
+using ChartAPI.DataAccess.SQLite.Initializer;
 
 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 var builder = WebApplication.CreateBuilder(args);
@@ -20,6 +21,7 @@ builder.Services.AddScoped<IManHourRepository, ManHourRepository>();
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 builder.Services.AddScoped<IManHourQueryService, ManHourQueryService>();
 builder.Services.AddScoped<IUpsertDataService, UpsertDataService>();
+builder.Services.AddScoped<IDataInitializer, DataInitializer>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

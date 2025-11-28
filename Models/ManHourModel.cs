@@ -4,8 +4,6 @@
     {
         public string Name { get; set; }//0
         public string ID { get; set; }
-        //public string Dep { get; set; }
-        //public string Group { get; set; }
         public DateTime Date { get; set; }
         public int Year { get; set; }
         public int Month { get; set; }

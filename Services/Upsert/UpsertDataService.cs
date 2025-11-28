@@ -1,4 +1,5 @@
 ﻿using ChartAPI.DataAccess.Interfaces;
+using ChartAPI.DataAccess.SQLite.Initializer;
 using ChartAPI.Extensions;
 using ChartAPI.Hubs;
 using ChartAPI.Models;
@@ -13,36 +14,52 @@ namespace ChartAPI.Services.Upsert
 {
     public class UpsertDataService : IUpsertDataService
     {
-        private IEmployeeRepository _empRepo;
-        private IManHourRepository _manHourRepo;
+        private readonly IDataInitializer _initializer;
+        private readonly IEmployeeRepository _empRepo;
+        private readonly IManHourRepository _manHourRepo;
         private readonly IHubContext<NotifyHub> _hubContext;
 
         public UpsertDataService(
-            IEmployeeRepository _empQuery, 
-            IManHourRepository _manHourRepo, 
+            IDataInitializer initializer,
+            IEmployeeRepository empQuery, 
+            IManHourRepository manHourRepo, 
             IHubContext<NotifyHub> hubContext)
         {
-            this._empRepo = _empQuery;
-            this._manHourRepo = _manHourRepo;
+            this._initializer = initializer;
+            this._empRepo = empQuery;
+            this._manHourRepo = manHourRepo;
             this._hubContext = hubContext;
         }
         async Task IUpsertDataService.UpsertDataAsync(string name = null, string id = null)
         {
+            // 1. 設定filter
             BaseFilter filter = new EmployeeFilter();
             if (!string.IsNullOrWhiteSpace(id))
                 filter.Set("employee_id", id);
             if (!string.IsNullOrWhiteSpace(name))
-                filter.Set("name", name);
-            ConsoleExtensions.WriteLineWithTime($"444");
+                filter.Set("employee_name", name);
+            ConsoleExtensions.WriteLineWithTime($"name:{name} id:{id}");
+
+            // 2.撈員工資料
             IEnumerable<EmployeeModel> employees = _empRepo.GetByFilterAsync(filter);
+
             foreach (EmployeeModel employee in employees)
             {
+                // 3.下載最新員工資料
                 string filePath = await DownLoadHtmlTable(employee);
+                // 4.轉換資料
                 List<ManHourModel> manHourModels = ParseHtmlTable(filePath, employee.employee_name, employee.employee_id);
+                // 5.更新資料到database
+                //  5.1 建表 index
+                //await _initializer.EnsureTablesCreatedAsync();
+                //await _initializer.EnsureIndexesCreatedAsync();
+                //  5.2 刪除舊資料
+                //await _manHourRepo.DeleteAsync(manHourModels);
+                //  5.3 插入資料
+                //await _manHourRepo.InsertAsync(manHourModels);
                 _manHourRepo.UpdateToDataBase(manHourModels);
             }
-            ConsoleExtensions.WriteLineWithTime($"666");
-            await _hubContext.Clients.All.SendAsync("UpsertCompleted", "Completed");
+            //await _hubContext.Clients.All.SendAsync("UpsertCompleted", "Completed");
             return;
         }
         private async Task<string> DownLoadHtmlTable(EmployeeModel employee)

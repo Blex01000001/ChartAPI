@@ -22,14 +22,14 @@ namespace ChartAPI.Controllers
         /// </summary>
         [HttpPost]
         [Route("Upsert")]
-        public IActionResult UpsertData([FromBody] UpsertDataDto dto)
+        public async Task<IActionResult> UpsertData([FromBody] UpsertDataDto dto)
         {
             string name = dto.Name;
             string id = dto.Id;
             ConsoleExtensions.WriteLineWithTime($"{name} {id}");
             if (string.IsNullOrWhiteSpace(name) && string.IsNullOrWhiteSpace(id))
                 return Ok(new { success = false, message = "姓名或工號擇一填入" });
-            _service.UpsertDataAsync(name, id);
+            await _service.UpsertDataAsync(name, id);
             return Ok(new { message = "UpsertData success" });
         }
     }
