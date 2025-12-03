@@ -21,7 +21,6 @@
   <ItemGroup>
     <Folder Include="DataAccess\Csv\" />
     <Folder Include="DataAccess\SQLite\IndexBuilders\" />
-    <Folder Include="DataAccess\SQLite\QueryBuilders\Components\" />
   </ItemGroup>
 
 </Project>

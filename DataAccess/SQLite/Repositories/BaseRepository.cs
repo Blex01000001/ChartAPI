@@ -5,6 +5,8 @@ using System.Data.SQLite;
 using ChartAPI.DataAccess.SQLite.QueryBuilders;
 using ChartAPI.Extensions;
 using System.Diagnostics;
+using Microsoft.AspNetCore.Http.Extensions;
+using static ChartAPI.DataAccess.SQLite.QueryBuilders.QueryBuilder<ChartAPI.Models.ManHourModel>;
 
 namespace ChartAPI.DataAccess.SQLite.Repositories
 {
@@ -35,6 +37,37 @@ namespace ChartAPI.DataAccess.SQLite.Repositories
         {
             return Query(filter);
         }
+        public IEnumerable<TModel> GetByQBAsync<T>(QueryBuilder<T> qb)
+        {
+            List<TModel> result = new List<TModel>();
+            Stopwatch ExecuteReaderTime = new Stopwatch();
+            Stopwatch AutoMapReaderTime = new Stopwatch();
+
+            var (sql, ps) = qb.Build();
+
+            using (var conn = CreateConnection())
+            using (var cmd = conn.CreateCommand())
+            {
+                conn.Open();
+                cmd.CommandText = sql;
+                cmd.Parameters.AddRange(ps);
+                Console.WriteLine(sql);
+                ExecuteReaderTime.Start();
+                using (var reader = cmd.ExecuteReader())
+                {
+                    ExecuteReaderTime.Stop();
+                    AutoMapReaderTime.Start();
+                    while (reader.Read())
+                    {
+                        result.Add(_materializer.Map<TModel>(reader));
+                    }
+                    AutoMapReaderTime.Stop();
+                }
+            }
+            ConsoleExtensions.WriteLineWithTime($"666Query Count: {result.Count}, SQL Execute {ExecuteReaderTime.ElapsedMilliseconds} ms, Materializer Elapsed {AutoMapReaderTime.ElapsedMilliseconds} ms");
+
+            return result;
+        }
 
         /// <summary>
         /// 預設查詢邏輯：給一般 Repository 用
@@ -47,7 +80,7 @@ namespace ChartAPI.DataAccess.SQLite.Repositories
             Stopwatch ExecuteReaderTime = new Stopwatch();
             Stopwatch AutoMapReaderTime = new Stopwatch();
 
-            var (sql, ps) = QueryBuilder.Build(_tableName, filter);
+            var (sql, ps) = QueryBuilder_Old.Build(_tableName, filter);
             using (var conn = CreateConnection())
             using (var cmd = new SQLiteCommand(sql, conn))
             {

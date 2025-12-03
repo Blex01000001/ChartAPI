@@ -352,29 +352,29 @@ namespace ChartAPI.Repositories
         public IEnumerable<TModel> GetData<TModel>(IFilter filter, string tableName) where TModel : new()
         {
             var result = new List<TModel>();
-            Stopwatch ExecuteReaderTime = new Stopwatch();
-            Stopwatch AutoMapReaderTime = new Stopwatch();
+            //Stopwatch ExecuteReaderTime = new Stopwatch();
+            //Stopwatch AutoMapReaderTime = new Stopwatch();
 
-            var (sql, ps) = QueryBuilder.Build(tableName, filter);
+            //var (sql, ps) = QueryBuilder.Build(tableName, filter);
 
-            using (var conn = new SQLiteConnection($"Data Source={dataBaseFilePath}"))
-            using (var cmd = new SQLiteCommand(sql, conn))
-            {
-                cmd.Parameters.AddRange(ps);
-                conn.Open();
-                ExecuteReaderTime.Start();
-                using (var reader = cmd.ExecuteReader())
-                {
-                    ExecuteReaderTime.Stop();
-                    AutoMapReaderTime.Start();
-                    while (reader.Read())
-                    {
-                        result.Add(_materializer.Map<TModel>(reader));
-                    }
-                    AutoMapReaderTime.Stop();
-                }
-            }
-            ConsoleExtensions.WriteLineWithTime($"Query Count: {result.Count}, SQL Execute {ExecuteReaderTime.ElapsedMilliseconds} ms, Materializer Elapsed {AutoMapReaderTime.ElapsedMilliseconds} ms");
+            //using (var conn = new SQLiteConnection($"Data Source={dataBaseFilePath}"))
+            //using (var cmd = new SQLiteCommand(sql, conn))
+            //{
+            //    cmd.Parameters.AddRange(ps);
+            //    conn.Open();
+            //    ExecuteReaderTime.Start();
+            //    using (var reader = cmd.ExecuteReader())
+            //    {
+            //        ExecuteReaderTime.Stop();
+            //        AutoMapReaderTime.Start();
+            //        while (reader.Read())
+            //        {
+            //            result.Add(_materializer.Map<TModel>(reader));
+            //        }
+            //        AutoMapReaderTime.Stop();
+            //    }
+            //}
+            //ConsoleExtensions.WriteLineWithTime($"Query Count: {result.Count}, SQL Execute {ExecuteReaderTime.ElapsedMilliseconds} ms, Materializer Elapsed {AutoMapReaderTime.ElapsedMilliseconds} ms");
             return result;
         }
 

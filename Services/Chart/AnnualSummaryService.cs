@@ -7,6 +7,8 @@ using ChartAPI.Services.Queries;
 using ChartAPI.Models.Filters;
 using ChartAPI.Models;
 using ChartAPI.ChartBuilders;
+using Microsoft.AspNetCore.Http.Extensions;
+using ChartAPI.DataAccess.SQLite.QueryBuilders;
 
 namespace ChartAPI.Services.Chart
 {
@@ -22,14 +24,24 @@ namespace ChartAPI.Services.Chart
         }
         public AnnualSummaryDto GetAnnualSummary(int year, string name, string id)
         {
-            BaseFilter filter = new ManHourFilter();
-            filter.Set("Year", year);
+            var qb = new QueryBuilder<ManHourModel>("ManHour")
+                .Where(x => x.Year == year);
             if (!string.IsNullOrWhiteSpace(id))
-                filter.Set("ID", id);
+                qb.Where(x => x.ID == id);
             if (!string.IsNullOrWhiteSpace(name))
-                filter.Set("Name", name);
-            List<ManHourModel> manhours = _manHourQuery.GetByFilter(filter);
+                qb.Where(x => x.Name == name);
+            List<ManHourModel> manhours = _manHourQuery.GetByQB(qb);
             return new AnnualSummaryBuilder(manhours).Build();
+
+
+            //BaseFilter filter = new ManHourFilter();
+            //filter.Set("Year", year);
+            //if (!string.IsNullOrWhiteSpace(id))
+            //    filter.Set("ID", id);
+            //if (!string.IsNullOrWhiteSpace(name))
+            //    filter.Set("Name", name);
+            //List<ManHourModel> manhours = _manHourQuery.GetByFilter(filter);
+            //return new AnnualSummaryBuilder(manhours).Build();
         }
 
     }

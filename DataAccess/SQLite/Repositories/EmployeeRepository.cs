@@ -28,6 +28,16 @@ namespace ChartAPI.DataAccess.SQLite.Repositories
         {
             
         }
+
+        public override Task DeleteAsync(IEnumerable<EmployeeModel> models)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task InsertAsync(IEnumerable<EmployeeModel> models)
+        {
+            throw new NotImplementedException();
+        }
         //IEnumerable<EmployeeModel> IRepository<EmployeeModel>.GetByFilterAsync(IFilter filter)
         //{
         //    List<EmployeeModel> employees = new List<EmployeeModel>();

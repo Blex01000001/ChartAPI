@@ -58,7 +58,6 @@ namespace ChartAPI.DataAccess.SQLite.Repositories
         //    ConsoleExtensions.WriteLineWithTime($"Query Count: {result.Count}, SQL Execute {ExecuteReaderTime.ElapsedMilliseconds} ms, Materializer Elapsed {AutoMapReaderTime.ElapsedMilliseconds} ms");
         //    return result;
         //}
-
         public override Task InsertAsync(IEnumerable<ManHourModel> models)
         {
             const int BatchSize = 10000; // 每批最大處理筆數
