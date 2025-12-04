@@ -51,13 +51,13 @@ namespace ChartAPI.Services.Upsert
                 List<ManHourModel> manHourModels = ParseHtmlTable(filePath, employee.employee_name, employee.employee_id);
                 // 5.更新資料到database
                 //  5.1 建表 index
-                //await _initializer.EnsureTablesCreatedAsync();
-                //await _initializer.EnsureIndexesCreatedAsync();
+                await _initializer.EnsureTablesCreatedAsync();
+                await _initializer.EnsureIndexesCreatedAsync();
                 //  5.2 刪除舊資料
-                //await _manHourRepo.DeleteAsync(manHourModels);
+                await _manHourRepo.DeleteAsync(manHourModels);
                 //  5.3 插入資料
-                //await _manHourRepo.InsertAsync(manHourModels);
-                _manHourRepo.UpdateToDataBase(manHourModels);
+                await _manHourRepo.InsertAsync(manHourModels);
+                //_manHourRepo.UpdateToDataBase(manHourModels);
             }
             //await _hubContext.Clients.All.SendAsync("UpsertCompleted", "Completed");
             return;
