@@ -1,8 +1,10 @@
 ﻿using ChartAPI.DTOs;
+using ChartAPI.DTOs.Charts.Stack;
 using ChartAPI.Models;
 using ChartAPI.ResponseDto;
+using ChartAPI.ChartBuilders.Stack;
 
-namespace ChartAPI.ChartBuilders
+namespace ChartAPI.ChartBuilders.AnnualSummary
 {
     public class AnnualSummaryBuilder
     {
@@ -13,7 +15,7 @@ namespace ChartAPI.ChartBuilders
             _responseDto = new AnnualSummaryDto();
             _manHourList = manHourList;
         }
-        private StackChartDto<ManHourModel> CreateStackChartDto()
+        private StackChartDto CreateStackChartDto()
         {
             //新增每個Stack Series條件
             List<StackSerie> Series = new List<StackSerie>()
@@ -25,8 +27,9 @@ namespace ChartAPI.ChartBuilders
                 new StackSerie("Personal", "CostCode", "001", "Leave")
             };
             //新增Stack Chart
-            return new StackChartBuilder<ManHourModel>(_manHourList, "Month", "Hours", Series)
+            return new StackChartBuilder<ManHourModel>(_manHourList, "Month", "Hours")
                 .SetName("加班/請假年度統計")
+                .SetSeries(Series)
                 .Build();
 
         }
@@ -50,7 +53,8 @@ namespace ChartAPI.ChartBuilders
                         { "WorkNo", new PieChartBuilder<ManHourModel>(monthGroup.ToList(), "WorkNo").Build()},
                         { "CostCode", new PieChartBuilder<ManHourModel>(monthGroup.ToList(), "CostCode").Build()}
                     },
-                    StackCharts = new StackChartBuilder<ManHourModel>(monthGroup.ToList(), "WorkNo", "Hours", baseSeries)
+                    StackCharts = new StackChartBuilder<ManHourModel>(monthGroup.ToList(), "WorkNo", "Hours")
+                    .SetSeries(baseSeries)
                     .Build()
                 }).ToList();
         }

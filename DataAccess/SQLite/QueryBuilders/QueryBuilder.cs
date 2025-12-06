@@ -54,8 +54,8 @@ namespace ChartAPI.DataAccess.SQLite.QueryBuilders
             var sb = new StringBuilder();
 
             sb.Append(_selectSql);
-            sb.Append(" FROM ");
-            sb.Append(_tableName);
+            //sb.Append(" FROM ");
+            //sb.Append(_tableName);
 
             var whereSql = _whereBuilder.Build();
             if (!string.IsNullOrEmpty(whereSql))

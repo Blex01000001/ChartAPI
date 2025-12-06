@@ -1,27 +1,32 @@
 ﻿using ChartAPI.Extensions;
-using ChartAPI.DTOs;
 using System.Reflection;
 using System.Xml.Linq;
+using ChartAPI.DTOs.Charts.Stack;
 
-namespace ChartAPI.ChartBuilders
+namespace ChartAPI.ChartBuilders.Stack
 {
-    public class StackChartBuilder<T>
+    public class StackChartBuilder<T> : IStackChartBuilder<T>
     {
-        private readonly IEnumerable<T> _sourceData;
+        private IEnumerable<T> _sourceData;
+        private List<StackSerie> _series;
+        private string _chartName = "加班/請假年度統計";
         private readonly string _groupName;
-        private readonly List<StackSerie> _series;
-        private string _chartName;
-        private string _sumPropName;
-        public StackChartBuilder(IEnumerable<T> sourceData, string groupName, string sumPropName, List<StackSerie> series)
+        private readonly string _sumPropName;
+        public StackChartBuilder(IEnumerable<T> sourceData, string groupName, string sumPropName)
         {
             _sourceData = sourceData;
             _groupName = groupName;
-            _series = series.Select(x => (StackSerie)x.Clone()).ToList();
             _sumPropName = sumPropName;
         }
+        public StackChartBuilder<T> SetSeries(List<StackSerie> series)
+        {
+            _series = series.Select(x => (StackSerie)x.Clone()).ToList();
+            return this;
+        }
+
         public StackChartBuilder<T> SetName(string chartName)
         {
-            this._chartName = chartName;
+            _chartName = chartName;
             return this;
         }
         private string[] CreateAxisTitle()
@@ -64,10 +69,10 @@ namespace ChartAPI.ChartBuilders
                     .ToArray();
             }
         }
-        public StackChartDto<T> Build()
+        public StackChartDto Build()
         {
             CreateSeries();
-            return new StackChartDto<T>(_chartName, CreateAxisTitle(), _series);
+            return new StackChartDto(_chartName, CreateAxisTitle(), _series);
         }
     }
 }

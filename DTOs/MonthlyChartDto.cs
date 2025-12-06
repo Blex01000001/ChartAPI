@@ -1,5 +1,6 @@
 ﻿using Swashbuckle.AspNetCore.SwaggerGen;
 using ChartAPI.Models;
+using ChartAPI.DTOs.Charts.Stack;
 
 namespace ChartAPI.DTOs
 {
@@ -7,6 +8,6 @@ namespace ChartAPI.DTOs
     {
         public int Month { get; set; }
         public Dictionary<string, PieChartDto> PieChartDic { get; set; }
-        public StackChartDto<ManHourModel> StackCharts { get; set; }
+        public StackChartDto StackCharts { get; set; }
     }
 }

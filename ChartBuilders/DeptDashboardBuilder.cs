@@ -1,4 +1,5 @@
 ﻿using ChartAPI.DTOs;
+using ChartAPI.DTOs.Charts.Stack;
 using ChartAPI.Models;
 
 namespace ChartAPI.ChartBuilders
@@ -13,7 +14,7 @@ namespace ChartAPI.ChartBuilders
             _sumModel = sumModel;
             _sumModel.sumItems = _sumModel.sumItems.OrderByDescending(x => x.Value).Take(30).OrderBy(x => x.Value).ToList();
         }
-        private StackChartDto<SumModel> CreateStackChartDto()
+        private StackChartDto CreateStackChartDto()
         {
             //新增每個Stack Series條件
             List<StackSerie> baseSeries = new List<StackSerie>()
@@ -28,7 +29,7 @@ namespace ChartAPI.ChartBuilders
 
             var AxisTitle = _sumModel.sumItems.Select(x => x.Name).ToArray();
 
-            StackChartDto<SumModel> stackChartDto = new StackChartDto<SumModel>(_sumModel.Title, AxisTitle, baseSeries);
+            StackChartDto stackChartDto = new StackChartDto(_sumModel.Title, AxisTitle, baseSeries);
             stackChartDto.Series[0].Values = _sumModel.sumItems.Select(x => x.Value).ToArray();
 
             return stackChartDto;

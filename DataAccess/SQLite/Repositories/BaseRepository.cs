@@ -50,9 +50,11 @@ namespace ChartAPI.DataAccess.SQLite.Repositories
             {
                 conn.Open();
                 cmd.CommandText = sql;
+                Console.WriteLine($"sql: {sql}");
                 cmd.Parameters.AddRange(ps);
                 Console.WriteLine(sql);
                 ExecuteReaderTime.Start();
+
                 using (var reader = cmd.ExecuteReader())
                 {
                     ExecuteReaderTime.Stop();

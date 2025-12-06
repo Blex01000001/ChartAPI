@@ -1,4 +1,4 @@
-﻿namespace ChartAPI.ChartBuilders
+﻿namespace ChartAPI.ChartBuilders.AnnualSummary
 {
     public interface IAnnualSummaryBuilder
     {
