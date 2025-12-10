@@ -1,4 +1,4 @@
-﻿namespace ChartAPI.DTOs
+﻿namespace ChartAPI.DTOs.Charts.Pie
 {
     public class PieItem
     {
@@ -6,8 +6,8 @@
         public double Value { get; set; }   // 對應數值
         public PieItem(string label, double value)
         {
-            this.Name = label;
-            this.Value = value;
+            Name = label;
+            Value = value;
         }
 
     }

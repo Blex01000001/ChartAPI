@@ -66,36 +66,36 @@ namespace ChartAPI.DataAccess.SQLite.QueryBuilders
 
             return (sb.ToString(), _whereBuilder.Parameters);
         }
-        public static class QueryBuilder_Old
-        {
-            public static (string Sql, SQLiteParameter[] Params) Build(string tableName, IFilter filter)
-            {
-                StringBuilder sb = new StringBuilder();
-                List<SQLiteParameter> parameters = new List<SQLiteParameter>();
+        //public static class QueryBuilder_Old
+        //{
+        //    public static (string Sql, SQLiteParameter[] Params) Build(string tableName, IFilter filter)
+        //    {
+        //        StringBuilder sb = new StringBuilder();
+        //        List<SQLiteParameter> parameters = new List<SQLiteParameter>();
 
-                sb.Append($"SELECT * FROM {tableName} WHERE 1=1");
+        //        sb.Append($"SELECT * FROM {tableName} WHERE 1=1");
 
-                Dictionary<string, object> fields = filter.GetRawFields();
-                SqlBuilderContext context = new SqlBuilderContext();
+        //        Dictionary<string, object> fields = filter.GetRawFields();
+        //        SqlBuilderContext context = new SqlBuilderContext();
 
-                foreach (var kv in fields)
-                {
-                    string key = kv.Key;
-                    object value = kv.Value;
+        //        foreach (var kv in fields)
+        //        {
+        //            string key = kv.Key;
+        //            object value = kv.Value;
 
-                    if (value == null) continue;
+        //            if (value == null) continue;
 
-                    SqlBuildResult sqlResult = context.Build(key, value);
+        //            SqlBuildResult sqlResult = context.Build(key, value);
 
-                    if (!string.IsNullOrWhiteSpace(sqlResult.SqlFragment))
-                    {
-                        sb.Append(sqlResult.SqlFragment);
-                        if (sqlResult.Parameters != null && sqlResult.Parameters.Count > 0)
-                            parameters.AddRange(sqlResult.Parameters);
-                    }
-                }
-                return (sb.ToString(), parameters.ToArray());
-            }
-        }
+        //            if (!string.IsNullOrWhiteSpace(sqlResult.SqlFragment))
+        //            {
+        //                sb.Append(sqlResult.SqlFragment);
+        //                if (sqlResult.Parameters != null && sqlResult.Parameters.Count > 0)
+        //                    parameters.AddRange(sqlResult.Parameters);
+        //            }
+        //        }
+        //        return (sb.ToString(), parameters.ToArray());
+        //    }
+        //}
     }
 }

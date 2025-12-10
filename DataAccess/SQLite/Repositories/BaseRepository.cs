@@ -6,7 +6,8 @@ using ChartAPI.DataAccess.SQLite.QueryBuilders;
 using ChartAPI.Extensions;
 using System.Diagnostics;
 using Microsoft.AspNetCore.Http.Extensions;
-using static ChartAPI.DataAccess.SQLite.QueryBuilders.QueryBuilder<ChartAPI.Models.ManHourModel>;
+using ChartAPI.DataAccess.SQLite.QueryBuilders;
+//using static ChartAPI.DataAccess.SQLite.QueryBuilders.QueryBuilder<ChartAPI.Models.ManHourModel>;
 
 namespace ChartAPI.DataAccess.SQLite.Repositories
 {
@@ -29,14 +30,10 @@ namespace ChartAPI.DataAccess.SQLite.Repositories
         public abstract Task InsertAsync(IEnumerable<TModel> models);
         public abstract Task DeleteAsync(IEnumerable<TModel> models);
 
-        /// <summary>
-        /// IRepository 的共用實作，實際邏輯丟給 Query
-        /// 子類別可以 override Query 來客製化
-        /// </summary>
-        IEnumerable<TModel> IRepository<TModel>.GetByFilterAsync(IFilter filter)
-        {
-            return Query(filter);
-        }
+        //IEnumerable<TModel> IRepository<TModel>.GetByFilterAsync(IFilter filter)
+        //{
+        //    return Query(filter);
+        //}
         public IEnumerable<TModel> GetByQBAsync<T>(QueryBuilder<T> qb)
         {
             List<TModel> result = new List<TModel>();
@@ -66,7 +63,7 @@ namespace ChartAPI.DataAccess.SQLite.Repositories
                     AutoMapReaderTime.Stop();
                 }
             }
-            ConsoleExtensions.WriteLineWithTime($"666Query Count: {result.Count}, SQL Execute {ExecuteReaderTime.ElapsedMilliseconds} ms, Materializer Elapsed {AutoMapReaderTime.ElapsedMilliseconds} ms");
+            ConsoleExtensions.WriteLineWithTime($"Query Count: {result.Count}, SQL Execute {ExecuteReaderTime.ElapsedMilliseconds} ms, Materializer Elapsed {AutoMapReaderTime.ElapsedMilliseconds} ms");
 
             return result;
         }
@@ -76,34 +73,33 @@ namespace ChartAPI.DataAccess.SQLite.Repositories
         /// </summary>
         /// <param name="filter"></param>
         /// <returns></returns>
-        protected virtual IEnumerable<TModel> Query(IFilter filter)
-        {
-            List<TModel> result = new List<TModel>();
-            Stopwatch ExecuteReaderTime = new Stopwatch();
-            Stopwatch AutoMapReaderTime = new Stopwatch();
+        //protected virtual IEnumerable<TModel> Query(IFilter filter)
+        //{
+        //    List<TModel> result = new List<TModel>();
+        //    Stopwatch ExecuteReaderTime = new Stopwatch();
+        //    Stopwatch AutoMapReaderTime = new Stopwatch();
 
-            var (sql, ps) = QueryBuilder_Old.Build(_tableName, filter);
-            using (var conn = CreateConnection())
-            using (var cmd = new SQLiteCommand(sql, conn))
-            {
-
-                cmd.Parameters.AddRange(ps);
-                conn.Open();
-                ExecuteReaderTime.Start();
-                using (var reader = cmd.ExecuteReader())
-                {
-                    ExecuteReaderTime.Stop();
-                    AutoMapReaderTime.Start();
-                    while (reader.Read())
-                    {
-                        result.Add(_materializer.Map<TModel>(reader));
-                    }
-                    AutoMapReaderTime.Stop();
-                }
-            }
-            ConsoleExtensions.WriteLineWithTime($"Query Count: {result.Count}, SQL Execute {ExecuteReaderTime.ElapsedMilliseconds} ms, Materializer Elapsed {AutoMapReaderTime.ElapsedMilliseconds} ms");
-            return result;
-        }
+        //    var (sql, ps) = new QueryBuilder<TModel>(_tableName).Build( filter);
+        //    using (var conn = CreateConnection())
+        //    using (var cmd = new SQLiteCommand(sql, conn))
+        //    {
+        //        cmd.Parameters.AddRange(ps);
+        //        conn.Open();
+        //        ExecuteReaderTime.Start();
+        //        using (var reader = cmd.ExecuteReader())
+        //        {
+        //            ExecuteReaderTime.Stop();
+        //            AutoMapReaderTime.Start();
+        //            while (reader.Read())
+        //            {
+        //                result.Add(_materializer.Map<TModel>(reader));
+        //            }
+        //            AutoMapReaderTime.Stop();
+        //        }
+        //    }
+        //    ConsoleExtensions.WriteLineWithTime($"Query Count: {result.Count}, SQL Execute {ExecuteReaderTime.ElapsedMilliseconds} ms, Materializer Elapsed {AutoMapReaderTime.ElapsedMilliseconds} ms");
+        //    return result;
+        //}
 
         /// <summary>
         /// 提供給子類別使用的共用 Connection 產生器

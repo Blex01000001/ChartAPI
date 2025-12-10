@@ -20,7 +20,6 @@
 
   <ItemGroup>
     <Folder Include="DataAccess\Csv\" />
-    <Folder Include="DataAccess\SQLite\IndexBuilders\" />
   </ItemGroup>
 
 </Project>

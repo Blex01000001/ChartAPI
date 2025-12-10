@@ -1,6 +1,7 @@
 ﻿using Swashbuckle.AspNetCore.SwaggerGen;
 using ChartAPI.Models;
 using ChartAPI.DTOs.Charts.Stack;
+using ChartAPI.DTOs.Charts.Pie;
 
 namespace ChartAPI.DTOs
 {

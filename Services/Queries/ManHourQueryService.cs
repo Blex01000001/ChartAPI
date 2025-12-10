@@ -15,10 +15,10 @@ namespace ChartAPI.Services.Queries
             this._manhourRepo = repo;
         }
 
-        List<ManHourModel> IManHourQueryService.GetByFilter(IFilter filter)
-        {
-            return _manhourRepo.GetByFilterAsync(filter).ToList();
-        }
+        //List<ManHourModel> IManHourQueryService.GetByFilter(IFilter filter)
+        //{
+        //    return _manhourRepo.GetByFilterAsync(filter).ToList();
+        //}
 
         List<ManHourModel> IManHourQueryService.GetByQB<T>(QueryBuilder<T> qb)
         {

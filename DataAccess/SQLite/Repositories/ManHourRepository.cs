@@ -68,40 +68,43 @@ namespace ChartAPI.DataAccess.SQLite.Repositories
             string insertSql = $"INSERT INTO ManHour ({columns}) VALUES ({paramList})";
 
             using (var conn = CreateConnection())
-            using (var tran = conn.BeginTransaction())
-            using (var insertCmd = new SQLiteCommand(insertSql, conn, tran))
             {
-                // 預先建立參數
-                foreach (var prop in props)
+                conn.Open();
+                using (var tran = conn.BeginTransaction())
+                using (var insertCmd = new SQLiteCommand(insertSql, conn, tran))
                 {
-                    insertCmd.Parameters.Add("@" + prop.Name, DbType.String); // 統一用字串，SQLite 會自動轉型
-                }
-
-                for (int i = 0; i < models.Count(); i += BatchSize)
-                {
-                    var batch = models.Skip(i).Take(BatchSize);
-
-                    foreach (var model in batch)
+                    // 預先建立參數
+                    foreach (var prop in props)
                     {
-                        foreach (var prop in props)
-                        {
-                            object value = prop.GetValue(model);
-
-                            if (value is DateTime dt)
-                                insertCmd.Parameters["@" + prop.Name].Value = dt.ToString("yyyy-MM-dd");
-                            else if (value is bool b)
-                                insertCmd.Parameters["@" + prop.Name].Value = b ? 1 : 0;
-                            else if (value is DayOfWeek dow)
-                                insertCmd.Parameters["@" + prop.Name].Value = (int)dow;
-                            else if (value == null)
-                                insertCmd.Parameters["@" + prop.Name].Value = DBNull.Value;
-                            else
-                                insertCmd.Parameters["@" + prop.Name].Value = value;
-                        }
-                        insertCmd.ExecuteNonQuery();
+                        insertCmd.Parameters.Add("@" + prop.Name, DbType.String); // 統一用字串，SQLite 會自動轉型
                     }
+
+                    for (int i = 0; i < models.Count(); i += BatchSize)
+                    {
+                        var batch = models.Skip(i).Take(BatchSize);
+
+                        foreach (var model in batch)
+                        {
+                            foreach (var prop in props)
+                            {
+                                object value = prop.GetValue(model);
+
+                                if (value is DateTime dt)
+                                    insertCmd.Parameters["@" + prop.Name].Value = dt.ToString("yyyy-MM-dd");
+                                else if (value is bool b)
+                                    insertCmd.Parameters["@" + prop.Name].Value = b ? 1 : 0;
+                                else if (value is DayOfWeek dow)
+                                    insertCmd.Parameters["@" + prop.Name].Value = (int)dow;
+                                else if (value == null)
+                                    insertCmd.Parameters["@" + prop.Name].Value = DBNull.Value;
+                                else
+                                    insertCmd.Parameters["@" + prop.Name].Value = value;
+                            }
+                            insertCmd.ExecuteNonQuery();
+                        }
+                    }
+                    tran.Commit();
                 }
-                tran.Commit();
             }
             return Task.CompletedTask;
         }
@@ -116,68 +119,9 @@ namespace ChartAPI.DataAccess.SQLite.Repositories
             string deleteSql = "DELETE FROM ManHour WHERE Name=@Name AND ID=@ID AND Weekend=@Weekend";
 
             using (var conn = CreateConnection())
-            using (var tran = conn.BeginTransaction())
-            using (var delCmd = new SQLiteCommand(deleteSql, conn, tran))
-            {
-                var pName = delCmd.Parameters.Add("@Name", DbType.String);
-                var pID = delCmd.Parameters.Add("@ID", DbType.String);
-                var pWeekend = delCmd.Parameters.Add("@Weekend", DbType.String);
-
-                foreach (var key in keysToDelete)
-                {
-                    pName.Value = key.Name;
-                    pID.Value = key.ID;
-                    pWeekend.Value = key.Weekend.ToString("yyyy-MM-dd");
-
-                    delCmd.ExecuteNonQuery();
-                }
-                tran.Commit();
-            }
-            return Task.CompletedTask;
-        }
-        void IManHourRepository.UpdateToDataBase(List<ManHourModel> manHourModels)
-        {
-            const int BatchSize = 10000; // 每批最大處理筆數
-            using (var conn = CreateConnection())
             {
                 conn.Open();
-
-                // 建表
-                string createTable = @"
-                    CREATE TABLE IF NOT EXISTS ManHour (
-                    Name TEXT, ID TEXT, Date TEXT, Year INTEGER, Month INTEGER, Weekend TEXT, WorkNo TEXT,
-                    PH TEXT, DP TEXT, CostCode TEXT, CL TEXT, UnitArea TEXT, SystemNo TEXT, EquipNo TEXT,
-                    SE TEXT, REWK TEXT, DayofWeek INTEGER, Hours REAL, Regular INTEGER, Overtime INTEGER,
-                    Updated TEXT, Position TEXT, Group1 TEXT, Group2 TEXT, Group3 TEXT, Group4 TEXT)";
-                new SQLiteCommand(createTable, conn).ExecuteNonQuery();
-
-                // 建立索引
-                string createINDEX = @"
-                    CREATE INDEX IF NOT EXISTS IX_ManHour_NameIDWeekend ON ManHour(Name, ID, Weekend);";
-                new SQLiteCommand(createINDEX, conn).ExecuteNonQuery();
-
-
                 using (var tran = conn.BeginTransaction())
-                {
-                    DeleteObsolete(conn, tran, manHourModels);
-                    InsertLatest(conn, tran, manHourModels);
-                    tran.Commit();
-                }
-            }
-            ConsoleExtensions.WriteLineWithTime($"Update To DataBase Complete");
-        }
-        private void DeleteObsolete(SQLiteConnection conn, SQLiteTransaction tran, List<ManHourModel> Data)
-        {
-            // ============ (1) 批次刪除 ============ 
-            var keysToDelete = Data
-                .Select(m => new { m.Name, m.ID, m.Weekend })
-                .Distinct()
-                .ToList();
-
-            if (keysToDelete.Count > 0)
-            {
-                string deleteSql = "DELETE FROM ManHour WHERE Name=@Name AND ID=@ID AND Weekend=@Weekend";
-
                 using (var delCmd = new SQLiteCommand(deleteSql, conn, tran))
                 {
                     var pName = delCmd.Parameters.Add("@Name", DbType.String);
@@ -192,54 +136,116 @@ namespace ChartAPI.DataAccess.SQLite.Repositories
 
                         delCmd.ExecuteNonQuery();
                     }
-                }
+                    tran.Commit();
             }
-        }
-        private void InsertLatest(SQLiteConnection conn, SQLiteTransaction tran, List<ManHourModel> Data)
-        {
-            // ============ (2) 批次插入 ============ 
-            const int BatchSize = 10000; // 每批最大處理筆數
-            PropertyInfo[] props = typeof(ManHourModel).GetProperties(BindingFlags.Public | BindingFlags.Instance);
-            string columns = string.Join(", ", props.Select(p => p.Name));
-            string paramList = string.Join(", ", props.Select(p => "@" + p.Name));
-
-            string insertSql = $"INSERT INTO ManHour ({columns}) VALUES ({paramList})";
-
-            using (var insertCmd = new SQLiteCommand(insertSql, conn, tran))
-            {
-                // 預先建立參數
-                foreach (var prop in props)
-                {
-                    insertCmd.Parameters.Add("@" + prop.Name, DbType.String); // 統一用字串，SQLite 會自動轉型
-                }
-
-                for (int i = 0; i < Data.Count; i += BatchSize)
-                {
-                    var batch = Data.Skip(i).Take(BatchSize);
-
-                    foreach (var model in batch)
-                    {
-                        foreach (var prop in props)
-                        {
-                            object value = prop.GetValue(model);
-
-                            if (value is DateTime dt)
-                                insertCmd.Parameters["@" + prop.Name].Value = dt.ToString("yyyy-MM-dd");
-                            else if (value is bool b)
-                                insertCmd.Parameters["@" + prop.Name].Value = b ? 1 : 0;
-                            else if (value is DayOfWeek dow)
-                                insertCmd.Parameters["@" + prop.Name].Value = (int)dow;
-                            else if (value == null)
-                                insertCmd.Parameters["@" + prop.Name].Value = DBNull.Value;
-                            else
-                                insertCmd.Parameters["@" + prop.Name].Value = value;
-                        }
-                        insertCmd.ExecuteNonQuery();
-                    }
-                }
             }
-
+            return Task.CompletedTask;
         }
+        //void IManHourRepository.UpdateToDataBase(List<ManHourModel> manHourModels)
+        //{
+        //    const int BatchSize = 10000; // 每批最大處理筆數
+        //    using (var conn = CreateConnection())
+        //    {
+        //        conn.Open();
+
+        //        // 建表
+        //        string createTable = @"
+        //            CREATE TABLE IF NOT EXISTS ManHour (
+        //            Name TEXT, ID TEXT, Date TEXT, Year INTEGER, Month INTEGER, Weekend TEXT, WorkNo TEXT,
+        //            PH TEXT, DP TEXT, CostCode TEXT, CL TEXT, UnitArea TEXT, SystemNo TEXT, EquipNo TEXT,
+        //            SE TEXT, REWK TEXT, DayofWeek INTEGER, Hours REAL, Regular INTEGER, Overtime INTEGER,
+        //            Updated TEXT, Position TEXT, Group1 TEXT, Group2 TEXT, Group3 TEXT, Group4 TEXT)";
+        //        new SQLiteCommand(createTable, conn).ExecuteNonQuery();
+
+        //        // 建立索引
+        //        string createINDEX = @"
+        //            CREATE INDEX IF NOT EXISTS IX_ManHour_NameIDWeekend ON ManHour(Name, ID, Weekend);";
+        //        new SQLiteCommand(createINDEX, conn).ExecuteNonQuery();
+
+
+        //        using (var tran = conn.BeginTransaction())
+        //        {
+        //            DeleteObsolete(conn, tran, manHourModels);
+        //            InsertLatest(conn, tran, manHourModels);
+        //            tran.Commit();
+        //        }
+        //    }
+        //    ConsoleExtensions.WriteLineWithTime($"Update To DataBase Complete");
+        //}
+        //private void DeleteObsolete(SQLiteConnection conn, SQLiteTransaction tran, List<ManHourModel> Data)
+        //{
+        //    // ============ (1) 批次刪除 ============ 
+        //    var keysToDelete = Data
+        //        .Select(m => new { m.Name, m.ID, m.Weekend })
+        //        .Distinct()
+        //        .ToList();
+
+        //    if (keysToDelete.Count > 0)
+        //    {
+        //        string deleteSql = "DELETE FROM ManHour WHERE Name=@Name AND ID=@ID AND Weekend=@Weekend";
+
+        //        using (var delCmd = new SQLiteCommand(deleteSql, conn, tran))
+        //        {
+        //            var pName = delCmd.Parameters.Add("@Name", DbType.String);
+        //            var pID = delCmd.Parameters.Add("@ID", DbType.String);
+        //            var pWeekend = delCmd.Parameters.Add("@Weekend", DbType.String);
+
+        //            foreach (var key in keysToDelete)
+        //            {
+        //                pName.Value = key.Name;
+        //                pID.Value = key.ID;
+        //                pWeekend.Value = key.Weekend.ToString("yyyy-MM-dd");
+
+        //                delCmd.ExecuteNonQuery();
+        //            }
+        //        }
+        //    }
+        //}
+        //private void InsertLatest(SQLiteConnection conn, SQLiteTransaction tran, List<ManHourModel> Data)
+        //{
+        //    // ============ (2) 批次插入 ============ 
+        //    const int BatchSize = 10000; // 每批最大處理筆數
+        //    PropertyInfo[] props = typeof(ManHourModel).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+        //    string columns = string.Join(", ", props.Select(p => p.Name));
+        //    string paramList = string.Join(", ", props.Select(p => "@" + p.Name));
+
+        //    string insertSql = $"INSERT INTO ManHour ({columns}) VALUES ({paramList})";
+
+        //    using (var insertCmd = new SQLiteCommand(insertSql, conn, tran))
+        //    {
+        //        // 預先建立參數
+        //        foreach (var prop in props)
+        //        {
+        //            insertCmd.Parameters.Add("@" + prop.Name, DbType.String); // 統一用字串，SQLite 會自動轉型
+        //        }
+
+        //        for (int i = 0; i < Data.Count; i += BatchSize)
+        //        {
+        //            var batch = Data.Skip(i).Take(BatchSize);
+
+        //            foreach (var model in batch)
+        //            {
+        //                foreach (var prop in props)
+        //                {
+        //                    object value = prop.GetValue(model);
+
+        //                    if (value is DateTime dt)
+        //                        insertCmd.Parameters["@" + prop.Name].Value = dt.ToString("yyyy-MM-dd");
+        //                    else if (value is bool b)
+        //                        insertCmd.Parameters["@" + prop.Name].Value = b ? 1 : 0;
+        //                    else if (value is DayOfWeek dow)
+        //                        insertCmd.Parameters["@" + prop.Name].Value = (int)dow;
+        //                    else if (value == null)
+        //                        insertCmd.Parameters["@" + prop.Name].Value = DBNull.Value;
+        //                    else
+        //                        insertCmd.Parameters["@" + prop.Name].Value = value;
+        //                }
+        //                insertCmd.ExecuteNonQuery();
+        //            }
+        //        }
+        //    }
+
+        //}
 
     }
 }

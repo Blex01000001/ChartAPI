@@ -5,6 +5,6 @@
     /// </summary>
     public interface ISqlBuilder
     {
-        SqlBuildResult Build(string key, object value);
+        //SqlBuildResult Build(string key, object value);
     }
 }

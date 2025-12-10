@@ -7,7 +7,7 @@ namespace ChartAPI.Services.Queries
 {
     public interface IManHourQueryService
     {
-        public List<ManHourModel> GetByFilter(IFilter filter);
+        //public List<ManHourModel> GetByFilter(IFilter filter);
         List<ManHourModel> GetByQB<T>(QueryBuilder<T> qb);
     }
 }

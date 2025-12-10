@@ -5,25 +5,17 @@ using ChartAPI.DTOs.Charts.Stack;
 
 namespace ChartAPI.ChartBuilders.Stack
 {
-    public class StackChartBuilder<T> : IStackChartBuilder<T>
+    public class StackChartBuilder<T> : ChartBuilderBase<T>, IChartBuilder<StackChartDto>
     {
-        private IEnumerable<T> _sourceData;
-        private List<StackSerie> _series;
-        private string _chartName = "加班/請假年度統計";
-        private readonly string _groupName;
-        private readonly string _sumPropName;
+        private List<StackSerie> _series = new();
+        private string _chartName = "";
         public StackChartBuilder(IEnumerable<T> sourceData, string groupName, string sumPropName)
+                : base(sourceData, groupName, sumPropName) { }
+        public StackChartBuilder<T> SetSeries(StackSerie series)
         {
-            _sourceData = sourceData;
-            _groupName = groupName;
-            _sumPropName = sumPropName;
-        }
-        public StackChartBuilder<T> SetSeries(List<StackSerie> series)
-        {
-            _series = series.Select(x => (StackSerie)x.Clone()).ToList();
+            _series.Add((StackSerie)series.Clone());
             return this;
         }
-
         public StackChartBuilder<T> SetName(string chartName)
         {
             _chartName = chartName;
@@ -31,16 +23,16 @@ namespace ChartAPI.ChartBuilders.Stack
         }
         private string[] CreateAxisTitle()
         {
-            return _sourceData
-                .GroupByProperty(_groupName)
+            return SourceData
+                .GroupByProperty(GroupName)
                 .OrderBy(g => g.Key)
                 .Select(workNoGroup => workNoGroup.Key.ToString()!)
                 .ToArray();
         }
         private void CreateSeries()
         {
-            var groups = _sourceData
-            .GroupByProperty(_groupName)
+            var groups = SourceData
+            .GroupByProperty(GroupName)
             .OrderBy(g => g.Key)
             .ToList();
 
@@ -63,7 +55,7 @@ namespace ChartAPI.ChartBuilders.Stack
                         .Sum(x =>
                         {
                             // 假設每筆都有 Hours 屬性
-                            var hProp = typeof(T).GetProperty(_sumPropName);
+                            var hProp = typeof(T).GetProperty(SumPropName);
                             return Convert.ToDouble(hProp.GetValue(x));
                         }))
                     .ToArray();

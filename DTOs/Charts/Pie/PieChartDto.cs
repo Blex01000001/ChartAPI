@@ -1,6 +1,6 @@
 ﻿using ChartAPI.Models;
 
-namespace ChartAPI.DTOs
+namespace ChartAPI.DTOs.Charts.Pie
 {
     public class PieChartDto
     {
@@ -10,8 +10,8 @@ namespace ChartAPI.DTOs
         public PieChartDto(string title, List<PieItem> data)
         {
             //this.Name = name;
-            this.Title = title;
-            this.Data = data;
+            Title = title;
+            Data = data;
         }
 
     }

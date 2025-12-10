@@ -1,5 +1,6 @@
 ﻿using ChartAPI.DataAccess.Interfaces;
 using ChartAPI.DataAccess.SQLite.Initializer;
+using ChartAPI.DataAccess.SQLite.QueryBuilders;
 using ChartAPI.Extensions;
 using ChartAPI.Hubs;
 using ChartAPI.Models;
@@ -33,15 +34,19 @@ namespace ChartAPI.Services.Upsert
         async Task IUpsertDataService.UpsertDataAsync(string name = null, string id = null)
         {
             // 1. 設定filter
-            BaseFilter filter = new EmployeeFilter();
-            if (!string.IsNullOrWhiteSpace(id))
-                filter.Set("employee_id", id);
-            if (!string.IsNullOrWhiteSpace(name))
-                filter.Set("employee_name", name);
+            //BaseFilter filter = new EmployeeFilter();
+            //if (!string.IsNullOrWhiteSpace(id))
+            //    filter.Set("employee_id", id);
+            //if (!string.IsNullOrWhiteSpace(name))
+            //    filter.Set("employee_name", name);
+            var qb = new QueryBuilder<EmployeeModel>("EmpInfo9933")
+                .Where(x => x.id == id)
+                .Where(x => x.employee_name == name);
             ConsoleExtensions.WriteLineWithTime($"name:{name} id:{id}");
 
             // 2.撈員工資料
-            IEnumerable<EmployeeModel> employees = _empRepo.GetByFilterAsync(filter);
+            //IEnumerable<EmployeeModel> employees = _empRepo.GetByFilterAsync(filter);
+            IEnumerable<EmployeeModel> employees = _empRepo.GetByQBAsync(qb);
 
             foreach (EmployeeModel employee in employees)
             {

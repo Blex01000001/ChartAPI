@@ -8,20 +8,20 @@ namespace ChartAPI.Repositories.Query.BuilderTypes
     /// </summary>
     public class EqualSqlBuilder : ISqlBuilder
     {
-        public SqlBuildResult Build(string key, object value)
-        {
-            var result = new SqlBuildResult();
+        //public SqlBuildResult Build(string key, object value)
+        //{
+        //    var result = new SqlBuildResult();
 
-            // 簡單處理空字串：直接略過，不產生條件
-            if (value is string s && string.IsNullOrWhiteSpace(s))
-                return result;
+        //    // 簡單處理空字串：直接略過，不產生條件
+        //    if (value is string s && string.IsNullOrWhiteSpace(s))
+        //        return result;
 
-            string paramName = $"@{key}";
+        //    string paramName = $"@{key}";
 
-            result.SqlFragment = $" AND {key} = {paramName}";
-            result.Parameters.Add(new SQLiteParameter(paramName, value ?? DBNull.Value));
+        //    result.SqlFragment = $" AND {key} = {paramName}";
+        //    result.Parameters.Add(new SQLiteParameter(paramName, value ?? DBNull.Value));
 
-            return result;
-        }
+        //    return result;
+        //}
     }
 }

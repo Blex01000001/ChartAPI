@@ -1,6 +1,5 @@
 ﻿using ChartAPI.DTOs;
 using ChartAPI.Models;
-using ChartAPI.ResponseDto;
 
 namespace ChartAPI.Interfaces
 {

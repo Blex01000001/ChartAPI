@@ -4,7 +4,6 @@ using ChartAPI.Hubs;
 using ChartAPI.Interfaces;
 using ChartAPI.Models;
 using ChartAPI.Models.Filters;
-using ChartAPI.ResponseDto;
 using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.AspNetCore.SignalR;
 using System.Collections.Generic;

@@ -11,13 +11,13 @@ namespace ChartAPI.ChartBuilders
         {
             this._sourceData = sourceData;
         }
-        public List<YearCalendarDto> Build()
+        public List<CalendarSummaryDto> Build()
         {
             var test = _sourceData.GroupBy(x => x.Date);
             return _sourceData
                 .GroupBy(x => x.Date.Year)
                 .OrderBy(g => g.Key)
-                .Select(yearGroup => new YearCalendarDto
+                .Select(yearGroup => new CalendarSummaryDto
                 {
                     Year = yearGroup.Key,
                     Data = yearGroup
