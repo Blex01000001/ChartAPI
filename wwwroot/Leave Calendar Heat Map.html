@@ -7,11 +7,13 @@
         /* 垂直排列 */
         /*gap: 20px;*/
     }
+
     #InputArea {
         display: flex;
         padding: 5px;
         gap: 5px;
     }
+
     .CalendarArea {
         display: flex;
         background-color: #f0f0ff;
@@ -24,6 +26,7 @@
         /* 子元素垂直置中 */
         width: 100%;
     }
+
     .MonthArea {
         display: flex;
         background-color: #f0f0f0;
@@ -61,13 +64,12 @@
         border-style: dashed;
         border-width: 3px;
     }
-    .LineChartArea
-    {
+
+    .LineChartArea {
         flex: 1;
         min-width: 500px;
         height: 500px;
     }
-
 </style>
 
 <head>
@@ -76,10 +78,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/6.0.0/echarts.min.js"
-            integrity="sha512-4/g9GAdOdTpUP2mKClpKsEzaK7FQNgMjq+No0rX8XZlfrCGtbi4r+T/p5fnacsEC3zIAmHKLJUL7sh3/yVA4OQ=="
-            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        integrity="sha512-4/g9GAdOdTpUP2mKClpKsEzaK7FQNgMjq+No0rX8XZlfrCGtbi4r+T/p5fnacsEC3zIAmHKLJUL7sh3/yVA4OQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.js"
-            integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+        integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
 </head>
 
 <body>
@@ -94,7 +96,7 @@
         <div id="CalendarChartContainer"></div>
     </div> <!-- 主容器放多個 MonthArea -->
     <div id="LineChartContainer"></div>
-        
+
 </body>
 
 </html>
@@ -127,7 +129,7 @@
         console.log(QueryName);
         $.ajax({
             type: "GET",
-            url: "http://localhost:5265/api/Chart/GetCalendarChart",
+            url: "http://localhost:5265/api/Chart/CalendarSummary",
             data: { name: QueryName, id: QueryID },
             //dataType: "json",
             success: function (response) {
@@ -218,6 +220,7 @@
         let monthArea = document.querySelector('.CalendarArea');
         const heightValue = Cdata.length * 180 + 110;
         console.log('h: ' + heightValue);
+        console.log(Cdata);
 
         // 如果第一次建立
         if (!monthArea) {
@@ -278,7 +281,7 @@
                 type: 'heatmap',
                 coordinateSystem: 'calendar',
                 calendarIndex: index,
-                data:  item.data 
+                data: item.data
             }))
         }, true)
     }

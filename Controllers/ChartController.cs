@@ -34,7 +34,7 @@ namespace ChartAPI.Controllers
             ConsoleExtensions.WriteLineWithTime($"CalendarSummary: {name} {id}");
             if (string.IsNullOrWhiteSpace(name))
                 return Ok(new { success = false, message = "姓名不正確" });
-            return Ok(_calendarSummaryService.GetChart(name, id));
+            return Ok(_calendarSummaryService.GetChart(name, id).Result);
         }
         [HttpGet("AnnualSummary")]
         public IActionResult GetAnnualSummary([FromQuery] int? year, string name = null, string id = null)

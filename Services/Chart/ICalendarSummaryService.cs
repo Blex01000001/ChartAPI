@@ -4,6 +4,6 @@ namespace ChartAPI.Services.Chart
 {
     public interface ICalendarSummaryService
     {
-        List<CalendarSummaryDto> GetChart(string name, string id);
+        Task<List<CalendarSummaryDto>> GetChart(string name, string id);
     }
 }

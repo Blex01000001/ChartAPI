@@ -17,6 +17,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
 builder.Services.AddScoped<IAnnualSummaryService, AnnualSummaryService>();
+builder.Services.AddScoped<ICalendarSummaryService, CalendarSummaryService>();
 builder.Services.AddScoped<IManHourRepository, ManHourRepository>();
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 builder.Services.AddScoped<IManHourQueryService, ManHourQueryService>();

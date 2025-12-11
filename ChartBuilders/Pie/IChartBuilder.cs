@@ -1,4 +1,4 @@
-﻿namespace ChartAPI.ChartBuilders
+﻿namespace ChartAPI.ChartBuilders.Pie
 {
     public interface IChartBuilder<TChart>
     {

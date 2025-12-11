@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.Xml.Linq;
 using ChartAPI.DTOs.Charts.Stack;
+using ChartAPI.ChartBuilders.Pie;
 
 namespace ChartAPI.ChartBuilders.Stack
 {
