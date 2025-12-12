@@ -10,11 +10,11 @@ namespace ChartAPI.Controllers
 
     public class UpsertDataController : ControllerBase
     {
-        private readonly IUpsertDataService _service;
+        private readonly IUpsertDataService _upsertDataService;
 
         public UpsertDataController(IUpsertDataService service)
         {
-            _service = service;
+            _upsertDataService = service;
         }
         /// <summary>
         /// 更新資料（Upsert）
@@ -29,7 +29,7 @@ namespace ChartAPI.Controllers
             ConsoleExtensions.WriteLineWithTime($"{name} {id}");
             if (string.IsNullOrWhiteSpace(name) && string.IsNullOrWhiteSpace(id))
                 return Ok(new { success = false, message = "姓名或工號擇一填入" });
-            await _service.UpsertDataAsync(name, id);
+            await _upsertDataService.UpsertDataAsync(name, id);
             return Ok(new { message = "UpsertData success" });
         }
     }

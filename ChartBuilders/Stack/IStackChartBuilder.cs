@@ -2,10 +2,9 @@
 
 namespace ChartAPI.ChartBuilders.Stack
 {
-    public interface IStackChartBuilder<T>
+    public interface IStackChartBuilder<TModel> : IChartBuilder<StackChartDto>
     {
-        StackChartDto Build();
-        StackChartBuilder<T> SetSeries(StackSerie series);
-        StackChartBuilder<T> SetName(string chartName);
+        IStackChartBuilder<TModel> SetSeries(StackSerie series);
+        IStackChartBuilder<TModel> SetName(string chartName);
     }
 }

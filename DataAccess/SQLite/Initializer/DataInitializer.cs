@@ -73,8 +73,8 @@ namespace ChartAPI.DataAccess.SQLite.Initializer
             string[] indexSqlList =
             {
                 //"CREATE INDEX IF NOT EXISTS IDX_ManHour_ID ON ManHour(ID);",
-                "CREATE INDEX IDX_Year_Name_ID ON ManHour(year, name, id)",
-                "CREATE INDEX IDX_Year_ID ON ManHour(year, id)",
+                "CREATE INDEX IF NOT EXISTS  IDX_Year_Name_ID ON ManHour(year, name, id)",
+                "CREATE INDEX IF NOT EXISTS  IDX_Year_ID ON ManHour(year, id)",
                 //"CREATE INDEX IF NOT EXISTS IDX_ManHour_WorkDate ON ManHour(WorkDate);",
                 "CREATE INDEX IF NOT EXISTS IDX_ManHour_CostCode ON ManHour(CostCode);",
                 //"CREATE INDEX IF NOT EXISTS IX_ManHour_NameIDWeekend ON ManHour(Name, ID, Weekend);"

@@ -33,20 +33,18 @@ namespace ChartAPI.Services.Upsert
         }
         async Task IUpsertDataService.UpsertDataAsync(string name = null, string id = null)
         {
-            // 1. 設定filter
-            //BaseFilter filter = new EmployeeFilter();
-            //if (!string.IsNullOrWhiteSpace(id))
-            //    filter.Set("employee_id", id);
-            //if (!string.IsNullOrWhiteSpace(name))
-            //    filter.Set("employee_name", name);
-            var qb = new QueryBuilder<EmployeeModel>("EmpInfo9933")
-                .Where(x => x.id == id)
-                .Where(x => x.employee_name == name);
+            var qb = new QueryBuilder<EmployeeModel>("EmpInfo9933");
+            if (!string.IsNullOrWhiteSpace(id))
+                qb.Where(x => x.id == id);
+            if (!string.IsNullOrWhiteSpace(id))
+                qb.Where(x => x.employee_name == name);
             ConsoleExtensions.WriteLineWithTime($"name:{name} id:{id}");
 
             // 2.撈員工資料
-            //IEnumerable<EmployeeModel> employees = _empRepo.GetByFilterAsync(filter);
             IEnumerable<EmployeeModel> employees = _empRepo.GetByQBAsync(qb);
+
+            if (employees.Count() == 0) // 找不到員工直接新增一個
+                employees = new List<EmployeeModel> { new EmployeeModel { employee_name = name, employee_id = id } };
 
             foreach (EmployeeModel employee in employees)
             {
@@ -81,10 +79,12 @@ namespace ChartAPI.Services.Upsert
             var uriBuilder = new UriBuilder("https://ctcieip.ctci.com/hr_gmh/HR_GMH_6011_Export.aspx");
             var query = HttpUtility.ParseQueryString(string.Empty);
             query["corp_id"] = "9933";
-            query["emp_id"] = employee.employee_id;
+            if (!string.IsNullOrWhiteSpace(employee.employee_id))
+                query["emp_id"] = employee.employee_id;
             query["begdate"] = $"{year}01";
             query["enddate"] = $"{year}12";
-            query["emp_name"] = employee.employee_name;
+            if (!string.IsNullOrWhiteSpace(employee.employee_name))
+                query["emp_name"] = employee.employee_name;
             uriBuilder.Query = query.ToString();
             try
             {

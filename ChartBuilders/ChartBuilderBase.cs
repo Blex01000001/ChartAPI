@@ -1,6 +1,6 @@
 ﻿namespace ChartAPI.ChartBuilders
 {
-    public class ChartBuilderBase<TModel>
+    public abstract class ChartBuilderBase<TModel, TDto> : IChartBuilder<TDto>
     {
         protected readonly IEnumerable<TModel> SourceData;
         protected readonly string GroupName;
@@ -11,5 +11,7 @@
             GroupName = groupName;
             SumPropName = sumPropName;
         }
+
+        public abstract TDto Build();
     }
 }

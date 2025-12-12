@@ -5,15 +5,12 @@ using System.Collections.Generic;
 
 namespace ChartAPI.ChartBuilders.Pie
 {
-    public class PieChartBuilder<T> : ChartBuilderBase<T>, IChartBuilder<PieChartDto>
+    public class PieChartBuilder<TModel> : ChartBuilderBase<TModel, PieChartDto>, IPieChartBuilder<TModel>
     {
-        //private readonly IEnumerable<T> _sourceData;
-        //private readonly string _groupName;
-        //private readonly string _sumPropName;
         private List<PieItem> _data;
-        public PieChartBuilder(IEnumerable<T> sourceData, string groupName, string sumPropName)
+        public PieChartBuilder(IEnumerable<TModel> sourceData, string groupName, string sumPropName)
             : base(sourceData, groupName, sumPropName) { }
-        public PieChartDto Build()
+        public override PieChartDto Build()
         {
             _data = SourceData
                 .GroupByProperty(GroupName)
@@ -21,7 +18,7 @@ namespace ChartAPI.ChartBuilders.Pie
                 .Select(workNoGroup => new PieItem(workNoGroup.Key.ToString(), workNoGroup
                 .Sum(s =>
                 {
-                    var prop = typeof(T).GetProperty(SumPropName);
+                    var prop = typeof(TModel).GetProperty(SumPropName);
                     return Convert.ToDouble(prop.GetValue(s));
                 })))
                 .ToList();

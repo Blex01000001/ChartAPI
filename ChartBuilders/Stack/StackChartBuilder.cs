@@ -1,23 +1,21 @@
 ﻿using ChartAPI.Extensions;
 using System.Reflection;
-using System.Xml.Linq;
 using ChartAPI.DTOs.Charts.Stack;
-using ChartAPI.ChartBuilders.Pie;
 
 namespace ChartAPI.ChartBuilders.Stack
 {
-    public class StackChartBuilder<T> : ChartBuilderBase<T>, IChartBuilder<StackChartDto>
+    public class StackChartBuilder<TModel> : ChartBuilderBase<TModel, StackChartDto>, IStackChartBuilder<TModel>
     {
         private List<StackSerie> _series = new();
         private string _chartName = "";
-        public StackChartBuilder(IEnumerable<T> sourceData, string groupName, string sumPropName)
+        public StackChartBuilder(IEnumerable<TModel> sourceData, string groupName, string sumPropName)
                 : base(sourceData, groupName, sumPropName) { }
-        public StackChartBuilder<T> SetSeries(StackSerie series)
+        public IStackChartBuilder<TModel> SetSeries(StackSerie series)
         {
             _series.Add((StackSerie)series.Clone());
             return this;
         }
-        public StackChartBuilder<T> SetName(string chartName)
+        public IStackChartBuilder<TModel> SetName(string chartName)
         {
             _chartName = chartName;
             return this;
@@ -62,7 +60,7 @@ namespace ChartAPI.ChartBuilders.Stack
                     .ToArray();
             }
         }
-        public StackChartDto Build()
+        public override StackChartDto Build()
         {
             CreateSeries();
             return new StackChartDto(_chartName, CreateAxisTitle(), _series);
