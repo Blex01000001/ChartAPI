@@ -461,7 +461,7 @@ namespace ChartAPI.Repositories
                     {
                         ID = reader["ID"].ToString(),
                         Name = reader["Name"].ToString(),
-                        Value = Convert.ToDouble(reader["TotalHours"])
+                        SumValue = Convert.ToDouble(reader["TotalHours"])
                     };
 
                     // 將 SumItem 加入到 SumModel 的 List 中

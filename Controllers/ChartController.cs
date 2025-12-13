@@ -20,13 +20,16 @@ namespace ChartAPI.Controllers
     {
         private readonly IAnnualSummaryService _annualSummaryService;
         private readonly ICalendarSummaryService _calendarSummaryService;
+        private readonly IDepartmentSummaryService _departmentSummaryService;
         public ChartController(
             IAnnualSummaryService annualSummaryService,
-            ICalendarSummaryService calendarSummaryService
+            ICalendarSummaryService calendarSummaryService,
+            IDepartmentSummaryService departmentSummaryService
             )
         {
             _annualSummaryService = annualSummaryService;
             _calendarSummaryService = calendarSummaryService;
+            _departmentSummaryService = departmentSummaryService;
         }
         [HttpGet("CalendarSummary")]
         public IActionResult GetCalendarSummary([FromQuery] string name, string id = null)
@@ -46,14 +49,16 @@ namespace ChartAPI.Controllers
                 return Ok(new { success = false, message = "姓名或工號擇一填入" });
             return Ok(_annualSummaryService.GetChart(year.Value, name, id));
         }
-        //[HttpGet]
-        //public IActionResult GetDeptYearChartDto([FromQuery] int? year, string dept)
-        //{
-        //    ConsoleExtensions.WriteLineWithTime($"{dept}");
-        //    if (string.IsNullOrWhiteSpace(dept))
-        //        return Ok(new { success = false, message = "dept為空" });
-        //    return Ok(_service.GetDeptYearChartDto(dept));
-        //}
+        [HttpGet("DepartmentSummary")]
+        public IActionResult GetDepartmentSummary([FromQuery] int? year, string deptName)
+        {
+            ConsoleExtensions.WriteLineWithTime($"deptName {deptName}");
+            if (year == null)
+                return Ok(new { success = false, message = "年份為空" });
+            if (string.IsNullOrWhiteSpace(deptName))
+                return Ok(new { success = false, message = "deptName為空" });
+            return Ok(_departmentSummaryService.GetChart(year.Value, deptName));
+        }
         //[HttpGet]
         //public async Task<IActionResult> UpsertDataByDept([FromQuery] string dept, string connectionId)
         //{

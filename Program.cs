@@ -18,6 +18,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
 builder.Services.AddScoped<IAnnualSummaryService, AnnualSummaryService>();
 builder.Services.AddScoped<ICalendarSummaryService, CalendarSummaryService>();
+builder.Services.AddScoped<IDepartmentSummaryService, DepartmentSummaryService>();
+builder.Services.AddScoped<ISumItemQueryService, SumItemQueryService>();
 builder.Services.AddScoped<IManHourRepository, ManHourRepository>();
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 builder.Services.AddScoped<IUpsertDataService, UpsertDataService>();

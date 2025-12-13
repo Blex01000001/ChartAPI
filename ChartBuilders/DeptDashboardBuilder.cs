@@ -12,7 +12,7 @@ namespace ChartAPI.ChartBuilders
         {
             _responseDto = new DeptChartDto();
             _sumModel = sumModel;
-            _sumModel.sumItems = _sumModel.sumItems.OrderByDescending(x => x.Value).Take(30).OrderBy(x => x.Value).ToList();
+            _sumModel.sumItems = _sumModel.sumItems.OrderByDescending(x => x.SumValue).Take(30).OrderBy(x => x.SumValue).ToList();
         }
         private StackChartDto CreateStackChartDto()
         {
@@ -30,7 +30,7 @@ namespace ChartAPI.ChartBuilders
             var AxisTitle = _sumModel.sumItems.Select(x => x.Name).ToArray();
 
             StackChartDto stackChartDto = new StackChartDto(_sumModel.Title, AxisTitle, baseSeries);
-            stackChartDto.Series[0].Values = _sumModel.sumItems.Select(x => x.Value).ToArray();
+            stackChartDto.Series[0].Values = _sumModel.sumItems.Select(x => x.SumValue).ToArray();
 
             return stackChartDto;
         }

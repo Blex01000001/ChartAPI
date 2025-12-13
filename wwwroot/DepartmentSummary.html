@@ -116,7 +116,7 @@
 
     .StackArea {
         width: 900px;
-        height: 1000px;
+        height: 750px;
         /*
         border-color: #0000d9;
         border-style: dashed;
@@ -154,7 +154,7 @@
                 <option value="2020">
             </datalist>
             <!--<input type="text" id="inputIDField" placeholder="部門" style="width: 75px;">-->
-            <input type="text" id="inputDeptField" placeholder="部門" style="width: 75px;" list="DeptHistory">
+            <input type="text" id="inputDeptField" placeholder="部門" style="width: 150px;" list="DeptHistory">
             <datalist id="DeptHistory">
                 <option value="管線設計部">
                 <option value="品質管理組">
@@ -229,21 +229,21 @@
         //console.log(QueryName,QueryYear);
         $.ajax({
             type: "GET",
-            url: "http://localhost:5265/api/Chart/GetDeptYearChartDto",
-            data: { year: QueryYear, dept: QueryDept },
+            url: "http://localhost:5265/api/Chart/DepartmentSummary",
+            data: { year: QueryYear, deptName: QueryDept },
             //dataType: "json",
             success: function (response) {
-                console.log('MonthlyChart success');
+                console.log('DeptChart success');
                 if (response.success === false) {
                     alert(response.message);
                 } else {
                     re = response;
                     //DrawMonthlyChart(response.monthlyChartDtos);
-                    DrawYearChart(response.stackChartDtos[0]);
+                    DrawYearChart(response);
                 }
             },
             error: function (thrownError) {
-                console.log('MonthlyChart error');
+                console.log('DeptChart error');
                 console.log(thrownError);
             }
         });
@@ -314,22 +314,22 @@
             color: ['#ff2c2c', '#CCCC00', '#8CA03C', '#CC66FF', '#0000FF'],
             title: {
                 text: response.name,
-                top: '2%'
+                top: '1%'
             },
             tooltip: {
                 trigger: 'axis',
                 axisPointer: { type: 'shadow' }
             },
             legend: {                 // 啟用圖例
-                show: true,             // 預設就是 true
+                show: false,             // 預設就是 true
                 orient: 'horizontal',   // 'horizontal' 或 'vertical'
                 bottom: '1%'             // 位置: top / bottom / left / right / center
             },
             grid: {
-                top: '15%',
-                left: '4%',
-                right: '4%',
-                bottom: '16%',
+                top: '5%',
+                left: '5%',
+                right: '3%',
+                bottom: '5%',
                 containLabel: true
             },
             yAxis: {
