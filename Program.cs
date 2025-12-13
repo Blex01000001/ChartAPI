@@ -20,7 +20,6 @@ builder.Services.AddScoped<IAnnualSummaryService, AnnualSummaryService>();
 builder.Services.AddScoped<ICalendarSummaryService, CalendarSummaryService>();
 builder.Services.AddScoped<IManHourRepository, ManHourRepository>();
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
-builder.Services.AddScoped<IManHourQueryService, ManHourQueryService>();
 builder.Services.AddScoped<IUpsertDataService, UpsertDataService>();
 builder.Services.AddScoped<IDataInitializer, DataInitializer>();
 

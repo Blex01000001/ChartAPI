@@ -71,7 +71,7 @@ namespace ChartAPI.Services
         //        filter.Set("ID", id);
         //    if (!string.IsNullOrWhiteSpace(name)) 
         //        filter.Set("Name", name);
-            
+
         //    //database查詢
         //    string tableName = "ManHour";
         //    var ManHourList = _dataRepository.GetByFilterAsync(filter);

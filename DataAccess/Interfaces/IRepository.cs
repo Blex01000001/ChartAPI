@@ -1,11 +1,12 @@
 ﻿using ChartAPI.DataAccess.SQLite.QueryBuilders;
 using ChartAPI.Models.Filters;
+using SqlKata;
 
 namespace ChartAPI.DataAccess.Interfaces
 {
     public interface IRepository<TModel>
     {
-        IEnumerable<TModel> GetByQBAsync<T>(QueryBuilder<T> qb);
+        IEnumerable<TModel> GetByQuery(Query query);
         Task InsertAsync(IEnumerable<TModel> models);
         Task DeleteAsync(IEnumerable<TModel> models);
     }

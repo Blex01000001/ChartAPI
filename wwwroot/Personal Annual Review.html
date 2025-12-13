@@ -234,7 +234,7 @@
         //console.log(QueryName,QueryYear);
         $.ajax({
             type: "GET",
-            url: "http://localhost:5265/api/Chart/GetAnnualSummary",
+            url: "http://localhost:5265/api/Chart/AnnualSummary",
             data: { name: QueryName, year: QueryYear, id: QueryID },
             //dataType: "json",
             success: function (response) {

@@ -6,23 +6,23 @@ using ChartAPI.Models.Filters;
 
 namespace ChartAPI.Services.Queries
 {
-    public class ManHourQueryService : IManHourQueryService
-    {
-        private IManHourRepository _manhourRepo;
+    //public class ManHourQueryService : IManHourQueryService
+    //{
+    //    private IManHourRepository _manhourRepo;
 
-        public ManHourQueryService(IManHourRepository repo)
-        {
-            this._manhourRepo = repo;
-        }
+    //    public ManHourQueryService(IManHourRepository repo)
+    //    {
+    //        this._manhourRepo = repo;
+    //    }
 
-        //List<ManHourModel> IManHourQueryService.GetByFilter(IFilter filter)
-        //{
-        //    return _manhourRepo.GetByFilterAsync(filter).ToList();
-        //}
+    //    List<ManHourModel> IManHourQueryService.GetByFilter(IFilter filter)
+    //    {
+    //        return _manhourRepo.GetByFilterAsync(filter).ToList();
+    //    }
 
-        List<ManHourModel> IManHourQueryService.GetByQB<T>(QueryBuilder<T> qb)
-        {
-            return _manhourRepo.GetByQBAsync<T>(qb).ToList();
-        }
-    }
+    //    List<ManHourModel> IManHourQueryService.GetByQB<T>(QueryBuilder<T> qb)
+    //    {
+    //        return _manhourRepo.GetByQBAsync<T>(qb).ToList();
+    //    }
+    //}
 }

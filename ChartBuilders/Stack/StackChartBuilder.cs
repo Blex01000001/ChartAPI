@@ -38,7 +38,7 @@ namespace ChartAPI.ChartBuilders.Stack
             foreach (var serie in _series)
             {
                 // 反射取出 DataItem 的屬性
-                var prop = typeof(T).GetProperty(serie.PropertyName, BindingFlags.Public | BindingFlags.Instance);
+                var prop = typeof(TModel).GetProperty(serie.PropertyName, BindingFlags.Public | BindingFlags.Instance);
                 if (prop == null)
                     throw new ArgumentException($"找不到屬性 {serie.PropertyName}");
 
@@ -54,7 +54,7 @@ namespace ChartAPI.ChartBuilders.Stack
                         .Sum(x =>
                         {
                             // 假設每筆都有 Hours 屬性
-                            var hProp = typeof(T).GetProperty(SumPropName);
+                            var hProp = typeof(TModel).GetProperty(SumPropName);
                             return Convert.ToDouble(hProp.GetValue(x));
                         }))
                     .ToArray();

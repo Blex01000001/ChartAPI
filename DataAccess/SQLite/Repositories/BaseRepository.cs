@@ -7,6 +7,8 @@ using ChartAPI.Extensions;
 using System.Diagnostics;
 using Microsoft.AspNetCore.Http.Extensions;
 using ChartAPI.DataAccess.SQLite.QueryBuilders;
+using SqlKata;
+using SqlKata.Compilers;
 //using static ChartAPI.DataAccess.SQLite.QueryBuilders.QueryBuilder<ChartAPI.Models.ManHourModel>;
 
 namespace ChartAPI.DataAccess.SQLite.Repositories
@@ -34,20 +36,28 @@ namespace ChartAPI.DataAccess.SQLite.Repositories
         //{
         //    return Query(filter);
         //}
-        public IEnumerable<TModel> GetByQBAsync<T>(QueryBuilder<T> qb)
+        public IEnumerable<TModel> GetByQuery(Query query)
         {
             List<TModel> result = new List<TModel>();
             Stopwatch ExecuteReaderTime = new Stopwatch();
             Stopwatch AutoMapReaderTime = new Stopwatch();
 
-            var (sql, ps) = qb.Build();
+            //var (sql, ps) = qb.Build();
+            //ConsoleExtensions.WriteLineWithTime($"SLQ : {sql}");
+
+            SqlResult sqlResult = new SqliteCompiler().Compile(query);
+
+            //string sql2 = re.Sql;
+            //var parameters = re.Bindings;
+            //var ps2 = SqlKataSqliteHelper.ToSqliteParameters(re);
+            //ConsoleExtensions.WriteLineWithTime($"SLQ2: {sql2}");
 
             using (var conn = CreateConnection())
             using (var cmd = conn.CreateCommand())
             {
                 conn.Open();
-                cmd.CommandText = sql;
-                cmd.Parameters.AddRange(ps);
+                cmd.CommandText = sqlResult.Sql;
+                cmd.Parameters.AddRange(SqlKataSqliteHelper.ToSqliteParameters(sqlResult));
                 ExecuteReaderTime.Start();
 
                 using (var reader = cmd.ExecuteReader())

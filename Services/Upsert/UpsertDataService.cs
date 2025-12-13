@@ -8,6 +8,7 @@ using ChartAPI.Models.Filters;
 using ChartAPI.Services.Queries;
 using HtmlAgilityPack;
 using Microsoft.AspNetCore.SignalR;
+using SqlKata;
 using System.Text;
 using System.Web;
 
@@ -33,15 +34,22 @@ namespace ChartAPI.Services.Upsert
         }
         async Task IUpsertDataService.UpsertDataAsync(string name = null, string id = null)
         {
-            var qb = new QueryBuilder<EmployeeModel>("EmpInfo9933");
+            //var qb = new QueryBuilder<EmployeeModel>("EmpInfo9933");
+            //if (!string.IsNullOrWhiteSpace(id))
+            //    qb.Where(x => x.id == id);
+            //if (!string.IsNullOrWhiteSpace(id))
+            //    qb.Where(x => x.employee_name == name);
+
+            Query query = new Query("EmpInfo9933");
+            if (!string.IsNullOrWhiteSpace(name))
+                query.Where("employee_name", name);
             if (!string.IsNullOrWhiteSpace(id))
-                qb.Where(x => x.id == id);
-            if (!string.IsNullOrWhiteSpace(id))
-                qb.Where(x => x.employee_name == name);
-            ConsoleExtensions.WriteLineWithTime($"name:{name} id:{id}");
+                query.Where("employee_id", id);
+
+            ConsoleExtensions.WriteLineWithTime($"Query name:{name} id:{id}");
 
             // 2.撈員工資料
-            IEnumerable<EmployeeModel> employees = _empRepo.GetByQBAsync(qb);
+            List<EmployeeModel> employees = _empRepo.GetByQuery(query).ToList();
 
             if (employees.Count() == 0) // 找不到員工直接新增一個
                 employees = new List<EmployeeModel> { new EmployeeModel { employee_name = name, employee_id = id } };

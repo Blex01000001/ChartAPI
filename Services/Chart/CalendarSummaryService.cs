@@ -1,10 +1,12 @@
 ﻿using ChartAPI.Assemblers.Charts;
+using ChartAPI.DataAccess.Interfaces;
 using ChartAPI.DataAccess.SQLite.QueryBuilders;
 using ChartAPI.DTOs;
 using ChartAPI.Hubs;
 using ChartAPI.Models;
 using ChartAPI.Services.Queries;
 using Microsoft.AspNetCore.SignalR;
+using SqlKata;
 using System.Diagnostics;
 
 namespace ChartAPI.Services.Chart
@@ -12,12 +14,12 @@ namespace ChartAPI.Services.Chart
     public class CalendarSummaryService : ICalendarSummaryService
     {
         private readonly IHubContext<NotifyHub> _hubContext;
-        private readonly IManHourQueryService _manHourQuery;
+        private readonly IManHourRepository _manhourRepo;
         public CalendarSummaryService(
-            IManHourQueryService _manHourQuery,
+            IManHourRepository manHourRepository,
             IHubContext<NotifyHub> hubContext)
         {
-            this._manHourQuery = _manHourQuery;
+            this._manhourRepo = manHourRepository;
             this._hubContext = hubContext;
         }
         public async Task<List<CalendarSummaryDto>> GetChart(string name, string id)
@@ -32,13 +34,19 @@ namespace ChartAPI.Services.Chart
 
         private async Task<List<ManHourModel>> GetManHours(string costCode, string name, string id)
         {
-            var qb = new QueryBuilder<ManHourModel>("ManHour")
-                .Where(x => x.Name == name)
-                .Where(x => x.CostCode == costCode);
-            if (!string.IsNullOrWhiteSpace(id))
-                qb.Where(x => x.ID == id);
+            //var qb = new QueryBuilder<ManHourModel>("ManHour")
+            //    .Where(x => x.Name == name)
+            //    .Where(x => x.CostCode == costCode);
+            //if (!string.IsNullOrWhiteSpace(id))
+            //    qb.Where(x => x.ID == id);
 
-            return _manHourQuery.GetByQB(qb);
+            Query query = new Query("ManHour");
+            if (!string.IsNullOrWhiteSpace(name))
+                query.Where("Name", name);
+            if (!string.IsNullOrWhiteSpace(id))
+                query.Where("ID", id);
+
+            return _manhourRepo.GetByQuery(query).ToList();
         }
     }
 
