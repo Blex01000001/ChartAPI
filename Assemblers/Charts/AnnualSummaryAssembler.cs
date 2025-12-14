@@ -1,11 +1,7 @@
-﻿using ChartAPI.ChartBuilders;
-using ChartAPI.ChartBuilders.Stack;
+﻿using ChartAPI.ChartBuilders.Stack;
 using ChartAPI.ChartBuilders.Pie;
 using ChartAPI.DTOs;
 using ChartAPI.DTOs.Charts.Stack;
-using ChartAPI.Models;
-using System.Collections;
-using System.Xml.Linq;
 using ChartAPI.Extensions;
 using ChartAPI.DTOs.Charts.Pie;
 

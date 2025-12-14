@@ -1,5 +1,4 @@
 ﻿using ChartAPI.DTOs;
-using ChartAPI.Extensions;
 using ChartAPI.Models;
 
 namespace ChartAPI.Assemblers.Charts

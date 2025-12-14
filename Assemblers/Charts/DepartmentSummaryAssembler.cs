@@ -1,5 +1,4 @@
-﻿using ChartAPI.ChartBuilders.Stack;
-using ChartAPI.DTOs.Charts.Stack;
+﻿using ChartAPI.DTOs.Charts.Stack;
 using ChartAPI.Models;
 
 namespace ChartAPI.Assemblers.Charts

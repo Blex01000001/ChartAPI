@@ -1,33 +1,33 @@
 ﻿using System.Data.SQLite;
 
 namespace ChartAPI.Repositories.Query.BuilderTypes
-{    
+{
     /// <summary>
     /// List / Array → IN (...)
     /// </summary>
 
-    public class InSqlBuilder : ISqlBuilder
-    {
-        //public SqlBuildResult Build(string key, object value)
-        //{
-        //    var result = new SqlBuildResult();
+    //public class InSqlBuilder : ISqlBuilder
+    //{
+    //    public SqlBuildResult Build(string key, object value)
+    //    {
+    //        var result = new SqlBuildResult();
 
-        //    var enumerable = (value as System.Collections.IEnumerable)!;
-        //    var items = enumerable.Cast<object>().ToArray();
-        //    if (items.Length == 0)
-        //        return result; // 不產生任何條件
+    //        var enumerable = (value as System.Collections.IEnumerable)!;
+    //        var items = enumerable.Cast<object>().ToArray();
+    //        if (items.Length == 0)
+    //            return result; // 不產生任何條件
 
-        //    var paramNames = new List<string>();
+    //        var paramNames = new List<string>();
 
-        //    for (int i = 0; i < items.Length; i++)
-        //    {
-        //        var pName = $"@{key}_{i}";
-        //        paramNames.Add(pName);
-        //        result.Parameters.Add(new SQLiteParameter(pName, items[i] ?? DBNull.Value));
-        //    }
+    //        for (int i = 0; i < items.Length; i++)
+    //        {
+    //            var pName = $"@{key}_{i}";
+    //            paramNames.Add(pName);
+    //            result.Parameters.Add(new SQLiteParameter(pName, items[i] ?? DBNull.Value));
+    //        }
 
-        //    result.SqlFragment = $" AND {key} IN ({string.Join(",", paramNames)})";
-        //    return result;
-        //}
-    }
+    //        result.SqlFragment = $" AND {key} IN ({string.Join(",", paramNames)})";
+    //        return result;
+    //    }
+    //}
 }

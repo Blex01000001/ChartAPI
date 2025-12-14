@@ -1,16 +1,6 @@
 ﻿using ChartAPI.Extensions;
-using ChartAPI.Interfaces;
-using ChartAPI.Models;
-using ChartAPI.Services;
 using ChartAPI.Services.Chart;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SignalR;
-using System.Linq;
-using System.Net;
-using System.Net.Mail;
-using System.Reflection.Emit;
-using System.Xml.Linq;
 
 namespace ChartAPI.Controllers
 {
