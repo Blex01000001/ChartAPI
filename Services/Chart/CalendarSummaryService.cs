@@ -34,18 +34,12 @@ namespace ChartAPI.Services.Chart
 
         private async Task<List<ManHourModel>> GetManHours(string costCode, string name, string id)
         {
-            //var qb = new QueryBuilder<ManHourModel>("ManHour")
-            //    .Where(x => x.Name == name)
-            //    .Where(x => x.CostCode == costCode);
-            //if (!string.IsNullOrWhiteSpace(id))
-            //    qb.Where(x => x.ID == id);
-
-            Query query = new Query("ManHour");
+            Query query = new Query("ManHour")
+                .Where("CostCode", costCode);
             if (!string.IsNullOrWhiteSpace(name))
                 query.Where("Name", name);
             if (!string.IsNullOrWhiteSpace(id))
                 query.Where("ID", id);
-
             return _manhourRepo.GetByQuery(query).ToList();
         }
     }
