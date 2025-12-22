@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Personal Annual Review</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- ECharts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/6.0.0/echarts.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <!-- html2canvas -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+    <style>
+        /* ===== 全域 ===== */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: "Segoe UI", "Microsoft JhengHei", sans-serif;
+            background: #f0f2f5;
+        }
+
+        h2 {
+            margin: 0 0 12px 0;
+        }
+
+        /* ===== 工具列 ===== */
+        #InputArea {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: #ffffff;
+            border-bottom: 1px solid #ddd;
+            padding: 10px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        #QueryArea,
+        #UpdateArea {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        #QueryArea {
+            background: #e3f2fd;
+            padding: 6px;
+            border-radius: 8px;
+        }
+
+        #UpdateArea {
+            background: #e8f5e9;
+            padding: 6px;
+            border-radius: 8px;
+        }
+
+        input,
+        select,
+        button {
+            padding: 4px 6px;
+        }
+
+        /* ===== 主內容 ===== */
+        .page {
+            max-width: 1200px;
+            margin: auto;
+            padding: 16px;
+        }
+
+        /* ===== 年度總覽 ===== */
+        .annual-section {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .annual-chart {
+            width: 100%;
+            height: 320px;
+        }
+
+        /* ===== 月份區 ===== */
+        .monthly-section {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .month-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .month-header {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .month-content {
+            display: flex;
+            gap: 12px;
+        }
+
+        .pie-area {
+            width: 45%;
+            height: 260px;
+        }
+
+        .stack-area {
+            width: 55%;
+            height: 260px;
+        }
+
+        /* ===== RWD ===== */
+        @media (max-width: 900px) {
+            .month-content {
+                flex-direction: column;
+            }
+
+            .pie-area,
+            .stack-area {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- 工具列 -->
+    <div id="InputArea">
+        <div id="QueryArea">
+            <input type="text" id="inputYearField" placeholder="年份" style="width:70px;">
+            <input type="text" id="inputIDField" placeholder="工號" style="width:70px;">
+            <input type="text" id="inputNameField" placeholder="姓名" style="width:90px;">
+            <button onclick="QueryChartData()">Query</button>
+            <button onclick="SaveAsPNG()">Save PNG</button>
+            <select onchange="UpdateChartSelector(this.value)">
+                <option value="WorkNo">依 WorkNo</option>
+                <option value="CostCode">依 CostCode</option>
+            </select>
+        </div>
+
+        <div id="UpdateArea">
+            <button onclick="UpsertData()">UpsertData</button>
+        </div>
+    </div>
+
+    <div class="page">
+
+        <!-- 年度總覽 -->
+        <section class="annual-section">
+            <h2>年度總覽</h2>
+            <div id="StackContainer"></div>
+        </section>
+
+        <!-- 每月圖表 -->
+        <section class="monthly-section" id="ChartContainer"></section>
+
+    </div>
+
+    <script>
+        const container = document.getElementById('ChartContainer');
+        const chartInstances = {};
+        const chartData = {};
+
+        const monthDict = {
+            1: "January", 2: "February", 3: "March", 4: "April",
+            5: "May", 6: "June", 7: "July", 8: "August",
+            9: "September", 10: "October", 11: "November", 12: "December"
+        };
+
+        function QueryChartData() {
+            $.ajax({
+                type: "GET",
+                url: "http://localhost:5265/api/Chart/AnnualSummary",
+                data: {
+                    year: inputYearField.value,
+                    id: inputIDField.value,
+                    name: inputNameField.value
+                },
+                success: function (res) {
+                    DrawYearChart(res.stackChartDtos[0]);
+                    DrawMonthlyChart(res.monthlyChartDtos);
+                }
+            });
+        }
+
+        function DrawYearChart(response) {
+            StackContainer.innerHTML = "";
+            const div = document.createElement("div");
+            div.className = "annual-chart";
+            StackContainer.appendChild(div);
+
+            const chart = echarts.init(div);
+            chart.setOption({
+                color: ['#ff2c2c', '#CCCC00', '#8CA03C', '#CC66FF', '#0000FF'],
+                title: { text: response.name },
+                tooltip: { trigger: "axis" },
+                legend: { bottom: 0 },
+                xAxis: {
+                    type: "category",
+                    data: response.axisTitle,
+                    name: 'Month',
+                    nameLocation: 'middle',// 名稱位置: 'start' | 'middle' | 'end'
+                    nameTextStyle: {       // 名稱的文字樣式
+                        fontSize: 14,
+                        color: '#333'
+                    },
+                    splitLine: {
+                        show: true,
+                        interval: function (index, value) {
+                            return index !== 0; // index=0 不畫，其他畫
+                        },
+                        lineStyle: {
+                            color: '#858585',
+                            type: 'dashed'
+                        }
+                    }
+                },
+                yAxis: {
+                    type: "value",
+                    name: 'Hour',
+                    nameLocation: 'center', // 僅支援 start, center, end
+                    nameTextStyle: {
+                        fontSize: 14,
+                        color: '#333',
+                        rotate: 90 // 旋轉角度，90 為順時針垂直，-90 為逆時針垂直
+                    }
+
+                },
+                series: response.series.map(s => ({
+                    name: s.name,
+                    type: "bar",
+                    stack: s.stack,
+                    data: s.values,
+                    label: {
+                        show: true,
+                        fontSize: 14,
+                        //color: '#ff0000',
+                        position: 'inside',
+                        verticalAlign: 'middle', //'middle' 'top' 'bottom'
+                        /*offset: [8, 0]*/
+                        formatter: function (params) {
+                            return params.value === 0 ? '' : params.value;
+                        }
+                    },
+
+                }))
+            });
+        }
+
+        function DrawMonthlyChart(data) {
+            container.innerHTML = "";
+
+            data.forEach(m => {
+                const card = document.createElement("div");
+                card.className = "month-card";
+
+                const header = document.createElement("div");
+                header.className = "month-header";
+                header.textContent = monthDict[m.month];
+
+                const content = document.createElement("div");
+                content.className = "month-content";
+
+                const pieDiv = document.createElement("div");
+                pieDiv.className = "pie-area";
+
+                const stackDiv = document.createElement("div");
+                stackDiv.className = "stack-area";
+
+                content.appendChild(pieDiv);
+                content.appendChild(stackDiv);
+
+                card.appendChild(header);
+                card.appendChild(content);
+                container.appendChild(card);
+
+                const pieChart = echarts.init(pieDiv);
+                const stackChart = echarts.init(stackDiv);
+
+                chartInstances[m.month] = pieChart;
+                chartData[m.month] = m.pieChartDic;
+
+                pieChart.setOption({
+                    title: { text: m.pieChartDic.WorkNo.title },
+                    tooltip: { trigger: "item" },
+                    series: [{
+                        type: "pie",
+                        radius: ["25%", "50%"],
+                        data: m.pieChartDic.WorkNo.data
+                    }]
+                });
+
+                stackChart.setOption({
+                    tooltip: { trigger: "axis" },
+                    xAxis: { type: "value", name: 'Hour', nameLocation: 'center', nameGap: 30 },
+                    yAxis: { type: "category", data: m.stackCharts.axisTitle },
+                    series: m.stackCharts.series.map(s => ({
+                        name: s.name,
+                        type: "bar",
+                        stack: "total",
+                        data: s.values
+                    }))
+                });
+            });
+        }
+
+        function UpdateChartSelector(key) {
+            for (const m in chartInstances) {
+                chartInstances[m].setOption({
+                    series: [{ data: chartData[m][key].data }],
+                    title: { text: chartData[m][key].title }
+                });
+            }
+        }
+
+        function SaveAsPNG() {
+            html2canvas(document.querySelector(".page"), { scale: 2 })
+                .then(canvas => {
+                    const a = document.createElement("a");
+                    a.href = canvas.toDataURL();
+                    a.download = "AnnualReview.png";
+                    a.click();
+                });
+        }
+
+        function UpsertData() {
+            $.ajax({
+                type: "POST",
+                url: "http://localhost:5265/api/UpsertData/UpsertData/Upsert",
+                contentType: "application/json",
+                data: JSON.stringify({
+                    id: inputIDField.value,
+                    name: inputNameField.value
+                }),
+                success: res => alert(res.message)
+            });
+        }
+    </script>
+
+</body>
+
+</html>

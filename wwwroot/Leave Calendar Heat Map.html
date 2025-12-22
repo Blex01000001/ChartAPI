@@ -135,7 +135,7 @@
             success: function (response) {
                 console.log('QueryCalendarData success');
                 //console.log(response);
-                DrawCalendar(response);
+                DrawCalendar(response['All']);
             },
             error: function (thrownError) {
                 DrawLine();

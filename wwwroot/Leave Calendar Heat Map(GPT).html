@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Leave Calendar Heat Map</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- ECharts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/6.0.0/echarts.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: "Segoe UI", "Microsoft JhengHei", sans-serif;
+            background: #f4f6f8;
+        }
+
+        /* ===== Toolbar ===== */
+        #InputArea {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            padding: 10px;
+            background: #ffffff;
+            border-bottom: 1px solid #ddd;
+        }
+
+        input,
+        select,
+        button {
+            padding: 4px 6px;
+        }
+
+        /* ===== Page ===== */
+        .page {
+            max-width: 1200px;
+            margin: auto;
+            padding: 16px;
+        }
+
+        /* ===== Dashboard Card ===== */
+        .card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        /* ===== Heat Map ===== */
+        #CalendarChartContainer {
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ===== 工具列 ===== -->
+    <div id="InputArea">
+        <input type="text" id="inputIDField" placeholder="工號" style="width:70px;">
+        <input type="text" id="inputNameField" placeholder="姓名" style="width:90px;">
+        <button onclick="QueryCalendarData()">Query</button>
+
+        <!-- 🔽 動態 Key Selector -->
+        <select id="calendarKeySelector" onchange="OnCalendarKeyChanged(this.value)">
+            <option value="">請先查詢</option>
+        </select>
+
+        <button onclick="SaveAsPNG()">Save PNG</button>
+    </div>
+
+    <div class="page">
+        <div class="card">
+            <div id="CalendarTitle" class="card-title"></div>
+            <div id="CalendarChartContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        const CalendarContainer = document.getElementById('CalendarChartContainer');
+        const CalendarTitle = document.getElementById('CalendarTitle');
+        const KeySelector = document.getElementById('calendarKeySelector');
+
+        let CalendarChart = null;
+        let ChartName = '';
+        let CalendarResponse = {}; // Dictionary<string, List<CalendarSummaryDto>>
+
+        /* =========================
+           Query
+        ========================= */
+        function QueryCalendarData() {
+            const id = inputIDField.value;
+            const name = inputNameField.value;
+            ChartName = `${name} Leave Calendar Heat Map`;
+
+            $.ajax({
+                type: "GET",
+                url: "http://localhost:5265/api/Chart/CalendarSummary",
+                data: { id, name },
+                success: function (response) {
+                    CalendarResponse = response;
+                    BuildKeySelector(response);
+                    const firstKey = Object.keys(response)[0];
+                    if (firstKey) {
+                        KeySelector.value = firstKey;
+                        DrawCalendar(response[firstKey]);
+                    }
+                },
+                error: function (err) {
+                    console.error(err);
+                }
+            });
+        }
+
+        /* =========================
+           下拉選單：列舉所有 Key
+        ========================= */
+        function BuildKeySelector(response) {
+            KeySelector.innerHTML = '';
+            Object.keys(response).forEach(key => {
+                const opt = document.createElement('option');
+                opt.value = key;
+                opt.textContent = key;
+                KeySelector.appendChild(opt);
+            });
+        }
+
+        function OnCalendarKeyChanged(key) {
+            if (!CalendarResponse[key]) return;
+            DrawCalendar(CalendarResponse[key]);
+        }
+
+        /* =========================
+           Heat Map
+        ========================= */
+        function DrawCalendar(data) {
+            const height = data.length * 180 + 120;
+            CalendarContainer.style.height = height + 'px';
+            CalendarTitle.textContent = `${ChartName} - ${KeySelector.value}`;
+
+            if (!CalendarChart) {
+                CalendarChart = echarts.init(CalendarContainer);
+            } else {
+                CalendarChart.clear();
+                CalendarChart.resize();
+            }
+
+            CalendarChart.setOption({
+                tooltip: { position: 'top' },
+                visualMap: {
+                    min: 0,
+                    max: 8,
+                    calculable: true,
+                    orient: 'horizontal',
+                    left: 'center',
+                    top: 30,
+                    inRange: {
+                        color: ['#e3f2fd', '#0d47a1']
+                    }
+                },
+                calendar: data.map((item, idx) => ({
+                    top: 100 + idx * 180,
+                    range: item.year,
+                    cellSize: ['auto', 18],
+                    right: 40,
+                    dayLabel: { firstDay: 1 }
+                })),
+                series: data.map((item, idx) => ({
+                    type: 'heatmap',
+                    coordinateSystem: 'calendar',
+                    calendarIndex: idx,
+                    data: item.data
+                }))
+            }, true);
+        }
+
+        /* =========================
+           Export
+        ========================= */
+        function SaveAsPNG() {
+            if (!CalendarChart) return;
+            const url = CalendarChart.getDataURL({
+                type: 'png',
+                pixelRatio: 2,
+                backgroundColor: '#fff'
+            });
+
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = ChartName + '.png';
+            link.click();
+        }
+    </script>
+
+</body>
+
+</html>

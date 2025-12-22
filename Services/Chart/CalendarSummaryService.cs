@@ -22,9 +22,9 @@ namespace ChartAPI.Services.Chart
             this._manhourRepo = manHourRepository;
             this._hubContext = hubContext;
         }
-        public async Task<List<CalendarSummaryDto>> GetChart(string name, string id)
+        public async Task<Dictionary<string, List<CalendarSummaryDto>>> GetChart(string name, string id)
         {
-            string[] costCode = {"All", "003", "053", "001", "011", "021", "031", "041", "002", "033", "004", "005", "006", "007", "037", "018", "028", "038" };
+            string[] costCode = {"All", "001", "002", "003", "004", "005", "006", "007", "011", "018", "021", "028", "031", "033", "037", "038", "041", "053"};
             var manHourDic = costCode.ToDictionary(x => x, y => GetManHours(y, name, id));
             await Task.WhenAll(manHourDic.Values);
 

@@ -10,7 +10,7 @@ namespace ChartAPI.Assemblers.Charts
         {
             _manHourDic = manHourDic;
         }
-        public List<CalendarSummaryDto> Assemble()
+        public Dictionary<string, List<CalendarSummaryDto>> Assemble()
         {
             List<ManHour> total = new List<ManHour>();
             foreach (var item in _manHourDic)
@@ -19,7 +19,8 @@ namespace ChartAPI.Assemblers.Charts
             }
             _manHourDic["All"] = total;
 
-            return _manHourDic["All"]
+            return _manHourDic.ToDictionary(x => x.Key, 
+                y => y.Value
                 .GroupBy(x => x.Date.Year)
                 .OrderBy(g => g.Key)
                 .Select(yearGroup => new CalendarSummaryDto
@@ -35,7 +36,8 @@ namespace ChartAPI.Assemblers.Charts
                         })
                         .ToList()
                 })
-                .ToList();
+                .OrderByDescending(x => x.Year)
+                .ToList());
         }
     }
 }
