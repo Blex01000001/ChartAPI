@@ -1,11 +1,8 @@
 ﻿using ChartAPI.DataAccess.Interfaces;
 using ChartAPI.DataAccess.SQLite.Initializer;
-using ChartAPI.DataAccess.SQLite.QueryBuilders;
 using ChartAPI.Extensions;
 using ChartAPI.Hubs;
 using ChartAPI.Models;
-using ChartAPI.Models.Filters;
-using ChartAPI.Services.Queries;
 using HtmlAgilityPack;
 using Microsoft.AspNetCore.SignalR;
 using SqlKata;
@@ -34,25 +31,22 @@ namespace ChartAPI.Services.Upsert
         }
         async Task IUpsertDataService.UpsertDataAsync(string name = null, string id = null)
         {
-            //var qb = new QueryBuilder<EmployeeModel>("EmpInfo9933");
-            //if (!string.IsNullOrWhiteSpace(id))
-            //    qb.Where(x => x.id == id);
-            //if (!string.IsNullOrWhiteSpace(id))
-            //    qb.Where(x => x.employee_name == name);
-
+            // 1.建立Query
             Query query = new Query("EmpInfo9933");
             if (!string.IsNullOrWhiteSpace(name))
                 query.Where("employee_name", name);
             if (!string.IsNullOrWhiteSpace(id))
                 query.Where("employee_id", id);
 
-            ConsoleExtensions.WriteLineWithTime($"Query name:{name} id:{id}");
-
             // 2.撈員工資料
             List<EmployeeModel> employees = _empRepo.GetByQuery(query).ToList();
+            ConsoleExtensions.WriteLineWithTime($"Query name:{name} id:{id}");
 
             if (employees.Count() == 0) // 找不到員工直接新增一個
+            {
                 employees = new List<EmployeeModel> { new EmployeeModel { employee_name = name, employee_id = id } };
+                ConsoleExtensions.WriteLineWithTime($"Add name:{name} id:{id}");
+            }
 
             foreach (EmployeeModel employee in employees)
             {
@@ -68,7 +62,6 @@ namespace ChartAPI.Services.Upsert
                 await _manHourRepo.DeleteAsync(manHourModels);
                 //  5.3 插入資料
                 await _manHourRepo.InsertAsync(manHourModels);
-                //_manHourRepo.UpdateToDataBase(manHourModels);
             }
             //await _hubContext.Clients.All.SendAsync("UpsertCompleted", "Completed");
             return;
