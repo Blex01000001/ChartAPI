@@ -1,6 +1,6 @@
 ﻿using ChartAPI.DataAccess.SQLite.Utilities;
+using ChartAPI.Domain.Entities;
 using ChartAPI.Extensions;
-using ChartAPI.Models;
 using SqlKata;
 using SqlKata.Compilers;
 using System.Data.SQLite;
@@ -24,9 +24,9 @@ namespace ChartAPI.Services.Queries
                 ?? throw new InvalidOperationException("Connection string 'DataBaseDir' is missing.");
             this._dataBaseFilePath = Path.Combine(_dataBaseDir, _dBFileName);
         }
-        public IEnumerable<SumItem> GetByQuery(Query query)
+        public IEnumerable<SumEntity> GetByQuery(Query query)
         {
-            List<SumItem> result = new List<SumItem>();
+            List<SumEntity> result = new List<SumEntity>();
             Stopwatch ExecuteReaderTime = new Stopwatch();
             Stopwatch AutoMapReaderTime = new Stopwatch();
 
@@ -46,7 +46,7 @@ namespace ChartAPI.Services.Queries
                     AutoMapReaderTime.Start();
                     while (reader.Read())
                     {
-                        result.Add(_materializer.Map<SumItem>(reader));
+                        result.Add(_materializer.Map<SumEntity>(reader));
                     }
                     AutoMapReaderTime.Stop();
                 }

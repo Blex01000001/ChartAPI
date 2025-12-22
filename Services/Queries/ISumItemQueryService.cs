@@ -1,10 +1,10 @@
-﻿using ChartAPI.Models;
+﻿using ChartAPI.Domain.Entities;
 using SqlKata;
 
 namespace ChartAPI.Services.Queries
 {
     public interface ISumItemQueryService
     {
-        IEnumerable<SumItem> GetByQuery(Query query);
+        IEnumerable<SumEntity> GetByQuery(Query query);
     }
 }

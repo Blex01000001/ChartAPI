@@ -1,13 +1,12 @@
 ﻿using ChartAPI.DataAccess.Interfaces;
 using ChartAPI.DataAccess.SQLite.QueryBuilders;
-using ChartAPI.Models;
-using ChartAPI.Models.Filters;
+using ChartAPI.Domain.Entities;
 
 namespace ChartAPI.Services.Queries
 {
     public interface IManHourQueryService
     {
         //public List<ManHourModel> GetByFilter(IFilter filter);
-        List<ManHourModel> GetByQB<T>(QueryBuilder<T> qb);
+        List<ManHour> GetByQB<T>(QueryBuilder<T> qb);
     }
 }

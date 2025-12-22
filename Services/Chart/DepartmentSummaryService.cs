@@ -1,8 +1,8 @@
 ﻿using ChartAPI.Assemblers.Charts;
 using ChartAPI.DataAccess.Interfaces;
+using ChartAPI.Domain.Entities;
 using ChartAPI.DTOs.Charts.Stack;
 using ChartAPI.Hubs;
-using ChartAPI.Models;
 using ChartAPI.Services.Queries;
 using Microsoft.AspNetCore.SignalR;
 using SqlKata;
@@ -33,7 +33,7 @@ namespace ChartAPI.Services.Chart
                 .GroupBy("mh.ID", "mh.Name")
                 .OrderByDesc("SumValue");
 
-            IEnumerable<SumItem> sumItems = _sumItemQueryService.GetByQuery(query).ToList();
+            IEnumerable<SumEntity> sumItems = _sumItemQueryService.GetByQuery(query).ToList();
 
             return new DepartmentSummaryAssembler(sumItems.Take(30))
                 .SetDept(deptName)

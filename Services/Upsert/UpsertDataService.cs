@@ -1,8 +1,8 @@
 ﻿using ChartAPI.DataAccess.Interfaces;
 using ChartAPI.DataAccess.SQLite.Initializer;
+using ChartAPI.Domain.Entities;
 using ChartAPI.Extensions;
 using ChartAPI.Hubs;
-using ChartAPI.Models;
 using HtmlAgilityPack;
 using Microsoft.AspNetCore.SignalR;
 using SqlKata;
@@ -39,21 +39,21 @@ namespace ChartAPI.Services.Upsert
                 query.Where("employee_id", id);
 
             // 2.撈員工資料
-            List<EmployeeModel> employees = _empRepo.GetByQuery(query).ToList();
+            List<Employee> employees = _empRepo.GetByQuery(query).ToList();
             ConsoleExtensions.WriteLineWithTime($"Query name:{name} id:{id}");
 
             if (employees.Count() == 0) // 找不到員工直接新增一個
             {
-                employees = new List<EmployeeModel> { new EmployeeModel { employee_name = name, employee_id = id } };
+                employees = new List<Employee> { new Employee { employee_name = name, employee_id = id } };
                 ConsoleExtensions.WriteLineWithTime($"Add name:{name} id:{id}");
             }
 
-            foreach (EmployeeModel employee in employees)
+            foreach (Employee employee in employees)
             {
                 // 3.下載最新員工資料
                 string filePath = await DownLoadHtmlTable(employee);
                 // 4.轉換資料
-                List<ManHourModel> manHourModels = ParseHtmlTable(filePath, employee.employee_name, employee.employee_id);
+                List<ManHour> manHourModels = ParseHtmlTable(filePath, employee.employee_name, employee.employee_id);
                 // 5.更新資料到database
                 //  5.1 建表 index
                 await _initializer.EnsureTablesCreatedAsync();
@@ -66,7 +66,7 @@ namespace ChartAPI.Services.Upsert
             //await _hubContext.Clients.All.SendAsync("UpsertCompleted", "Completed");
             return;
         }
-        private async Task<string> DownLoadHtmlTable(EmployeeModel employee)
+        private async Task<string> DownLoadHtmlTable(Employee employee)
         {
             var handler = new HttpClientHandler
             {
@@ -106,9 +106,9 @@ namespace ChartAPI.Services.Upsert
                 return ex.Message;
             }
         }
-        private List<ManHourModel> ParseHtmlTable(string filePath, string name, string id)
+        private List<ManHour> ParseHtmlTable(string filePath, string name, string id)
         {
-            var result = new List<ManHourModel>();
+            var result = new List<ManHour>();
             var htmlDoc = new HtmlDocument();
             htmlDoc.Load(filePath, Encoding.UTF8);
 
@@ -136,7 +136,7 @@ namespace ChartAPI.Services.Upsert
                         double hour = double.Parse(cells[startColumn + j].InnerText.Trim());
                         if (hour == 0) continue;
 
-                        var record = new ManHourModel()
+                        var record = new ManHour()
                         {
                             ID = id,
                             Name = name,

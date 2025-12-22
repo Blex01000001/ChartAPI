@@ -1,7 +1,4 @@
 ﻿using ChartAPI.DataAccess.SQLite.QueryBuilders.Components;
-using ChartAPI.Models.Filters;
-using ChartAPI.Repositories.Query;
-using System.Collections.Generic;
 using System.Data.SQLite;
 using System.Linq.Expressions;
 using System.Text;

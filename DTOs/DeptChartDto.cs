@@ -1,5 +1,4 @@
 ﻿using ChartAPI.DTOs.Charts.Stack;
-using ChartAPI.Models;
 
 namespace ChartAPI.DTOs
 {

@@ -1,7 +1,5 @@
 ﻿using ChartAPI.DTOs.Charts.Pie;
 using ChartAPI.Extensions;
-using ChartAPI.Models;
-using System.Collections.Generic;
 
 namespace ChartAPI.ChartBuilders.Pie
 {

@@ -1,8 +1,6 @@
 ﻿using ChartAPI.DataAccess.Interfaces;
 using ChartAPI.DataAccess.SQLite.QueryBuilders;
 using ChartAPI.DataAccess.SQLite.Repositories;
-using ChartAPI.Models;
-using ChartAPI.Models.Filters;
 
 namespace ChartAPI.Services.Queries
 {

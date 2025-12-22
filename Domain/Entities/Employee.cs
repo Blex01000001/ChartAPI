@@ -1,6 +1,6 @@
-﻿namespace ChartAPI.Models
+﻿namespace ChartAPI.Domain.Entities
 {
-    public class EmployeeModel
+    public class Employee
     {
         public string id { get; set; }
         public string employee_id { get; set; }

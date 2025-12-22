@@ -1,18 +1,18 @@
-﻿using ChartAPI.DTOs;
-using ChartAPI.Models;
+﻿using ChartAPI.Domain.Entities;
+using ChartAPI.DTOs;
 
 namespace ChartAPI.Assemblers.Charts
 {
     public class CalendarSummaryAssembler<T>
     {
-        private Dictionary<string, List<ManHourModel>> _manHourDic;
-        public CalendarSummaryAssembler(Dictionary<string, List<ManHourModel>> manHourDic)
+        private Dictionary<string, List<ManHour>> _manHourDic;
+        public CalendarSummaryAssembler(Dictionary<string, List<ManHour>> manHourDic)
         {
             _manHourDic = manHourDic;
         }
         public List<CalendarSummaryDto> Assemble()
         {
-            List<ManHourModel> total = new List<ManHourModel>();
+            List<ManHour> total = new List<ManHour>();
             foreach (var item in _manHourDic)
             {
                 total.AddRange(item.Value);

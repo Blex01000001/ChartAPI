@@ -7,8 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Models\PieChartData.cs" />
-    <Compile Remove="Models\StackChart.cs" />
+    <Compile Remove="Domain\PieChartData.cs" />
+    <Compile Remove="Domain\StackChart.cs" />
   </ItemGroup>
 
   <ItemGroup>

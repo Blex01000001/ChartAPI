@@ -1,9 +1,8 @@
-﻿using ChartAPI.Models;
-using ChartAPI.Models.Filters;
+﻿using ChartAPI.Domain.Entities;
 
 namespace ChartAPI.DataAccess.Interfaces
 {
-    public interface IManHourRepository : IRepository<ManHourModel>
+    public interface IManHourRepository : IRepository<ManHour>
     {
 
     }

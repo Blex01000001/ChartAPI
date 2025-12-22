@@ -72,13 +72,10 @@ namespace ChartAPI.DataAccess.SQLite.Initializer
             // ---- ManHour 資料表索引 ----
             string[] indexSqlList =
             {
-                //"CREATE INDEX IF NOT EXISTS IDX_ManHour_ID ON ManHour(ID);",
                 "CREATE INDEX IF NOT EXISTS IDX_ManHour_Year_Name_ID ON ManHour(year, name, id)",
                 "CREATE INDEX IF NOT EXISTS IDX_ManHour_Year_ID ON ManHour(year, id)",
-                //"CREATE INDEX IF NOT EXISTS IDX_ManHour_WorkDate ON ManHour(WorkDate);",
-                //"CREATE INDEX IF NOT EXISTS IDX_ManHour_CostCode ON ManHour(CostCode);",
-                //"CREATE INDEX IF NOT EXISTS IX_ManHour_NameIDWeekend ON ManHour(Name, ID, Weekend);"
-                "CREATE INDEX IF NOT EXISTS IDX_EmpInfo9933_ID ON EmpInfo9933(employee_id);"
+                "CREATE INDEX IF NOT EXISTS IDX_ManHour_CostCode_Name ON ManHour(CostCode, Name)",
+                "CREATE INDEX IF NOT EXISTS IDX_EmpInfo9933_ID ON EmpInfo9933(employee_id)"
             };
 
             foreach (var sql in indexSqlList)

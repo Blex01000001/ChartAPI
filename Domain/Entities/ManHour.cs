@@ -1,6 +1,6 @@
-﻿namespace ChartAPI.Models
+﻿namespace ChartAPI.Domain.Entities
 {
-    public class ManHourModel
+    public class ManHour
     {
         public string Name { get; set; }//0
         public string ID { get; set; }

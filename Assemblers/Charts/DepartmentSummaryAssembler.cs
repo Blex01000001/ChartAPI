@@ -1,14 +1,14 @@
-﻿using ChartAPI.DTOs.Charts.Stack;
-using ChartAPI.Models;
+﻿using ChartAPI.Domain.Entities;
+using ChartAPI.DTOs.Charts.Stack;
 
 namespace ChartAPI.Assemblers.Charts
 {
     public class DepartmentSummaryAssembler
     {
-        private IEnumerable<SumItem> _sourceDatas;
+        private IEnumerable<SumEntity> _sourceDatas;
         private string _deptName = string.Empty;
 
-        public DepartmentSummaryAssembler(IEnumerable<SumItem> datas)
+        public DepartmentSummaryAssembler(IEnumerable<SumEntity> datas)
         {
             _sourceDatas = datas.OrderBy(x => x.SumValue);
         }

@@ -1,15 +1,10 @@
 ﻿using ChartAPI.DataAccess.Interfaces;
 using ChartAPI.DataAccess.SQLite.Utilities;
-using ChartAPI.Models.Filters;
 using System.Data.SQLite;
-using ChartAPI.DataAccess.SQLite.QueryBuilders;
 using ChartAPI.Extensions;
 using System.Diagnostics;
-using Microsoft.AspNetCore.Http.Extensions;
-using ChartAPI.DataAccess.SQLite.QueryBuilders;
 using SqlKata;
 using SqlKata.Compilers;
-//using static ChartAPI.DataAccess.SQLite.QueryBuilders.QueryBuilder<ChartAPI.Models.ManHourModel>;
 
 namespace ChartAPI.DataAccess.SQLite.Repositories
 {
@@ -32,10 +27,6 @@ namespace ChartAPI.DataAccess.SQLite.Repositories
         public abstract Task InsertAsync(IEnumerable<TModel> models);
         public abstract Task DeleteAsync(IEnumerable<TModel> models);
 
-        //IEnumerable<TModel> IRepository<TModel>.GetByFilterAsync(IFilter filter)
-        //{
-        //    return Query(filter);
-        //}
         public IEnumerable<TModel> GetByQuery(Query query)
         {
             List<TModel> result = new List<TModel>();

@@ -1,6 +1,4 @@
-﻿using ChartAPI.DataAccess.SQLite.QueryBuilders;
-using ChartAPI.Models.Filters;
-using SqlKata;
+﻿using SqlKata;
 
 namespace ChartAPI.DataAccess.Interfaces
 {

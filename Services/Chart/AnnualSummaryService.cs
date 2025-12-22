@@ -2,11 +2,11 @@
 using Microsoft.AspNetCore.SignalR;
 using ChartAPI.DTOs;
 using ChartAPI.Services.Queries;
-using ChartAPI.Models;
 using ChartAPI.DataAccess.SQLite.QueryBuilders;
 using ChartAPI.Assemblers.Charts;
 using SqlKata;
 using ChartAPI.DataAccess.Interfaces;
+using ChartAPI.Domain.Entities;
 
 namespace ChartAPI.Services.Chart
 {
@@ -38,8 +38,8 @@ namespace ChartAPI.Services.Chart
             if (!string.IsNullOrWhiteSpace(id))
                 query.Where("ID", id);
 
-            List<ManHourModel> manhours = _manhourRepo.GetByQuery(query).ToList();
-            return new AnnualSummaryAssembler<ManHourModel>(manhours)
+            List<ManHour> manhours = _manhourRepo.GetByQuery(query).ToList();
+            return new AnnualSummaryAssembler<ManHour>(manhours)
                 .SetName(name)
                 .Assemble();
 
