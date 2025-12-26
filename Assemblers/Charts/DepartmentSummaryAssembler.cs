@@ -1,5 +1,6 @@
 ﻿using ChartAPI.Domain.Entities;
 using ChartAPI.DTOs.Charts.Stack;
+using ChartAPI.Extensions;
 
 namespace ChartAPI.Assemblers.Charts
 {
@@ -19,10 +20,7 @@ namespace ChartAPI.Assemblers.Charts
         }
         public StackChartDto Assemble()
         {
-            //return new StackChartBuilder<T>(_sourceDatas, "Name", "SumValue")
-            //    .SetName($"{_deptName} 加班年度統計")
-            //    .SetSeries(new StackSerie("Overtime", "SumValue", true))
-            //    .Build();
+            ConsoleExtensions.WriteLineWithTime($"AssembleDepartmentSummary");
             string[] axisTitle = _sourceDatas.Select(x => x.Name).ToArray();
             StackSerie stackSerie = new StackSerie("name", "", "");
             stackSerie.Values = _sourceDatas.Select(x => x.SumValue).ToArray();

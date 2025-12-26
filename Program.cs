@@ -7,6 +7,7 @@ using ChartAPI.Services.Chart;
 using ChartAPI.Services.Queries;
 using ChartAPI.Services.Upsert;
 using ChartAPI.DataAccess.SQLite.Initializer;
+using ChartAPI.Controllers;
 
 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 var builder = WebApplication.CreateBuilder(args);

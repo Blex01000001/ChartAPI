@@ -1,5 +1,6 @@
 ﻿using ChartAPI.Domain.Entities;
 using ChartAPI.DTOs;
+using ChartAPI.Extensions;
 
 namespace ChartAPI.Assemblers.Charts
 {
@@ -12,6 +13,7 @@ namespace ChartAPI.Assemblers.Charts
         }
         public Dictionary<string, List<CalendarSummaryDto>> Assemble()
         {
+            ConsoleExtensions.WriteLineWithTime($"AssembleCalendarSummary");
             List<ManHour> total = new List<ManHour>();
             foreach (var item in _manHourDic)
             {

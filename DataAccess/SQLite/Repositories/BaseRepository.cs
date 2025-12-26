@@ -33,15 +33,7 @@ namespace ChartAPI.DataAccess.SQLite.Repositories
             Stopwatch ExecuteReaderTime = new Stopwatch();
             Stopwatch AutoMapReaderTime = new Stopwatch();
 
-            //var (sql, ps) = qb.Build();
-            //ConsoleExtensions.WriteLineWithTime($"SLQ : {sql}");
-
             SqlResult sqlResult = new SqliteCompiler().Compile(query);
-
-            //string sql2 = re.Sql;
-            //var parameters = re.Bindings;
-            //var ps2 = SqlKataSqliteHelper.ToSqliteParameters(re);
-            //ConsoleExtensions.WriteLineWithTime($"SLQ2: {sql2}");
 
             using (var conn = CreateConnection())
             using (var cmd = conn.CreateCommand())
@@ -62,7 +54,7 @@ namespace ChartAPI.DataAccess.SQLite.Repositories
                     AutoMapReaderTime.Stop();
                 }
             }
-            ConsoleExtensions.WriteLineWithTime($"Query Count: {result.Count}, SQL Execute {ExecuteReaderTime.ElapsedMilliseconds} ms, Materializer Elapsed {AutoMapReaderTime.ElapsedMilliseconds} ms");
+            ConsoleExtensions.WriteLineWithTime($"Query Count: {result.Count}, SQL ExecuteMs {ExecuteReaderTime.ElapsedMilliseconds} , Materializer ElapsedMs {AutoMapReaderTime.ElapsedMilliseconds}");
 
             return result;
         }

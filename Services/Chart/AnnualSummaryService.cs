@@ -7,6 +7,7 @@ using ChartAPI.Assemblers.Charts;
 using SqlKata;
 using ChartAPI.DataAccess.Interfaces;
 using ChartAPI.Domain.Entities;
+using ChartAPI.Extensions;
 
 namespace ChartAPI.Services.Chart
 {
@@ -24,13 +25,6 @@ namespace ChartAPI.Services.Chart
         }
         public AnnualSummaryDto GetChart(int year, string name, string id)
         {
-            //var qb = new QueryBuilder<ManHourModel>("ManHour")
-            //    .Where(x => x.Year == year);
-            //if (!string.IsNullOrWhiteSpace(id))
-            //    qb.Where(x => x.ID == id);
-            //if (!string.IsNullOrWhiteSpace(name))
-            //    qb.Where(x => x.Name == name);
-
             Query query = new Query("ManHour")
                 .Where("Year", year);
             if (!string.IsNullOrWhiteSpace(name))
@@ -39,43 +33,10 @@ namespace ChartAPI.Services.Chart
                 query.Where("ID", id);
 
             List<ManHour> manhours = _manhourRepo.GetByQuery(query).ToList();
+            ConsoleExtensions.WriteLineWithTime($"AssembleAnnualSummary");
             return new AnnualSummaryAssembler<ManHour>(manhours)
                 .SetName(name)
                 .Assemble();
-
-
-            //return new AnnualSummaryDto
-            //{
-            //    //monthlyChartDtos = new MonthlyChartBuilder<ManHourModel>(manhours)
-            //    //    .Build(),
-            //    monthlyChartDtos = manhours
-            //        .GroupByProperty("Month")
-            //        .OrderByDescending(x => x.Key)
-            //        .Select(monthGroup => new MonthlyChartDto()
-            //        {
-            //            Month = (int)monthGroup.Key,
-            //            PieChartDic = new Dictionary<string, PieChartDto>()
-            //            {
-            //                { "WorkNo", new PieChartBuilder<ManHourModel>(monthGroup.ToList(), "WorkNo", "Hours").Build()},
-            //                { "CostCode", new PieChartBuilder<ManHourModel>(monthGroup.ToList(), "CostCode", "Hours").Build()}
-            //            },
-            //            StackCharts = new StackChartBuilder<ManHourModel>(monthGroup, "WorkNo", "Hours")
-            //                .SetSeries(new StackSerie("Regular", "Regular", true, "Regular"))
-            //                .SetSeries(new StackSerie("Overtime", "Overtime", true, "Overtime"))
-            //                .Build()
-            //        }).ToList(),
-
-            //    stackChartDtos = new List<StackChartDto>(){ 
-            //        new StackChartBuilder<ManHourModel>(manhours, "Month", "Hours")
-            //        .SetName($"{name} 加班/請假年度統計")
-            //        .SetSeries(new StackSerie("Overtime", "Overtime", true))
-            //        .SetSeries(new StackSerie("Annual Paid", "CostCode", "003", "Leave"))
-            //        .SetSeries(new StackSerie("Compensatory", "CostCode", "053", "Leave"))
-            //        .SetSeries(new StackSerie("Common sick", "CostCode", "002", "Leave"))
-            //        .SetSeries(new StackSerie("Personal", "CostCode", "001", "Leave"))
-            //        .Build() 
-            //    }
-            //};
         }
 
     }
